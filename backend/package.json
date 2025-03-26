@@ -8,7 +8,7 @@
     "start": "node -r dotenv/config dist/server.js",
     "dev": "tsx watch src/server.ts",
     "build": "tsc && npm run copy-assets",
-    "copy-assets": "mkdir -p dist/templates && cp -r src/templates/* dist/templates/ 2>/dev/null || true",
+    "copy-assets": "mkdir -p dist/templates && (cp -r src/templates/* dist/templates/ || true)",
     "copy-assets-win": "if not exist dist\\templates mkdir dist\\templates && if exist src\\templates\\* xcopy /y /s src\\templates\\* dist\\templates\\",
     "lint": "eslint . --ext .ts",
     "test": "vitest run",
