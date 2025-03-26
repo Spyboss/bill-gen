@@ -17,12 +17,17 @@ import { notFound, errorHandler } from './middleware/errorHandler.js';
 const app = express();
 const port = process.env.PORT || 8080;
 
+// Log CORS settings for debugging
+const corsOrigin = process.env.ALLOW_ORIGIN || process.env.CORS_ORIGIN || '*';
+logger.info(`CORS Origin set to: ${corsOrigin}`);
+
 // Apply middlewares
 app.use(helmet()); // Security headers
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: corsOrigin,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
@@ -32,6 +37,17 @@ app.use(morgan('dev', {
 }));
 
 // Routes
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'Bill Generator API is running',
+    endpoints: [
+      '/api/health',
+      '/api/bills',
+      '/api/bike-models'
+    ]
+  });
+});
 app.use('/api/health', healthRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/bike-models', bikeModelsRoutes);
