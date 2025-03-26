@@ -1,0 +1,7 @@
+{
+  "installCommand": "npm install --no-package-lock",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "nodeVersion": "18",
+  "rootDirectory": "frontend"
+} 
