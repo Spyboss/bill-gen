@@ -17,18 +17,37 @@ import { notFound, errorHandler } from './middleware/errorHandler.js';
 const app = express();
 const port = process.env.PORT || 8080;
 
+// CORS Configuration
+const allowedOrigins = [
+  'https://bill-gen-production.up.railway.app',
+  'https://gunawardanamotors.pages.dev',
+  'http://localhost:5173' // For local development
+];
+
 // Log CORS settings for debugging
-const corsOrigin = process.env.ALLOW_ORIGIN || process.env.CORS_ORIGIN || '*';
-logger.info(`CORS Origin set to: ${corsOrigin}`);
+logger.info(`CORS Origins set to: ${allowedOrigins.join(', ')}`);
 
 // Apply middlewares
 app.use(helmet()); // Security headers
-app.use(cors({
-  origin: corsOrigin,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
+
+// Custom CORS middleware to handle multiple origins
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(morgan('dev', {
