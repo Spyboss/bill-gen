@@ -27,7 +27,7 @@ const App = () => {
         </main>
         
         <footer className="bg-gray-100 py-4 text-center text-gray-600 text-sm mt-auto border-t border-gray-200">
-          <p>Made with ❤️ by Uminda <a href="https://github.com/uhadev" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">@uhadev</a></p>
+          <p>Made with ❤️ by Uminda <a href="https://github.com/Spyboss" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">@uhadev</a></p>
         </footer>
         
         <Toaster position="top-right" />
