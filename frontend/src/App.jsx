@@ -13,9 +13,9 @@ import BillEdit from './pages/BillEdit'
 const App = () => {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar />
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 flex-grow">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/bills" element={<BillList />} />
@@ -25,6 +25,11 @@ const App = () => {
             <Route path="/bills/:id/edit" element={<BillEdit />} />
           </Routes>
         </main>
+        
+        <footer className="bg-gray-100 py-4 text-center text-gray-600 text-sm mt-auto border-t border-gray-200">
+          <p>Made with ❤️ by Uminda <a href="https://github.com/uhadev" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">@uhadev</a></p>
+        </footer>
+        
         <Toaster position="top-right" />
       </div>
     </Router>
