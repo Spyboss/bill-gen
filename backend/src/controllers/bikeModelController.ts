@@ -46,35 +46,59 @@ export const getBikeModelById = async (req: Request, res: Response, next: NextFu
 };
 
 /**
- * Create bike model
+ * Create a new bike model
  * @route POST /api/bike-models
  * @access Private
  */
 export const createBikeModel = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { make, model, year } = req.body;
+    const bikeModel = new BikeModel(req.body);
+    const savedBikeModel = await bikeModel.save();
+    res.status(201).json(savedBikeModel);
+  } catch (error) {
+    logger.error(`Error creating bike model: ${(error as Error).message}`);
+    next(new AppError(`Failed to create bike model: ${(error as Error).message}`, 400));
+  }
+};
+
+/**
+ * Add the TMR-N7 electric tricycle model
+ * @route POST /api/bike-models/add-tmr-n7
+ * @access Private
+ */
+export const addTMRN7Model = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    // Check if model already exists
+    const existingModel = await BikeModel.findOne({ name: 'TMR-N7' });
     
-    const bikeModel = await BikeModel.create({
-      make,
-      bikeModel: model,
-      year: parseInt(year)
+    if (existingModel) {
+      // Update the existing model
+      existingModel.price = 400000;
+      existingModel.is_ebicycle = true;
+      existingModel.can_be_leased = false;
+      existingModel.first_sale = true;
+      
+      const updatedModel = await existingModel.save();
+      res.status(200).json(updatedModel);
+      return;
+    }
+    
+    // Create the TMR-N7 model
+    const tmrN7Model = new BikeModel({
+      name: 'TMR-N7',
+      price: 400000,
+      motor_number_prefix: 'TMRN7',
+      chassis_number_prefix: 'TMRN7',
+      is_ebicycle: true,
+      can_be_leased: false,
+      first_sale: true
     });
     
-    res.status(201).json(bikeModel);
+    const savedModel = await tmrN7Model.save();
+    res.status(201).json(savedModel);
   } catch (error) {
-    // Check for validation errors
-    if (error instanceof mongoose.Error.ValidationError) {
-      const messages = Object.values(error.errors).map(err => err.message);
-      return next(new AppError(`Validation error: ${messages.join(', ')}`, 400));
-    }
-    
-    // Check for duplicate key error
-    if ((error as any).code === 11000) {
-      return next(new AppError('Bike model with this make, model, and year already exists', 400));
-    }
-    
-    logger.error(`Error creating bike model: ${(error as Error).message}`);
-    next(new AppError(`Failed to create bike model: ${(error as Error).message}`, 500));
+    logger.error(`Error adding TMR-N7 model: ${(error as Error).message}`);
+    next(new AppError(`Failed to add TMR-N7 model: ${(error as Error).message}`, 400));
   }
 };
 

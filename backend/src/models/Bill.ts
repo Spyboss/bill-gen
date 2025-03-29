@@ -18,10 +18,12 @@ export interface IBill extends Document {
   motorNumber: string;
   chassisNumber: string;
   bikePrice: number;
+  vehicleType: string;
   
   // Bill type
   billType: 'cash' | 'leasing';
   isEbicycle: boolean;
+  firstSale: boolean;
   
   // RMV/CPZ charges
   rmvCharge: number;
@@ -95,6 +97,11 @@ const BillSchema = new Schema({
     type: Number,
     required: true
   },
+  vehicleType: {
+    type: String,
+    enum: ['Motorcycle', 'Electric Bicycle', 'Electric Tricycle'],
+    default: 'Motorcycle'
+  },
   
   // Bill type
   billType: {
@@ -104,6 +111,10 @@ const BillSchema = new Schema({
     default: 'cash'
   },
   isEbicycle: {
+    type: Boolean,
+    default: false
+  },
+  firstSale: {
     type: Boolean,
     default: false
   },

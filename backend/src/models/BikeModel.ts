@@ -7,6 +7,8 @@ export interface IBikeModel extends Document {
   chassis_number_prefix: string;
   is_ebicycle: boolean;
   can_be_leased: boolean;
+  first_sale: boolean;
+  vehicle_type: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +40,15 @@ const BikeModelSchema = new Schema<IBikeModel>({
   can_be_leased: {
     type: Boolean,
     default: true
+  },
+  first_sale: {
+    type: Boolean,
+    default: true
+  },
+  vehicle_type: {
+    type: String,
+    default: 'Motorcycle',
+    enum: ['Motorcycle', 'Electric Bicycle', 'Electric Tricycle']
   }
 }, {
   timestamps: true,

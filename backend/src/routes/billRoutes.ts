@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import Bill from '../models/Bill.js';
 import { connectToDatabase } from '../config/database.js';
 import { generatePDF } from '../services/pdfService.js';
+import BikeModel from '../models/BikeModel.js';
 
 const router = express.Router();
 
@@ -66,6 +67,24 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     console.log('Received bill data:', req.body);
+    
+    // Check if this is a first sale for the bike model
+    const bikeModel = await BikeModel.findOne({ 
+      $or: [
+        { name: req.body.bikeModel },
+        { model_name: req.body.bikeModel }
+      ]
+    });
+
+    if (bikeModel && bikeModel.first_sale) {
+      // This is the first sale of this model
+      req.body.firstSale = true;
+      
+      // Update the bike model to mark it as no longer a first sale
+      await BikeModel.findByIdAndUpdate(bikeModel._id, {
+        first_sale: false
+      });
+    }
     
     // Create and save the bill
     const newBill = new Bill(req.body);

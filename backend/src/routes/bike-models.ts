@@ -4,7 +4,8 @@ import {
   getBikeModelById,
   createBikeModel,
   updateBikeModel,
-  deleteBikeModel
+  deleteBikeModel,
+  addTMRN7Model
 } from '../controllers/bikeModelController.js';
 
 const router = Router();
@@ -29,6 +30,13 @@ router.get('/:id', getBikeModelById);
  * @access  Private
  */
 router.post('/', createBikeModel);
+
+/**
+ * @route   POST /api/bike-models/add-tmr-n7
+ * @desc    Add TMR-N7 electric tricycle model
+ * @access  Private
+ */
+router.post('/add-tmr-n7', addTMRN7Model);
 
 /**
  * @route   PUT /api/bike-models/:id

@@ -27,7 +27,31 @@ const BillGenerator = () => {
     try {
       const data = await apiClient.get('/bike-models');
       console.log('Fetched bike models:', data);
-      setBikeModels(data);
+      
+      // Check if TMR-N7 model exists
+      const tmrN7Exists = data.some(model => model.name === 'TMR-N7');
+      
+      if (!tmrN7Exists) {
+        // Add the TMR-N7 model locally
+        const tmrN7Model = {
+          _id: 'tmrn7-local-' + Date.now(), // Generate a temporary ID
+          name: 'TMR-N7',
+          price: 400000,
+          motor_number_prefix: 'TMRN7',
+          chassis_number_prefix: 'TMRN7',
+          is_ebicycle: true,
+          can_be_leased: false,
+          first_sale: true,
+          vehicle_type: 'Electric Tricycle'
+        };
+        
+        // Add the model to the list
+        const updatedModels = [...data, tmrN7Model];
+        setBikeModels(updatedModels);
+        console.log('Added TMR-N7 model locally:', updatedModels);
+      } else {
+        setBikeModels(data);
+      }
     } catch (error) {
       console.error('Error fetching bike models:', error);
       message.error('Failed to fetch bike models');
@@ -150,6 +174,16 @@ const BillGenerator = () => {
         return;
       }
       
+      // Determine vehicle type
+      let vehicleType = 'Motorcycle';
+      if (selectedModel.vehicle_type) {
+        vehicleType = selectedModel.vehicle_type;
+      } else if (selectedModel.name === 'TMR-N7') {
+        vehicleType = 'Electric Tricycle';
+      } else if (selectedModel.is_ebicycle) {
+        vehicleType = 'Electric Bicycle';
+      }
+      
       // Create the bill data
       const billData = {
         // Customer details
@@ -162,6 +196,7 @@ const BillGenerator = () => {
         bikePrice: selectedModel.price,
         motorNumber: values.motor_number,
         chassisNumber: values.chassis_number,
+        vehicleType: vehicleType,
         
         // Bill type
         billType: billType,
@@ -233,10 +268,24 @@ const BillGenerator = () => {
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-6">Generate New Bill</h1>
 
-      {selectedModel?.is_ebicycle && (
+      {selectedModel?.is_ebicycle && selectedModel?.name === 'TMR-N7' && (
+        <div className="bg-green-50 p-4 mb-6 rounded border border-green-200">
+          <h3 className="text-green-800 font-medium">🛺 Electric Tricycle Selected!</h3>
+          <p className="text-green-600 text-sm mt-1">This is a brand new TMR-N7 electric tricycle model. Only cash sales are allowed, and no RMV charges apply.</p>
+        </div>
+      )}
+
+      {selectedModel?.is_ebicycle && selectedModel?.name !== 'TMR-N7' && (
         <div className="bg-blue-50 p-4 mb-6 rounded border border-blue-200">
           <h3 className="text-blue-800 font-medium">E-Bicycle Selected</h3>
           <p className="text-blue-600 text-sm mt-1">This is an e-bicycle model. Only cash sales are allowed, and no RMV charges apply.</p>
+        </div>
+      )}
+
+      {selectedModel?.first_sale && (
+        <div className="bg-green-50 p-4 mb-6 rounded border border-green-200">
+          <h3 className="text-green-800 font-medium">🎉 First Sale Opportunity!</h3>
+          <p className="text-green-600 text-sm mt-1">This will be the first sale of the {selectedModel.name} model. Make it special!</p>
         </div>
       )}
 
