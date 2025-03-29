@@ -90,10 +90,21 @@ const generateHeader = (doc: PDFKit.PDFDocument): void => {
 const generateCustomerInformation = (doc: PDFKit.PDFDocument, bill: any): void => {
   // Add first sale indicator if applicable
   if (bill.firstSale) {
-    doc.fontSize(14)
-       .fillColor('#FFD700')
-       .text('🎉 FIRST SALE OF THIS MODEL! 🎉', 50, 160, { align: 'center' })
-       .fillColor('#000000');
+    const isTMRN7 = (bill.bikeModel || bill.model_name || '').includes('TMR-N7');
+    
+    if (isTMRN7) {
+      // Special styling for TMR-N7 first sale
+      doc.fontSize(16)
+         .fillColor('#FFD700')
+         .text('🎉 FIRST TMR-N7 ELECTRIC TRICYCLE SALE! 🎉', 50, 160, { align: 'center' })
+         .fillColor('#000000');
+    } else {
+      // Regular first sale indicator
+      doc.fontSize(14)
+         .fillColor('#FFD700')
+         .text('🎉 FIRST SALE OF THIS MODEL! 🎉', 50, 160, { align: 'center' })
+         .fillColor('#000000');
+    }
   }
   
   // Right side data (Bill No and Date)

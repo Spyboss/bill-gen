@@ -76,14 +76,27 @@ router.post('/', async (req: Request, res: Response) => {
       ]
     });
 
-    if (bikeModel && bikeModel.first_sale) {
-      // This is the first sale of this model
-      req.body.firstSale = true;
+    if (bikeModel) {
+      // For TMR-N7, check if there are any existing bills
+      if (bikeModel.name === 'TMR-N7') {
+        const existingBills = await Bill.find({ 
+          bikeModel: 'TMR-N7',
+          status: { $ne: 'cancelled' } // Don't count cancelled bills
+        });
+        
+        // Only mark as first sale if there are no existing bills
+        req.body.firstSale = existingBills.length === 0;
+      } else {
+        // For other models, use the bike model's first_sale flag
+        req.body.firstSale = bikeModel.first_sale;
+      }
       
-      // Update the bike model to mark it as no longer a first sale
-      await BikeModel.findByIdAndUpdate(bikeModel._id, {
-        first_sale: false
-      });
+      // Update the bike model's first_sale status if this is the first sale
+      if (req.body.firstSale) {
+        await BikeModel.findByIdAndUpdate(bikeModel._id, {
+          first_sale: false
+        });
+      }
     }
     
     // Create and save the bill
