@@ -10,7 +10,7 @@ The system supports three categories of electric vehicles:
 
 1. **E-MOTORCYCLES** - Standard electric motorcycles/scooters
 2. **E-MOTORBICYCLES** - Electric motor bicycles
-3. **E-TRICYCLES** - Electric three-wheeled vehicles
+3. **E-TRICYCLES** - Electric three-wheeled vehicles (Added March 2025)
 
 Each category has different business rules for billing and registration.
 
