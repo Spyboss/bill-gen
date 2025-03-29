@@ -11,7 +11,7 @@ import { AppError } from '../middleware/errorHandler.js';
  */
 export const getAllBikeModels = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const bikeModels = await BikeModel.find().sort({ make: 1, bikeModel: 1 });
+    const bikeModels = await BikeModel.find().sort({ name: 1 });
     res.status(200).json(bikeModels);
   } catch (error) {
     logger.error(`Error getting bike models: ${(error as Error).message}`);
@@ -52,13 +52,20 @@ export const getBikeModelById = async (req: Request, res: Response, next: NextFu
  */
 export const createBikeModel = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { make, model, year } = req.body;
+    const modelData = req.body;
     
-    const bikeModel = await BikeModel.create({
-      make,
-      bikeModel: model,
-      year: parseInt(year)
-    });
+    // Handle special rules for model types
+    if (modelData.is_tricycle) {
+      // Tricycles cannot be leased
+      modelData.can_be_leased = false;
+    }
+    
+    if (modelData.is_ebicycle) {
+      // E-Bicycles cannot be leased
+      modelData.can_be_leased = false;
+    }
+    
+    const bikeModel = await BikeModel.create(modelData);
     
     res.status(201).json(bikeModel);
   } catch (error) {
@@ -70,7 +77,7 @@ export const createBikeModel = async (req: Request, res: Response, next: NextFun
     
     // Check for duplicate key error
     if ((error as any).code === 11000) {
-      return next(new AppError('Bike model with this make, model, and year already exists', 400));
+      return next(new AppError('Bike model with this name already exists', 400));
     }
     
     logger.error(`Error creating bike model: ${(error as Error).message}`);
@@ -86,16 +93,22 @@ export const createBikeModel = async (req: Request, res: Response, next: NextFun
 export const updateBikeModel = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const { make, model, year } = req.body;
+    const updateData = req.body;
     
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return next(new AppError('Invalid bike model ID', 400));
     }
     
-    const updateData: Record<string, any> = {};
-    if (make) updateData.make = make;
-    if (model) updateData.bikeModel = model;
-    if (year) updateData.year = parseInt(year);
+    // Handle special rules for model types
+    if (updateData.is_tricycle) {
+      // Tricycles cannot be leased
+      updateData.can_be_leased = false;
+    }
+    
+    if (updateData.is_ebicycle) {
+      // E-Bicycles cannot be leased
+      updateData.can_be_leased = false;
+    }
     
     const updatedModel = await BikeModel.findByIdAndUpdate(
       id,
@@ -117,7 +130,7 @@ export const updateBikeModel = async (req: Request, res: Response, next: NextFun
     
     // Check for duplicate key error
     if ((error as any).code === 11000) {
-      return next(new AppError('Bike model with this make, model, and year already exists', 400));
+      return next(new AppError('Bike model with this name already exists', 400));
     }
     
     logger.error(`Error updating bike model: ${(error as Error).message}`);

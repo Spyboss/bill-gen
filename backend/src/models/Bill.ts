@@ -18,10 +18,12 @@ export interface IBill extends Document {
   motorNumber: string;
   chassisNumber: string;
   bikePrice: number;
+  vehicleType?: string; // Added for displaying vehicle type
   
   // Bill type
   billType: 'cash' | 'leasing';
   isEbicycle: boolean;
+  isTricycle: boolean; // Added for tricycles
   
   // RMV/CPZ charges
   rmvCharge: number;
@@ -34,6 +36,9 @@ export interface IBill extends Document {
   advanceAmount?: number;
   balanceAmount?: number;
   estimatedDeliveryDate?: Date;
+  
+  // Special handling for first tricycle sale
+  isFirstTricycleSale?: boolean;
   
   // Other details
   totalAmount: number;
@@ -95,6 +100,11 @@ const BillSchema = new Schema({
     type: Number,
     required: true
   },
+  vehicleType: {
+    type: String,
+    enum: ['E-MOTORCYCLE', 'E-MOTORBICYCLE', 'E-TRICYCLE'],
+    default: 'E-MOTORCYCLE'
+  },
   
   // Bill type
   billType: {
@@ -104,6 +114,10 @@ const BillSchema = new Schema({
     default: 'cash'
   },
   isEbicycle: {
+    type: Boolean,
+    default: false
+  },
+  isTricycle: {
     type: Boolean,
     default: false
   },
@@ -132,6 +146,12 @@ const BillSchema = new Schema({
   },
   estimatedDeliveryDate: {
     type: Date
+  },
+  
+  // Special handling for first tricycle sale
+  isFirstTricycleSale: {
+    type: Boolean,
+    default: false
   },
   
   // Other details
@@ -168,6 +188,34 @@ BillSchema.pre('validate', function(this: any, next) {
     this.bill_number = this.billNumber;
   }
   next();
+});
+
+// Set vehicle type based on e-bicycle and tricycle flags
+BillSchema.pre('validate', function(this: any, next) {
+  // Set vehicle type based on flags
+  if (this.isTricycle) {
+    this.vehicleType = 'E-TRICYCLE';
+  } else if (this.isEbicycle) {
+    this.vehicleType = 'E-MOTORBICYCLE';
+  } else {
+    this.vehicleType = 'E-MOTORCYCLE';
+  }
+
+  // For first tricycle sale check
+  if (this.isTricycle && this.isNew) {
+    // Check if this is the first tricycle sale
+    mongoose.model('Bill').countDocuments({ isTricycle: true }).then((count) => {
+      if (count === 0) {
+        this.isFirstTricycleSale = true;
+      }
+      next();
+    }).catch(err => {
+      console.error('Error checking for first tricycle sale:', err);
+      next();
+    });
+  } else {
+    next();
+  }
 });
 
 // Always ensure bill_number matches billNumber before saving

@@ -67,8 +67,63 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     console.log('Received bill data:', req.body);
     
+    const billData = req.body;
+    
+    // Determine vehicle type and set appropriate flags
+    if (billData.isTricycle) {
+      // Tricycle rules:
+      billData.vehicleType = 'E-TRICYCLE';
+      billData.billType = 'cash'; // Only cash sales for tricycles
+      billData.rmvCharge = 0; // No RMV charges for tricycles
+      
+      // Check if this is the first tricycle sale
+      const tricycleBillCount = await Bill.countDocuments({ isTricycle: true });
+      if (tricycleBillCount === 0) {
+        billData.isFirstTricycleSale = true;
+      }
+    } else if (billData.isEbicycle) {
+      // E-Bicycle rules:
+      billData.vehicleType = 'E-MOTORBICYCLE';
+      billData.billType = 'cash'; // Only cash sales for e-bicycles
+      billData.rmvCharge = 0; // No RMV charges for e-bicycles
+    } else {
+      // Regular E-Motorcycle rules:
+      billData.vehicleType = 'E-MOTORCYCLE';
+      
+      // Set correct RMV charge based on bill type
+      if (billData.billType === 'cash') {
+        billData.rmvCharge = 13000;
+      } else if (billData.billType === 'leasing') {
+        billData.rmvCharge = 13500; // CPZ charge
+      }
+    }
+    
+    // Calculate total amount based on vehicle type and bill type
+    if (billData.billType === 'leasing') {
+      // For leasing, total amount is down payment
+      billData.totalAmount = parseFloat(billData.downPayment || 0);
+    } else {
+      // For cash, total depends on vehicle type
+      if (billData.isEbicycle || billData.isTricycle) {
+        // E-Bicycles and Tricycles: just the bike price
+        billData.totalAmount = parseFloat(billData.bikePrice || 0);
+      } else {
+        // Regular E-Motorcycles: bike price + RMV
+        billData.totalAmount = parseFloat(billData.bikePrice || 0) + parseFloat(billData.rmvCharge || 0);
+      }
+    }
+    
+    // Handle advance payment
+    if (billData.isAdvancePayment) {
+      const advanceAmount = parseFloat(billData.advanceAmount || 0);
+      billData.balanceAmount = billData.totalAmount - advanceAmount;
+      billData.status = 'pending'; // Advance payments are pending until fully paid
+    } else {
+      billData.status = 'completed'; // Regular bills are marked as completed by default
+    }
+    
     // Create and save the bill
-    const newBill = new Bill(req.body);
+    const newBill = new Bill(billData);
     const savedBill = await newBill.save();
     
     console.log('Bill saved successfully:', savedBill);

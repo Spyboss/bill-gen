@@ -6,6 +6,7 @@ export interface IBikeModel extends Document {
   motor_number_prefix: string;
   chassis_number_prefix: string;
   is_ebicycle: boolean;
+  is_tricycle: boolean;
   can_be_leased: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -35,6 +36,10 @@ const BikeModelSchema = new Schema<IBikeModel>({
     type: Boolean,
     default: false
   },
+  is_tricycle: {
+    type: Boolean,
+    default: false
+  },
   can_be_leased: {
     type: Boolean,
     default: true
@@ -47,5 +52,15 @@ const BikeModelSchema = new Schema<IBikeModel>({
 
 // Create a text index for search
 BikeModelSchema.index({ name: 'text' });
+
+// Add middleware to handle tricycle models
+BikeModelSchema.pre('save', function(next) {
+  // If this is a tricycle, ensure it can't be leased and isn't marked as ebicycle
+  if (this.is_tricycle) {
+    this.can_be_leased = false;
+    // Note: We don't set is_ebicycle to false in case it's possible to have a tricycle e-bicycle
+  }
+  next();
+});
 
 export default mongoose.model<IBikeModel>('BikeModel', BikeModelSchema); 
