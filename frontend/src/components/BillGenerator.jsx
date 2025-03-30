@@ -48,8 +48,8 @@ const BillGenerator = () => {
         bike_price: model.price,
       });
       
-      // If it's an e-bicycle, enforce cash bill type
-      if (model.is_ebicycle) {
+      // If it's an e-bicycle or a tricycle, enforce cash bill type
+      if (model.is_ebicycle || model.is_tricycle) {
         setBillType('cash');
         // Set price field
         setBikePrice(model.price);
@@ -75,8 +75,8 @@ const BillGenerator = () => {
 
     const bikePrice = parseFloat(model.price);
     
-    // For e-bicycles, the price is already the final price
-    if (model.is_ebicycle) {
+    // For e-bicycles and tricycles, the price is already the final price
+    if (model.is_ebicycle || model.is_tricycle) {
       return bikePrice;
     }
 
@@ -99,6 +99,7 @@ const BillGenerator = () => {
         ...values,
         bill_type: billType.toUpperCase(),
         is_ebicycle: selectedModel?.is_ebicycle || false,
+        is_tricycle: selectedModel?.is_tricycle || false,
         can_be_leased: selectedModel?.can_be_leased || true
       };
       
@@ -106,11 +107,17 @@ const BillGenerator = () => {
       
       // Calculate total amount based on bill type and model
       if (billType === 'cash') {
-        billData.total_amount = selectedModel?.is_ebicycle 
-          ? parseFloat(bikePrice) 
-          : parseFloat(bikePrice) + 13000;
-        billData.rmv_charge = selectedModel?.is_ebicycle ? 0 : 13000;
+        if (selectedModel?.is_ebicycle || selectedModel?.is_tricycle) {
+          // E-Bicycles and Tricycles: no RMV
+          billData.total_amount = parseFloat(bikePrice);
+          billData.rmv_charge = 0;
+        } else {
+          // Regular E-Motorcycles: add RMV
+          billData.total_amount = parseFloat(bikePrice) + 13000;
+          billData.rmv_charge = 13000;
+        }
       } else {
+        // Leasing (only for regular E-Motorcycles)
         billData.total_amount = parseFloat(values.down_payment || 0);
         billData.rmv_charge = 13500;
         billData.is_cpz = true;
@@ -120,6 +127,15 @@ const BillGenerator = () => {
       if (isAdvancePayment) {
         billData.advance_amount = parseFloat(values.advance_amount || 0);
         billData.balance_amount = billData.total_amount - billData.advance_amount;
+      }
+      
+      // Set vehicle type
+      if (selectedModel?.is_tricycle) {
+        billData.vehicle_type = 'E-TRICYCLE';
+      } else if (selectedModel?.is_ebicycle) {
+        billData.vehicle_type = 'E-MOTORBICYCLE';
+      } else {
+        billData.vehicle_type = 'E-MOTORCYCLE';
       }
       
       // Get the preview PDF
@@ -163,12 +179,12 @@ const BillGenerator = () => {
         motorNumber: values.motor_number,
         chassisNumber: values.chassis_number,
         
+        // Vehicle type flags
+        isEbicycle: selectedModel.is_ebicycle || false,
+        isTricycle: selectedModel.is_tricycle || false,
+        
         // Bill type
         billType: billType,
-        isEbicycle: selectedModel.is_ebicycle || false,
-        
-        // RMV/CPZ charges - different amount for leasing (CPZ) vs cash (RMV)
-        rmvCharge: billType === 'leasing' ? 13500 : (selectedModel.is_ebicycle ? 0 : 13000),
         
         // Dates
         billDate: values.bill_date ? values.bill_date.toISOString() : new Date().toISOString(),
@@ -177,8 +193,27 @@ const BillGenerator = () => {
         isAdvancePayment: isAdvancePayment,
       };
       
+      // Set vehicle type
+      if (selectedModel.is_tricycle) {
+        billData.vehicleType = 'E-TRICYCLE';
+        // No RMV charges for tricycles
+        billData.rmvCharge = 0;
+        // Only cash sales for tricycles
+        billData.billType = 'cash';
+      } else if (selectedModel.is_ebicycle) {
+        billData.vehicleType = 'E-MOTORBICYCLE';
+        // No RMV charges for e-bicycles
+        billData.rmvCharge = 0;
+        // Only cash sales for e-bicycles
+        billData.billType = 'cash';
+      } else {
+        billData.vehicleType = 'E-MOTORCYCLE';
+        // RMV charges depend on bill type
+        billData.rmvCharge = billType === 'leasing' ? 13500 : 13000;
+      }
+      
       // Handle bill type specific fields
-      if (billType === 'leasing') {
+      if (billType === 'leasing' && !selectedModel.is_ebicycle && !selectedModel.is_tricycle) {
         // For leasing, add down payment
         const downPayment = parseFloat(values.down_payment || 0);
         billData.downPayment = downPayment;
@@ -198,10 +233,12 @@ const BillGenerator = () => {
         }
       } else {
         // For cash bill
-        // Total amount depends on if it's an e-bicycle
-        billData.totalAmount = selectedModel.is_ebicycle 
-          ? selectedModel.price  // E-bicycles: just the price
-          : selectedModel.price + 13000;  // Regular bikes: price + RMV
+        // Total amount depends on vehicle type
+        if (selectedModel.is_ebicycle || selectedModel.is_tricycle) {
+          billData.totalAmount = selectedModel.price;  // No RMV charges
+        } else {
+          billData.totalAmount = selectedModel.price + 13000;  // Regular bikes: price + RMV
+        }
         
         // Handle advance payment for cash
         if (isAdvancePayment) {
@@ -240,6 +277,13 @@ const BillGenerator = () => {
         </div>
       )}
 
+      {selectedModel?.is_tricycle && (
+        <div className="bg-green-50 p-4 mb-6 rounded border border-green-200">
+          <h3 className="text-green-800 font-medium">E-Tricycle Selected</h3>
+          <p className="text-green-600 text-sm mt-1">This is an e-tricycle model. Only cash sales are allowed, and no RMV charges apply.</p>
+        </div>
+      )}
+
       <Form
         form={form}
         layout="vertical"
@@ -253,17 +297,17 @@ const BillGenerator = () => {
       >
         <Form.Item
           name="model_id"
-          label="Bike Model"
-          rules={[{ required: true, message: 'Please select a bike model' }]}
+          label="Vehicle Model"
+          rules={[{ required: true, message: 'Please select a vehicle model' }]}
         >
           <Select
             onChange={handleModelChange}
-            placeholder="Select bike model"
+            placeholder="Select vehicle model"
             options={bikeModels.map(model => ({
-              label: `${model.name} - Rs. ${model.price?.toLocaleString() || 'N/A'}`,
+              label: `${model.name} - Rs. ${model.price?.toLocaleString() || 'N/A'} ${model.is_tricycle ? '(E-TRICYCLE)' : model.is_ebicycle ? '(E-MOTORBICYCLE)' : '(E-MOTORCYCLE)'}`,
               value: model._id
             }))}
-            notFoundContent={bikeModels.length === 0 ? 'No bike models available' : 'No matching models found'}
+            notFoundContent={bikeModels.length === 0 ? 'No vehicle models available' : 'No matching models found'}
           />
         </Form.Item>
 
@@ -274,18 +318,11 @@ const BillGenerator = () => {
           <Select
             value={billType}
             onChange={(value) => setBillType(value)}
-            disabled={selectedModel?.is_ebicycle}
+            disabled={selectedModel?.is_ebicycle || selectedModel?.is_tricycle}
             options={[
               { label: 'Cash', value: 'cash' },
-              { label: 'Leasing', value: 'leasing', disabled: selectedModel?.is_ebicycle }
+              { label: 'Leasing', value: 'leasing', disabled: selectedModel?.is_ebicycle || selectedModel?.is_tricycle }
             ]}
-          />
-        </Form.Item>
-
-        <Form.Item label="Advance Payment">
-          <Switch
-            checked={isAdvancePayment}
-            onChange={setIsAdvancePayment}
           />
         </Form.Item>
 
@@ -293,38 +330,38 @@ const BillGenerator = () => {
           <Form.Item
             name="down_payment"
             label="Down Payment"
-            rules={[{ required: true, message: 'Please enter the down payment amount' }]}
+            rules={[{ required: billType === 'leasing', message: 'Please enter down payment amount' }]}
           >
             <InputNumber
-              className="w-full"
-              min={1000}
-              step={1000}
-              formatter={value => `Rs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => {
-                const parsed = value.replace(/[^\d]/g, '');
-                return parsed ? parseInt(parsed) : 1000;
-              }}
+              min={0}
+              addonBefore="Rs."
+              style={{ width: '100%' }}
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\₹\s?|(,*)/g, '')}
             />
           </Form.Item>
         )}
+
+        <Form.Item
+          label="Advance Payment"
+          name="is_advance_payment"
+          valuePropName="checked"
+        >
+          <Switch onChange={(checked) => setIsAdvancePayment(checked)} />
+        </Form.Item>
 
         {isAdvancePayment && (
           <Form.Item
             name="advance_amount"
             label="Advance Amount"
-            rules={[{ required: true, message: 'Please enter the advance amount' }]}
+            rules={[{ required: isAdvancePayment, message: 'Please enter advance amount' }]}
           >
             <InputNumber
-              className="w-full"
-              min={1}
-              step={1}
-              formatter={value => `Rs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => {
-                // Clean the input value from non-numeric characters
-                const cleanValue = value.replace(/[^\d]/g, '');
-                // Return a number, or 1 if empty
-                return cleanValue ? parseInt(cleanValue, 10) : 1;
-              }}
+              min={0}
+              addonBefore="Rs."
+              style={{ width: '100%' }}
+              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              parser={value => value.replace(/\₹\s?|(,*)/g, '')}
             />
           </Form.Item>
         )}
