@@ -108,71 +108,95 @@ const generateCustomerInformation = (doc: PDFKit.PDFDocument, bill: any): void =
     .fontSize(14)
     .text('Customer Details:', 50, 140);
   
+  // For the customer name, explicitly handle long names by manually breaking them into multiple lines
+  const nameText = bill.customerName || bill.customer_name || '';
+  
+  // Set starting Y position for customer details
+  let currentY = 160;
+  
+  // Draw the "Name:" label
   doc
     .fontSize(10)
-    .text('Name:', 50, 160)
-    .font('Helvetica-Bold')
-    .text(bill.customerName || bill.customer_name || '', 150, 160, { width: 200, lineBreak: true })
-    .font('Helvetica');
+    .text('Name:', 50, currentY);
   
-  // Calculate the name height to adjust the NIC position
-  const nameText = bill.customerName || bill.customer_name || '';
-  const nameHeight = estimateTextHeight(nameText, 10, 200); // Estimate text height
-  const nicYPosition = 160 + nameHeight + 5; // Add 5px padding
+  // Handle the customer name with explicit line breaking
+  doc.font('Helvetica-Bold');
+  if (nameText.length > 20) {
+    // Split long names into chunks of roughly 20 characters
+    // This ensures even very long names display correctly
+    const chunks = [];
+    let currentChunk = '';
+    const words = nameText.split(' ');
+    
+    words.forEach(word => {
+      if ((currentChunk + ' ' + word).length <= 20) {
+        currentChunk += (currentChunk ? ' ' : '') + word;
+      } else {
+        if (currentChunk) chunks.push(currentChunk);
+        currentChunk = word;
+      }
+    });
+    
+    if (currentChunk) chunks.push(currentChunk);
+    
+    // Render the first chunk at the initial position
+    doc.text(chunks[0], 150, currentY);
+    currentY += 15;
+    
+    // Render any additional chunks on new lines
+    for (let i = 1; i < chunks.length; i++) {
+      doc.text(chunks[i], 150, currentY);
+      currentY += 15;
+    }
+  } else {
+    // For short names, render in a single line
+    doc.text(nameText, 150, currentY);
+    currentY += 15;
+  }
+  
+  // Switch back to normal font
+  doc.font('Helvetica');
+  
+  // Add padding between name and NIC
+  currentY += 5;
+  
+  // Draw NIC and address with calculated positions
+  doc
+    .text('NIC:', 50, currentY)
+    .text(bill.customerNIC || bill.customer_nic || '', 150, currentY, { width: 200 });
+  
+  currentY += 15;
   
   doc
-    .text('NIC:', 50, nicYPosition)
-    .text(bill.customerNIC || bill.customer_nic || '', 150, nicYPosition, { width: 200 });
+    .text('Address:', 50, currentY)
+    .text(bill.customerAddress || bill.customer_address || '', 150, currentY, { width: 200 });
   
-  // Calculate address position based on NIC
-  const addressYPosition = nicYPosition + 15;
-  doc
-    .text('Address:', 50, addressYPosition)
-    .text(bill.customerAddress || bill.customer_address || '', 150, addressYPosition, { width: 200 });
+  // Add spacing before vehicle details
+  currentY += 30;
   
-  // Adjust vehicle details position based on address
-  const vehicleYPosition = addressYPosition + 30;
   doc
     .fontSize(14)
-    .text('Vehicle Details:', 50, vehicleYPosition);
+    .text('Vehicle Details:', 50, currentY);
   
   doc
     .fontSize(10)
-    .text('Model:', 50, vehicleYPosition + 20)
-    .text(bill.bikeModel || bill.model_name || '', 150, vehicleYPosition + 20, { width: 300 })
-    .text('Motor Number:', 50, vehicleYPosition + 35)
-    .text(bill.motorNumber || bill.motor_number || '', 150, vehicleYPosition + 35, { width: 300 })
-    .text('Chassis Number:', 50, vehicleYPosition + 50)
-    .text(bill.chassisNumber || bill.chassis_number || '', 150, vehicleYPosition + 50, { width: 300 });
-};
-
-/**
- * Helper function to estimate text height based on font size and width
- */
-const estimateTextHeight = (text: string, fontSize: number, width: number): number => {
-  if (!text) return fontSize; // Default to single line height
-  
-  // Roughly calculate how many lines the text will take
-  const avgCharWidth = fontSize * 0.6; // Approximate character width
-  const charsPerLine = Math.floor(width / avgCharWidth);
-  const lines = Math.ceil(text.length / charsPerLine);
-  
-  return lines * (fontSize + 2); // fontSize + 2 for line spacing
+    .text('Model:', 50, currentY + 20)
+    .text(bill.bikeModel || bill.model_name || '', 150, currentY + 20, { width: 300 })
+    .text('Motor Number:', 50, currentY + 35)
+    .text(bill.motorNumber || bill.motor_number || '', 150, currentY + 35, { width: 300 })
+    .text('Chassis Number:', 50, currentY + 50)
+    .text(bill.chassisNumber || bill.chassis_number || '', 150, currentY + 50, { width: 300 });
+    
+  // Store the final Y position as a property on the doc object for the invoice table to use
+  (doc as any)._lastDetailY = currentY + 70;
 };
 
 /**
  * Generate the invoice table with payment details
  */
 const generateInvoiceTable = (doc: PDFKit.PDFDocument, bill: any): void => {
-  // Calculate the start position based on vehicle details
-  const nameText = bill.customerName || bill.customer_name || '';
-  const nameHeight = estimateTextHeight(nameText, 10, 200);
-  const nicYPosition = 160 + nameHeight + 5;
-  const addressYPosition = nicYPosition + 15;
-  const vehicleYPosition = addressYPosition + 30;
-  const vehicleDetailsHeight = 70; // Height of the vehicle details section
-  
-  let y = vehicleYPosition + vehicleDetailsHeight + 20; // Add some padding
+  // Get the Y position after customer and vehicle details
+  let y = (doc as any)._lastDetailY || 320;
   
   doc
     .fontSize(14)
