@@ -342,14 +342,26 @@ const generateInvoiceTable = (doc: PDFKit.PDFDocument, bill: any): void => {
     
     // Draw balance row
     doc
+      .fillColor('#f8f4e8') // Light cream background for balance
       .rect(50, y, col1Width, itemRowHeight)
-      .stroke()
+      .fill() // Fill with background color
+      .fillColor('#000000') // Reset to black for text
+      .rect(50, y, col1Width, itemRowHeight)
+      .stroke();
+    
+    doc
+      .fillColor('#f8f4e8') // Light cream background for balance
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
+      .fill() // Fill with background color
+      .fillColor('#000000') // Reset to black for text
       .rect(50 + col1Width, y, col2Width, itemRowHeight)
       .stroke();
     
     doc
+      .font('Helvetica-Bold') // Make the balance bold
       .text('Balance', 60, y + 7)
-      .text(formatAmount(bill.balanceAmount || bill.balance_amount || 0), 60 + col1Width + 20, y + 7);
+      .text(formatAmount(bill.balanceAmount || bill.balance_amount || 0), 60 + col1Width + 20, y + 7)
+      .font('Helvetica'); // Reset font
   } else {
     // Draw the total row with gray background
     doc
