@@ -182,13 +182,15 @@ const generateCustomerInformation = (doc: PDFKit.PDFDocument, bill: any): void =
     .fontSize(10)
     .text('Model:', 50, currentY + 20)
     .text(bill.bikeModel || bill.model_name || '', 150, currentY + 20, { width: 300 })
-    .text('Motor Number:', 50, currentY + 35)
-    .text(bill.motorNumber || bill.motor_number || '', 150, currentY + 35, { width: 300 })
-    .text('Chassis Number:', 50, currentY + 50)
-    .text(bill.chassisNumber || bill.chassis_number || '', 150, currentY + 50, { width: 300 });
+    .text('Type:', 50, currentY + 35)
+    .text(bill.vehicleType || bill.vehicle_type || 'E-MOTORCYCLE', 150, currentY + 35, { width: 300 })
+    .text('Motor Number:', 50, currentY + 50)
+    .text(bill.motorNumber || bill.motor_number || '', 150, currentY + 50, { width: 300 })
+    .text('Chassis Number:', 50, currentY + 65)
+    .text(bill.chassisNumber || bill.chassis_number || '', 150, currentY + 65, { width: 300 });
     
   // Store the final Y position as a property on the doc object for the invoice table to use
-  (doc as any)._lastDetailY = currentY + 70;
+  (doc as any)._lastDetailY = currentY + 85;
 };
 
 /**
