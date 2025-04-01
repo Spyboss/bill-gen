@@ -112,32 +112,67 @@ const generateCustomerInformation = (doc: PDFKit.PDFDocument, bill: any): void =
     .fontSize(10)
     .text('Name:', 50, 160)
     .font('Helvetica-Bold')
-    .text(bill.customerName || bill.customer_name || '', 150, 160, { width: 200 })
-    .font('Helvetica')
-    .text('NIC:', 50, 175)
-    .text(bill.customerNIC || bill.customer_nic || '', 150, 175, { width: 200 })
-    .text('Address:', 50, 190)
-    .text(bill.customerAddress || bill.customer_address || '', 150, 190, { width: 200 });
+    .text(bill.customerName || bill.customer_name || '', 150, 160, { width: 200, lineBreak: true })
+    .font('Helvetica');
+  
+  // Calculate the name height to adjust the NIC position
+  const nameText = bill.customerName || bill.customer_name || '';
+  const nameHeight = estimateTextHeight(nameText, 10, 200); // Estimate text height
+  const nicYPosition = 160 + nameHeight + 5; // Add 5px padding
   
   doc
+    .text('NIC:', 50, nicYPosition)
+    .text(bill.customerNIC || bill.customer_nic || '', 150, nicYPosition, { width: 200 });
+  
+  // Calculate address position based on NIC
+  const addressYPosition = nicYPosition + 15;
+  doc
+    .text('Address:', 50, addressYPosition)
+    .text(bill.customerAddress || bill.customer_address || '', 150, addressYPosition, { width: 200 });
+  
+  // Adjust vehicle details position based on address
+  const vehicleYPosition = addressYPosition + 30;
+  doc
     .fontSize(14)
-    .text('Vehicle Details:', 50, 220);
+    .text('Vehicle Details:', 50, vehicleYPosition);
   
   doc
     .fontSize(10)
-    .text('Model:', 50, 240)
-    .text(bill.bikeModel || bill.model_name || '', 150, 240, { width: 300 })
-    .text('Motor Number:', 50, 255)
-    .text(bill.motorNumber || bill.motor_number || '', 150, 255, { width: 300 })
-    .text('Chassis Number:', 50, 270)
-    .text(bill.chassisNumber || bill.chassis_number || '', 150, 270, { width: 300 });
+    .text('Model:', 50, vehicleYPosition + 20)
+    .text(bill.bikeModel || bill.model_name || '', 150, vehicleYPosition + 20, { width: 300 })
+    .text('Motor Number:', 50, vehicleYPosition + 35)
+    .text(bill.motorNumber || bill.motor_number || '', 150, vehicleYPosition + 35, { width: 300 })
+    .text('Chassis Number:', 50, vehicleYPosition + 50)
+    .text(bill.chassisNumber || bill.chassis_number || '', 150, vehicleYPosition + 50, { width: 300 });
+};
+
+/**
+ * Helper function to estimate text height based on font size and width
+ */
+const estimateTextHeight = (text: string, fontSize: number, width: number): number => {
+  if (!text) return fontSize; // Default to single line height
+  
+  // Roughly calculate how many lines the text will take
+  const avgCharWidth = fontSize * 0.6; // Approximate character width
+  const charsPerLine = Math.floor(width / avgCharWidth);
+  const lines = Math.ceil(text.length / charsPerLine);
+  
+  return lines * (fontSize + 2); // fontSize + 2 for line spacing
 };
 
 /**
  * Generate the invoice table with payment details
  */
 const generateInvoiceTable = (doc: PDFKit.PDFDocument, bill: any): void => {
-  let y = 320;
+  // Calculate the start position based on vehicle details
+  const nameText = bill.customerName || bill.customer_name || '';
+  const nameHeight = estimateTextHeight(nameText, 10, 200);
+  const nicYPosition = 160 + nameHeight + 5;
+  const addressYPosition = nicYPosition + 15;
+  const vehicleYPosition = addressYPosition + 30;
+  const vehicleDetailsHeight = 70; // Height of the vehicle details section
+  
+  let y = vehicleYPosition + vehicleDetailsHeight + 20; // Add some padding
   
   doc
     .fontSize(14)
