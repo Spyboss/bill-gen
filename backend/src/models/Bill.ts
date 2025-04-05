@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import encryptionPlugin from '../utils/encryption-plugin.js';
 
 // Define interface for bill document
 export interface IBill extends Document {
@@ -43,6 +44,9 @@ export interface IBill extends Document {
   // Other details
   totalAmount: number;
   
+  // Owner reference (for authorization)
+  owner: mongoose.Types.ObjectId;
+  
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -76,11 +80,13 @@ const BillSchema = new Schema({
   },
   customerNIC: {
     type: String,
-    required: true
+    required: true,
+    encrypted: true // This field will be encrypted
   },
   customerAddress: {
     type: String,
-    required: true
+    required: true,
+    encrypted: true // This field will be encrypted
   },
   
   // Bike details
@@ -158,6 +164,12 @@ const BillSchema = new Schema({
   totalAmount: {
     type: Number,
     required: true
+  },
+  
+  // Owner reference (for authorization)
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true,
@@ -238,6 +250,14 @@ BillSchema.pre('save', function(this: any, next) {
   
   next();
 });
+
+// Apply the encryption plugin to encrypt/decrypt sensitive fields
+BillSchema.plugin(encryptionPlugin);
+
+// Create indexes for better query performance
+BillSchema.index({ billNumber: 1 });
+BillSchema.index({ owner: 1 });
+BillSchema.index({ customerName: 'text' });
 
 const Bill = mongoose.model<IBill>('Bill', BillSchema);
 

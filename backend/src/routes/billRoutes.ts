@@ -3,11 +3,12 @@ import { ObjectId } from 'mongodb';
 import Bill from '../models/Bill.js';
 import { connectToDatabase } from '../config/database.js';
 import { generatePDF } from '../services/pdfService.js';
+import { authenticate, requireAdmin, requireOwnership, AuthRequest } from '../auth/auth.middleware.js';
 
 const router = express.Router();
 
-// Get all bills with pagination and filtering
-router.get('/', async (req: Request, res: Response) => {
+// Get all bills with pagination and filtering - Protected route
+router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { page = 1, limit = 20, status, search } = req.query;
     const pageNum = parseInt(page as string) || 1;
@@ -16,6 +17,16 @@ router.get('/', async (req: Request, res: Response) => {
     
     // Build filter query
     const filter: any = {};
+    
+    // Filter by owner if not admin
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+    
+    if (!isAdmin && req.user?.id) {
+      // Regular users can only see their own bills
+      filter.owner = req.user.id;
+    }
+    
     if (status) filter.status = status;
     
     // Add search query if provided
@@ -49,25 +60,39 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// Get bill by ID
-router.get('/:id', async (req: Request, res: Response) => {
+// Get bill by ID - Protected route with ownership check
+router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const bill = await Bill.findById(req.params.id);
+    
     if (!bill) {
       return res.status(404).json({ error: 'Bill not found' });
     }
+    
+    // Check ownership or admin status
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+    const isOwner = bill.owner && bill.owner.toString() === req.user?.id;
+    
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'You do not have permission to view this bill' });
+    }
+    
     res.status(200).json(bill);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
 });
 
-// Create new bill
-router.post('/', async (req: Request, res: Response) => {
+// Create new bill - Protected route
+router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     console.log('Received bill data:', req.body);
     
     const billData = req.body;
+    
+    // Set the owner as the current authenticated user
+    billData.owner = req.user?.id;
     
     // Determine vehicle type and set appropriate flags
     if (billData.isTricycle) {
@@ -134,18 +159,35 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// Update bill
-router.put('/:id', async (req: Request, res: Response) => {
+// Update bill - Protected route with ownership check
+router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   try {
+    // First check ownership
+    const bill = await Bill.findById(req.params.id);
+    
+    if (!bill) {
+      return res.status(404).json({ error: 'Bill not found' });
+    }
+    
+    // Check ownership or admin status
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+    const isOwner = bill.owner && bill.owner.toString() === req.user?.id;
+    
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'You do not have permission to update this bill' });
+    }
+    
+    // Don't allow changing the owner
+    if (req.body.owner && !isAdmin) {
+      delete req.body.owner;
+    }
+    
     const updatedBill = await Bill.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
-    
-    if (!updatedBill) {
-      return res.status(404).json({ error: 'Bill not found' });
-    }
     
     res.status(200).json(updatedBill);
   } catch (error) {
@@ -153,25 +195,48 @@ router.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Delete bill
-router.delete('/:id', async (req: Request, res: Response) => {
+// Delete bill - Protected route with ownership check
+router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
   try {
-    const bill = await Bill.findByIdAndDelete(req.params.id);
+    // First check ownership
+    const bill = await Bill.findById(req.params.id);
+    
     if (!bill) {
       return res.status(404).json({ error: 'Bill not found' });
     }
+    
+    // Check ownership or admin status
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+    const isOwner = bill.owner && bill.owner.toString() === req.user?.id;
+    
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'You do not have permission to delete this bill' });
+    }
+    
+    await Bill.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Bill deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
 });
 
-// Generate PDF for a bill
-router.get('/:id/pdf', async (req: Request, res: Response) => {
+// Generate PDF for a bill - Protected route with ownership check
+router.get('/:id/pdf', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const bill = await Bill.findById(req.params.id);
+    
     if (!bill) {
       return res.status(404).json({ error: 'Bill not found' });
+    }
+    
+    // Check ownership or admin status
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+    const isOwner = bill.owner && bill.owner.toString() === req.user?.id;
+    
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'You do not have permission to view this bill' });
     }
     
     const pdfBuffer = await generatePDF(bill);
@@ -184,9 +249,25 @@ router.get('/:id/pdf', async (req: Request, res: Response) => {
   }
 });
 
-// Update bill status
-router.patch('/:id/status', async (req: Request, res: Response) => {
+// Update bill status - Protected route with ownership check
+router.patch('/:id/status', authenticate, async (req: AuthRequest, res: Response) => {
   try {
+    // First check ownership
+    const bill = await Bill.findById(req.params.id);
+    
+    if (!bill) {
+      return res.status(404).json({ error: 'Bill not found' });
+    }
+    
+    // Check ownership or admin status
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+    const isOwner = bill.owner && bill.owner.toString() === req.user?.id;
+    
+    if (!isAdmin && !isOwner) {
+      return res.status(403).json({ error: 'You do not have permission to update this bill' });
+    }
+    
     const { status } = req.body;
     if (!status) {
       return res.status(400).json({ error: 'Status is required' });
@@ -197,10 +278,6 @@ router.patch('/:id/status', async (req: Request, res: Response) => {
       { status },
       { new: true }
     );
-    
-    if (!updatedBill) {
-      return res.status(404).json({ error: 'Bill not found' });
-    }
     
     res.status(200).json(updatedBill);
   } catch (error) {
