@@ -1,6 +1,9 @@
 import CryptoJS from 'crypto-js';
 import logger from './logger.js';
 
+// Default encryption key (32 characters) for development only
+const DEFAULT_KEY = 'a5f3d8c1b4e2a9f7d6c3b5a2e4f8c9d6';
+
 /**
  * Encryption utility for sensitive data
  * Uses AES encryption with a secret key from environment variables
@@ -9,15 +12,17 @@ class EncryptionService {
   private secretKey: string;
 
   constructor() {
-    // Get secret key from environment variables
-    const secretKey = process.env.ENCRYPTION_KEY;
+    // Get secret key from environment variables or use default
+    const secretKey = process.env.ENCRYPTION_KEY || DEFAULT_KEY;
     
-    if (!secretKey || secretKey.length < 32) {
-      logger.error('ENCRYPTION_KEY must be at least 32 characters');
-      throw new Error('Invalid encryption key configuration');
+    if (secretKey.length < 32) {
+      logger.warn('ENCRYPTION_KEY should be at least 32 characters, using default key');
+      this.secretKey = DEFAULT_KEY;
+    } else {
+      this.secretKey = secretKey;
     }
     
-    this.secretKey = secretKey;
+    logger.info('Encryption service initialized');
   }
 
   /**

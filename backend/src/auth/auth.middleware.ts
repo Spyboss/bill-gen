@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from './jwt.strategy.js';
 import User, { UserRole } from '../models/User.js';
+import securityMonitor from '../utils/security-monitor.js';
+import logger from '../utils/logger.js';
 
 // Extend the Request interface to include a user property
 export interface AuthRequest extends Request {
@@ -14,6 +16,7 @@ export interface AuthRequest extends Request {
  * Authentication middleware that verifies JWT tokens
  * Extracts the token from the Authorization header and verifies it
  * Sets the user ID in the request object for use in protected routes
+ * Includes security monitoring for token verification
  */
 export const authenticate = async (
   req: AuthRequest,
@@ -23,8 +26,18 @@ export const authenticate = async (
   try {
     // Get the token from the Authorization header
     const authHeader = req.headers.authorization;
+    const clientIp = req.ip || 'unknown';
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      // Track unauthorized access attempts
+      securityMonitor.trackApiAnomaly(
+        'unknown', 
+        clientIp, 
+        `${req.method}:${req.baseUrl}${req.path}:NO_TOKEN`
+      ).catch(error => {
+        logger.error(`Error tracking API anomaly: ${(error as Error).message}`);
+      });
+      
       res.status(401).json({ message: 'No token provided' });
       return;
     }
@@ -35,6 +48,15 @@ export const authenticate = async (
     const payload = await verifyToken(token);
     
     if (!payload || !payload.sub) {
+      // Track invalid token usage
+      securityMonitor.trackApiAnomaly(
+        'unknown', 
+        clientIp, 
+        `${req.method}:${req.baseUrl}${req.path}:INVALID_TOKEN`
+      ).catch(error => {
+        logger.error(`Error tracking API anomaly: ${(error as Error).message}`);
+      });
+      
       res.status(401).json({ message: 'Invalid token' });
       return;
     }
@@ -46,7 +68,20 @@ export const authenticate = async (
     
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
+    const clientIp = req.ip || 'unknown';
+    
+    // Log and track token verification failures
+    logger.error(`Authentication error: ${(error as Error).message}`);
+    
+    // Track token verification failures
+    securityMonitor.trackApiAnomaly(
+      'unknown', 
+      clientIp, 
+      `${req.method}:${req.baseUrl}${req.path}:TOKEN_VERIFICATION_FAILED`
+    ).catch(err => {
+      logger.error(`Error tracking API anomaly: ${(err as Error).message}`);
+    });
+    
     res.status(401).json({ message: 'Authentication failed' });
   }
 };

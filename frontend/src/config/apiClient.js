@@ -58,13 +58,17 @@ class ApiClient {
         // Always use axios for PDF requests with blob responseType
         console.log('Using axios for PDF with responseType: blob');
         
+        // Get the current authorization token
+        const token = localStorage.getItem('accessToken');
+        
         // Create a custom instance with extended timeout for PDFs
         const pdfAxiosInstance = axios.create({
           baseURL: this.baseURL,
           timeout: 240000, // 4 minutes timeout for PDFs
           responseType: 'blob',
-  headers: {
-            'Accept': 'application/pdf'
+          headers: {
+            'Accept': 'application/pdf',
+            'Authorization': token ? `Bearer ${token}` : undefined
           }
         });
         

@@ -41,4 +41,11 @@ router.post('/logout', authController.logout);
  */
 router.get('/me', authenticate, authController.getCurrentUser);
 
+/**
+ * @route  POST /api/auth/create-admin
+ * @desc   Create an admin user (protected by setup key)
+ * @access Public (but protected by setup key)
+ */
+router.post('/create-admin', authController.createAdmin);
+
 export default router; 

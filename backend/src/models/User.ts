@@ -11,7 +11,12 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: UserRole;
+  name?: string; // Added field for user's name
+  nic?: string; // Added field for National Identity Card number
+  address?: string; // Added field for user's address
+  phoneNumber?: string; // Added field for user's phone number
   refreshToken?: string;
+  refreshTokenHash?: string; // Added field for token hash
   lastLogin?: Date;
   deletedAt?: Date; // New field to track account deletion
   loginAttempts?: number; // Track failed login attempts for security
@@ -41,7 +46,27 @@ const UserSchema = new Schema<IUser>({
     enum: Object.values(UserRole),
     default: UserRole.USER
   },
+  name: {
+    type: String,
+    trim: true
+  },
+  nic: {
+    type: String,
+    trim: true
+  },
+  address: {
+    type: String,
+    trim: true
+  },
+  phoneNumber: {
+    type: String,
+    trim: true
+  },
   refreshToken: {
+    type: String,
+    select: false
+  },
+  refreshTokenHash: {
     type: String,
     select: false
   },
@@ -67,6 +92,7 @@ const UserSchema = new Schema<IUser>({
     transform: function(doc, ret) {
       delete ret.password;
       delete ret.refreshToken;
+      delete ret.refreshTokenHash;
       return ret;
     }
   }
