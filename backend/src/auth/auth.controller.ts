@@ -11,7 +11,7 @@ import {
 import { Types } from 'mongoose';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
-import crypto, { createHash } from 'crypto';
+import * as crypto from 'crypto';
 
 // Define the extended Request type with user property
 interface AuthRequest extends Request {
@@ -325,7 +325,7 @@ const securityDelay = async (): Promise<void> => {
  * This prevents an attacker who gains access to the database from being able to use the tokens
  */
 const hashToken = (token: string): string => {
-  return createHash('sha256')
+  return crypto.createHash('sha256')
     .update(token + process.env.JWT_SECRET)
     .digest('hex');
 };
