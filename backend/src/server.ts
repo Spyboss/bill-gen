@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load .env file from project root
-dotenv.config({ 
+dotenv.config({
   path: path.resolve(__dirname, '../.env')
 });
 
@@ -32,6 +32,7 @@ import logger from './utils/logger.js';
 import billRoutes from './routes/billRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
 import bikeModelsRoutes from './routes/bike-models.js';
+import inventoryRoutes from './routes/inventoryRoutes.js';
 import authRoutes from './auth/auth.routes.js';
 import gdprRoutes from './routes/gdprRoutes.js';
 import { apiRateLimit } from './auth/rate-limit.middleware.js';
@@ -89,12 +90,12 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
-  
+
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  
+
   next();
 });
 
@@ -130,6 +131,7 @@ app.get('/', (req, res) => {
       '/api/auth',
       '/api/bills',
       '/api/bike-models',
+      '/api/inventory',
       '/api/gdpr'
     ]
   });
@@ -138,6 +140,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/bike-models', bikeModelsRoutes);
+app.use('/api/inventory', inventoryRoutes);
 app.use('/api/gdpr', gdprRoutes);
 
 // Error handling
@@ -157,21 +160,21 @@ if (args.includes('--create-admin')) {
       const emailArg = args.find(arg => arg.startsWith('--email='));
       const passwordArg = args.find(arg => arg.startsWith('--password='));
       const nameArg = args.find(arg => arg.startsWith('--name='));
-      
+
       if (!emailArg || !passwordArg) {
         console.error('Error: Admin creation requires --email=email@example.com and --password=yourpassword');
         process.exit(1);
       }
-      
+
       const email = emailArg.split('=')[1];
       const password = passwordArg.split('=')[1];
       const name = nameArg ? nameArg.split('=')[1] : 'System Administrator';
-      
+
       // Connect to database explicitly
       logger.info('Connecting to MongoDB for admin creation...');
       await connectToMongoose();
       logger.info('Connected to MongoDB');
-      
+
       // Check if admin user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -179,7 +182,7 @@ if (args.includes('--create-admin')) {
         await closeDatabaseConnection();
         process.exit(0);
       }
-      
+
       // Create admin user
       const user = await User.create({
         email,
@@ -187,9 +190,9 @@ if (args.includes('--create-admin')) {
         name,
         role: 'admin'
       });
-      
+
       logger.info(`Admin user created successfully: ${email} (ID: ${user._id})`);
-      
+
       // Close database connection
       await closeDatabaseConnection();
       process.exit(0);
@@ -204,17 +207,17 @@ if (args.includes('--create-admin')) {
     try {
       // Connect to database
       await connectToMongoose();
-      
+
       // Initialize Redis
       getRedisClient();
-      
+
       logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${port}`);
     } catch (error) {
       logger.error(`Server startup error: ${error}`);
       process.exit(1);
     }
   });
-  
+
   // Graceful shutdown
   process.on('SIGINT', async () => {
     logger.info('SIGINT signal received: closing HTTP server');
@@ -225,4 +228,4 @@ if (args.includes('--create-admin')) {
       process.exit(0);
     });
   });
-} 
+}
