@@ -11,7 +11,8 @@ import {
 import { Types } from 'mongoose';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
-import { createHash } from 'crypto';
+import * as crypto from 'crypto';
+console.log('typeof crypto at top of auth.controller:', typeof crypto);
 
 // Define the extended Request type with user property
 interface AuthRequest extends Request {
@@ -168,7 +169,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       }
     });
   } catch (error) {
-    logger.error(`Login error: ${(error as Error).message}`);
+    console.error('Login error:', error);
+    if (error && error.stack) {
+      console.error('Stack trace:', error.stack);
+    }
+    logger.error('Login error:', error);
     res.status(500).json({ message: 'Error during login' });
   }
 };
@@ -325,7 +330,7 @@ const securityDelay = async (): Promise<void> => {
  * This prevents an attacker who gains access to the database from being able to use the tokens
  */
 const hashToken = (token: string): string => {
-  return createHash('sha256')
+  return crypto.createHash('sha256')
     .update(token + process.env.JWT_SECRET)
     .digest('hex');
 };

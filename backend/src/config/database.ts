@@ -32,7 +32,8 @@ export const connectToDatabase = async (): Promise<Db> => {
 
 // MongoDB connection options for Mongoose
 const mongooseOptions: mongoose.ConnectOptions = {
-  autoIndex: process.env.NODE_ENV !== 'production', // Don't build indexes in production
+  // Only build indexes automatically in development
+  autoIndex: process.env.NODE_ENV === 'development',
   serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
   socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
 };

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "rm -rf dist && vite build",
+    "build:prod": "rm -rf dist && NODE_ENV=production vite build",
     "preview": "vite preview",
     "test": "echo \"No frontend tests specified\"",
     "lint": "echo \"No linting configured\""

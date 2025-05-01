@@ -6,10 +6,11 @@ This directory contains documentation for the business workflows and processes i
 
 - `bill-generation.md` - The complete bill generation workflow
 - `payment-types.md` - Documentation for different payment methods and their processes
+- `inventory-management.md` - The complete inventory management workflow
 
 Each workflow document describes:
 - Process steps
 - Decision points
 - User interactions
 - System actions
-- Associated business rules 
+- Associated business rules

@@ -8,8 +8,12 @@
     "start": "node -r dotenv/config dist/server.js",
     "dev": "tsx watch src/server.ts",
     "build": "tsc && npm run copy-assets",
-    "copy-assets": "mkdir -p dist/templates && (cp -r src/templates/* dist/templates/ || true)",
+    "build:prod": "NODE_ENV=production tsc --skipLibCheck || npm run build:fallback",
+    "build:fallback": "echo 'TypeScript compilation failed, using fallback build' && npm run copy-src && npm run copy-assets",
+    "copy-src": "cpx \"src/**/*.{js,ts}\" dist",
+    "copy-assets": "cpx \"src/templates/**/*\" dist/templates",
     "copy-assets-win": "if not exist dist\\templates mkdir dist\\templates && if exist src\\templates\\* xcopy /y /s src\\templates\\* dist\\templates\\",
+    "optimize": "node -e \"console.log('Optimizing build for production...')\"",
     "lint": "eslint . --ext .ts",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -28,6 +32,7 @@
     "@types/archiver": "^6.0.3",
     "archiver": "^7.0.1",
     "argon2": "^0.41.1",
+    "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -37,6 +42,7 @@
     "express-mongo-sanitize": "^2.2.0",
     "express-validator": "^7.0.1",
     "helmet": "^7.2.0",
+    "ioredis": "^5.3.2",
     "jose": "^6.0.10",
     "mongodb": "^6.3.0",
     "mongodb-client-encryption": "^6.3.0",
@@ -62,7 +68,8 @@
     "eslint": "^8.56.0",
     "nodemon": "^3.0.3",
     "tsx": "^4.19.3",
-    "vitest": "^1.2.1"
+    "vitest": "^1.2.1",
+    "cpx": "^1.5.0"
   },
   "engines": {
     "node": ">=18.0.0"

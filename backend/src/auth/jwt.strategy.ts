@@ -1,8 +1,10 @@
 import { SignJWT, jwtVerify } from 'jose';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { getRedisClient } from '../config/redis.js';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
+
+console.log('typeof crypto at top of jwt.strategy:', typeof crypto);
 
 // 256-bit secret (32 chars) from env
 const getSecret = () => {
@@ -15,6 +17,7 @@ const getSecret = () => {
     secret = secret.padEnd(32, 'x');
     logger.warn('JWT_SECRET was padded to 32 characters for development mode');
   } else if (secret.length < 32) {
+    // In production, throw error if not secure
     throw new Error('JWT_SECRET must be at least 32 characters');
   }
   
@@ -31,6 +34,7 @@ const REFRESH_TOKEN_EXPIRY_SECONDS = process.env.NODE_ENV === 'production' ? 7 *
  * @returns Signed JWT token
  */
 export const createToken = async (userId: string): Promise<string> => {
+  console.log('typeof crypto in createToken:', typeof crypto);
   const tokenId = crypto.randomBytes(16).toString('hex'); // Unique token ID for revocation
   
   return await new SignJWT({ 

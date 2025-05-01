@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  api:
+    image: bill-gen:production
+    container_name: bill-gen-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    volumes:
+      - bill-gen-logs:/app/logs
+
+volumes:
+  bill-gen-logs:
