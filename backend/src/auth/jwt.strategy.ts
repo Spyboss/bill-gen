@@ -4,6 +4,8 @@ import { getRedisClient } from '../config/redis.js';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
 
+console.log('typeof crypto:', typeof crypto);
+
 // 256-bit secret (32 chars) from env
 const getSecret = () => {
   let secret = process.env.JWT_SECRET || '';
