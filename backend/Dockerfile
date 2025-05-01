@@ -1,12 +1,15 @@
-FROM node:18-alpine
+# Using Node.js 22 bookworm-slim variant for better security and stability
+# This is the recommended tag for production use
+FROM node:22-bookworm-slim AS builder
 
+# Set working directory
 WORKDIR /app
 
 # Copy package.json first for better caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install express cors helmet morgan dotenv mongoose mongodb pdfkit fs-extra
+# Install dependencies with exact versions for better security
+RUN npm ci --only=production
 
 # Create directories
 RUN mkdir -p src/utils src/models src/services templates
@@ -991,15 +994,37 @@ NODE_ENV=production\n\
 MONGODB_URI=mongodb+srv://gunawardhanamotorsembilipitiya:0Mu8lMAFac5hMdcP@bill-gen-cluster.riyvl.mongodb.net/bill-gen?retryWrites=true&w=majority&appName=bill-gen-cluster\n\
 CORS_ORIGIN=https://bill-gen-saas.pages.dev,https://web-production-0ed6.up.railway.app' > .env
 
-# Verify files
-RUN ls -la
-RUN ls -la src
-RUN ls -la src/utils
-RUN ls -la src/models
-RUN ls -la src/services
+# Create a smaller production image
+# Using the same Node.js 22 bookworm-slim variant for the final image
+FROM node:22-bookworm-slim
 
-# Expose the port the app will run on
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
+
+# Create a non-root user
+RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder stage
+COPY --from=builder /app/src ./src
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.env ./.env
+
+# Set proper permissions
+RUN chown -R nodejs:nodejs /app
+
+# Switch to non-root user
+USER nodejs
+
+# Expose the port the app runs on
 EXPOSE 8080
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8080/api/health || exit 1
+
 # Start the application
-CMD ["node", "src/server.js"] 
+CMD ["node", "src/server.js"]
