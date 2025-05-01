@@ -169,7 +169,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       }
     });
   } catch (error) {
-    logger.error(`Login error: ${(error as Error).message}`);
+    logger.error('Login error:', error);
     res.status(500).json({ message: 'Error during login' });
   }
 };
