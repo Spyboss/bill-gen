@@ -8,45 +8,48 @@ export interface IBill extends Document {
   bill_number: string;
   billDate: Date;
   status: 'pending' | 'completed' | 'cancelled';
-  
+
   // Customer details
   customerName: string;
   customerNIC: string;
   customerAddress: string;
-  
+
   // Bike details
   bikeModel: string;
   motorNumber: string;
   chassisNumber: string;
   bikePrice: number;
   vehicleType?: string; // Added for displaying vehicle type
-  
+
+  // Inventory reference
+  inventoryItemId?: mongoose.Types.ObjectId; // Reference to the inventory item
+
   // Bill type
   billType: 'cash' | 'leasing';
   isEbicycle: boolean;
   isTricycle: boolean; // Added for tricycles
-  
+
   // RMV/CPZ charges
   rmvCharge: number;
-  
+
   // Leasing details
   downPayment?: number;
-  
+
   // Advance payment details
   isAdvancePayment: boolean;
   advanceAmount?: number;
   balanceAmount?: number;
   estimatedDeliveryDate?: Date;
-  
+
   // Special handling for first tricycle sale
   isFirstTricycleSale?: boolean;
-  
+
   // Other details
   totalAmount: number;
-  
+
   // Owner reference (for authorization)
   owner: mongoose.Types.ObjectId;
-  
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -72,7 +75,7 @@ const BillSchema = new Schema({
     enum: ['pending', 'completed', 'cancelled'],
     default: 'pending'
   },
-  
+
   // Customer details
   customerName: {
     type: String,
@@ -88,7 +91,7 @@ const BillSchema = new Schema({
     required: true,
     encrypted: true // This field will be encrypted
   },
-  
+
   // Bike details
   bikeModel: {
     type: String,
@@ -111,7 +114,13 @@ const BillSchema = new Schema({
     enum: ['E-MOTORCYCLE', 'E-MOTORBICYCLE', 'E-TRICYCLE'],
     default: 'E-MOTORCYCLE'
   },
-  
+
+  // Inventory reference
+  inventoryItemId: {
+    type: Schema.Types.ObjectId,
+    ref: 'BikeInventory'
+  },
+
   // Bill type
   billType: {
     type: String,
@@ -127,18 +136,18 @@ const BillSchema = new Schema({
     type: Boolean,
     default: false
   },
-  
+
   // RMV/CPZ charges
   rmvCharge: {
     type: Number,
     default: 13000
   },
-  
+
   // Leasing details
   downPayment: {
     type: Number
   },
-  
+
   // Advance payment details
   isAdvancePayment: {
     type: Boolean,
@@ -153,19 +162,19 @@ const BillSchema = new Schema({
   estimatedDeliveryDate: {
     type: Date
   },
-  
+
   // Special handling for first tricycle sale
   isFirstTricycleSale: {
     type: Boolean,
     default: false
   },
-  
+
   // Other details
   totalAmount: {
     type: Number,
     required: true
   },
-  
+
   // Owner reference (for authorization)
   owner: {
     type: Schema.Types.ObjectId,
@@ -173,7 +182,7 @@ const BillSchema = new Schema({
   }
 }, {
   timestamps: true,
-  toJSON: { 
+  toJSON: {
     transform: function (doc, ret) {
       // Ensure billNumber and bill_number are in sync
       if (ret.billNumber && !ret.bill_number) {
@@ -182,7 +191,7 @@ const BillSchema = new Schema({
         ret.billNumber = ret.bill_number;
       }
       return ret;
-    } 
+    }
   }
 });
 
@@ -195,7 +204,7 @@ BillSchema.pre('validate', function(this: any, next) {
     const day = date.getDate().toString().padStart(2, '0');
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     this.billNumber = `BILL-${year}${month}${day}-${random}`;
-    
+
     // Also set bill_number for backward compatibility
     this.bill_number = this.billNumber;
   }
@@ -237,7 +246,7 @@ BillSchema.pre('save', function(this: any, next) {
   } else if (this.bill_number) {
     this.billNumber = this.bill_number;
   }
-  
+
   // Set default status based on bill type if it's a new document
   if (this.isNew && this.status === 'pending') {
     // If it's an advancement bill, keep it as pending
@@ -247,7 +256,7 @@ BillSchema.pre('save', function(this: any, next) {
       this.status = 'completed';
     }
   }
-  
+
   next();
 });
 
@@ -261,4 +270,4 @@ BillSchema.index({ customerName: 'text' });
 
 const Bill = mongoose.model<IBill>('Bill', BillSchema);
 
-export default Bill; 
+export default Bill;

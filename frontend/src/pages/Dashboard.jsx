@@ -5,11 +5,11 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="p-6 bg-white rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Bills</h2>
-          <p className="text-gray-600 mb-4">Create and manage your bills</p>
+          <p className="text-gray-600 mb-4">View and manage all bills</p>
           <Link
             to="/bills"
             className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -17,24 +17,62 @@ export default function Dashboard() {
             View Bills
           </Link>
         </div>
-        
+
         <div className="p-6 bg-white rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">New Bill</h2>
           <p className="text-gray-600 mb-4">Create a new bill</p>
+          <div className="flex flex-col space-y-2">
+            <Link
+              to="/bills/new"
+              className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-center"
+            >
+              Standard Bill
+            </Link>
+            <Link
+              to="/bills/new-with-inventory"
+              className="inline-block px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 text-center"
+            >
+              Bill with Inventory
+            </Link>
+          </div>
+        </div>
+
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Inventory</h2>
+          <p className="text-gray-600 mb-4">Manage your bike inventory</p>
+          <div className="flex flex-col space-y-2">
+            <Link
+              to="/inventory"
+              className="inline-block px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-center"
+            >
+              View Inventory
+            </Link>
+            <Link
+              to="/inventory/add"
+              className="inline-block px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 text-center"
+            >
+              Add to Inventory
+            </Link>
+          </div>
+        </div>
+
+        <div className="p-6 bg-white rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4">Reports</h2>
+          <p className="text-gray-600 mb-4">View inventory and sales reports</p>
           <Link
-            to="/bills/new"
-            className="inline-block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            to="/inventory/report"
+            className="inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-center"
           >
-            Create Bill
+            Inventory Report
           </Link>
         </div>
-        
+
         <div className="p-6 bg-white rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Settings</h2>
           <p className="text-gray-600 mb-4">Configure your billing settings</p>
           <Link
             to="/settings"
-            className="inline-block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+            className="inline-block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 text-center"
           >
             View Settings
           </Link>
@@ -42,4 +80,4 @@ export default function Dashboard() {
       </div>
     </div>
   )
-} 
+}

@@ -19,8 +19,10 @@ The bill schema represents a sales transaction in the system. It captures custom
 | motorNumber | String | Unique motor number for the bike | Yes |
 | chassisNumber | String | Unique chassis number for the bike | Yes |
 | bikePrice | Number | Base price of the bike | Yes |
+| inventoryItemId | ObjectId | Reference to the inventory item (if selected from inventory) | No |
 | billType | String | Type of bill: 'cash' or 'leasing' | Default: 'cash' |
 | isEbicycle | Boolean | Whether the bike is an e-bicycle | Default: false |
+| isTricycle | Boolean | Whether the bike is a tricycle | Default: false |
 | rmvCharge | Number | RMV registration charge | Default: 13,000 |
 | downPayment | Number | Down payment amount (for leasing) | Only for leasing |
 | isAdvancePayment | Boolean | Whether this is an advance payment | Default: false |
@@ -51,7 +53,7 @@ Where:
 2. **Regular Bike Bills - Cash**:
    - Include RMV charges (13,000 Rs)
    - Total amount = bikePrice + rmvCharge
-   
+
 3. **Regular Bike Bills - Leasing**:
    - Include RMV charges (13,500 Rs, includes CPZ fee)
    - Total amount is the down payment amount
@@ -62,6 +64,12 @@ Where:
    - Calculate the balance remaining
    - Track estimated delivery date
 
+5. **Inventory Integration**:
+   - Bills can be linked to inventory items via inventoryItemId
+   - When a bill with an inventory item is completed, the inventory item status is updated to 'sold'
+   - When a bill with an inventory item is cancelled, the inventory item status is reverted to 'available'
+   - The inventory item stores a reference to the bill via billId
+
 ## Bill Status Workflow
 
 1. **Pending**: Initial state after bill creation
@@ -70,4 +78,4 @@ Where:
 
 ## PDF Generation
 
-Bills can be exported as PDF documents with all relevant details formatted according to company standards. 
+Bills can be exported as PDF documents with all relevant details formatted according to company standards.
