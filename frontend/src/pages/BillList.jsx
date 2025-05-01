@@ -19,10 +19,10 @@ const BillList = () => {
     try {
       setLoading(true)
       const response = await apiClient.get('/bills')
-      
+
       // Handle the new response format which includes pagination
       let billsData = [];
-      
+
       // Check for the actual response format we're getting
       if (response && response.bills && Array.isArray(response.bills)) {
         console.log('Using bills directly from response')
@@ -45,14 +45,14 @@ const BillList = () => {
         setBills([])
         return
       }
-      
+
       // Transform the data for compatibility
       const transformedBills = billsData.map(bill => ({
         ...bill,
         id: bill._id || bill.id,
         key: bill._id || bill.id || Math.random().toString()
       }))
-      
+
       setBills(transformedBills)
     } catch (error) {
       console.error('Error fetching bills:', error)
@@ -68,7 +68,7 @@ const BillList = () => {
       const response = await apiClient.get(`/bills/${billId}/pdf?preview=true`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
@@ -83,7 +83,7 @@ const BillList = () => {
       const response = await apiClient.get(`/bills/${billId}/pdf`, {
         responseType: 'blob'
       });
-      
+
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -148,9 +148,9 @@ const BillList = () => {
       const blob = await apiClient.get('/bills/export', {
         responseType: 'blob'
       })
-      
+
       const url = URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = `Bills-Export-${new Date().toISOString().slice(0, 10)}.xlsx`;
@@ -158,7 +158,7 @@ const BillList = () => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-      
+
       toast.success('Bills exported to Excel successfully');
     } catch (error) {
       console.error('Error exporting bills:', error);
@@ -168,14 +168,14 @@ const BillList = () => {
 
   const getBillTypeBadge = (type) => {
     if (!type) return <Tag color="default">Unknown</Tag>;
-    
+
     const typeMap = {
       cash: { color: 'green', text: 'Cash' },
       leasing: { color: 'blue', text: 'Leasing' },
       advance: { color: 'orange', text: 'Advance Payment' },
       advancement: { color: 'orange', text: 'Advance Payment' }
     };
-    
+
     const typeInfo = typeMap[type.toLowerCase()] || { color: 'default', text: type };
     return <Tag color={typeInfo.color}>{typeInfo.text}</Tag>;
   };
@@ -188,7 +188,7 @@ const BillList = () => {
 
   const filterBills = (bill) => {
     if (!searchText) return true;
-    
+
     const searchLower = searchText.toLowerCase();
     return (
       (bill.customerName && bill.customerName.toLowerCase().includes(searchLower)) ||
@@ -251,6 +251,17 @@ const BillList = () => {
       key: 'status',
       render: (status) => (
         <Badge status={getStatusBadgeClass(status)} text={status} />
+      ),
+    },
+    {
+      title: 'Inventory',
+      key: 'inventory',
+      render: (_, record) => (
+        record.inventoryItemId ? (
+          <Tag color="green">From Inventory</Tag>
+        ) : (
+          <Tag color="orange">Manual Entry</Tag>
+        )
       ),
     },
     {
@@ -324,13 +335,21 @@ const BillList = () => {
             prefix={<SearchOutlined />}
             className="w-64"
           />
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => navigate('/bills/new')}
-          >
-            Generate Bill
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => navigate('/bills/new')}
+            >
+              Standard Bill
+            </Button>
+            <Button
+              icon={<PlusOutlined />}
+              onClick={() => navigate('/bills/new-with-inventory')}
+            >
+              Bill with Inventory
+            </Button>
+          </Space>
           <Button
             icon={<FileExcelOutlined />}
             onClick={handleExportToExcel}
@@ -339,7 +358,7 @@ const BillList = () => {
           </Button>
         </div>
       </div>
-      
+
       {loading ? (
         <div className="flex justify-center p-12">
           <Spin size="large" />
@@ -361,4 +380,4 @@ const BillList = () => {
   )
 }
 
-export default BillList 
+export default BillList

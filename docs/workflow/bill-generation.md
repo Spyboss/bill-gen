@@ -11,6 +11,7 @@ This document describes the complete workflow for generating a bill in the syste
 **User Actions:**
 - User selects a bike model from the dropdown list
 - System loads the model details and price
+- User can optionally select a bike from inventory (new feature)
 
 **System Processing:**
 - If the selected model is an e-bicycle:
@@ -20,6 +21,10 @@ This document describes the complete workflow for generating a bill in the syste
 - If the selected model is a regular bike:
   - Both cash and leasing payment options are available
   - RMV charges are applied (13,000 Rs for cash, 13,500 Rs for leasing)
+- If selecting from inventory:
+  - System shows only available bikes for the selected model
+  - Motor and chassis numbers are auto-filled from inventory
+  - The bill is linked to the inventory item
 
 ### 2. Payment Method Selection
 
@@ -127,4 +132,4 @@ This document describes the complete workflow for generating a bill in the syste
 ### Balance Calculation (Advance Payment)
 ```
 Balance = Total - Advance Amount
-``` 
+```

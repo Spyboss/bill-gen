@@ -1,6 +1,6 @@
 # Bill Generator SaaS
 
-A full-stack application for generating and managing bills.
+A full-stack application for generating and managing bills and inventory.
 
 ## Project Structure
 
@@ -11,6 +11,19 @@ A full-stack application for generating and managing bills.
 - **Backend**: Node.js API with Express and MongoDB
   - Located in `/backend`
   - Uses Node.js, Express, and MongoDB
+
+## Features
+
+- **Bill Generation**: Create and manage bills for motorcycle sales
+  - Support for different payment methods (cash, leasing)
+  - Special handling for e-bicycles and tricycles
+  - PDF generation for bills
+
+- **Inventory Management**: Track and manage bike inventory
+  - Add individual bikes or batch add multiple bikes
+  - Track bike status (available, sold, reserved, damaged)
+  - Automatic inventory updates when bills are created/cancelled
+  - Inventory reporting and statistics
 
 ## Deployment Information
 
@@ -61,4 +74,4 @@ npm run dev
 - `VITE_API_URL`: URL of the backend API
 
 ## License
-MIT 
+MIT
