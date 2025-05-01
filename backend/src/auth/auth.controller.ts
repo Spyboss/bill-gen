@@ -86,6 +86,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
+  console.log('typeof crypto in login:', typeof crypto);
+  console.log('typeof createHash in login:', typeof createHash);
   try {
     const { email, password } = req.body;
     const clientIp = req.ip || 'unknown';
