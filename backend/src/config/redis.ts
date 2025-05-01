@@ -1,4 +1,4 @@
-import IORedis from 'ioredis';
+import { Redis as IORedis } from 'ioredis';
 import logger from '../utils/logger.js';
 
 // Initialize Redis client
@@ -45,8 +45,8 @@ export const getRedisClient = (): any => {
   if (redisClient) return redisClient;
   
   try {
-    // Check if we're in development mode and should use a mock
-    if (process.env.NODE_ENV !== 'production') {
+    // Only use mock in development
+    if (process.env.NODE_ENV === 'development') {
       logger.info('Using Redis mock for development environment');
       redisClient = new RedisMock();
       useRedisMock = true;
@@ -69,9 +69,12 @@ export const getRedisClient = (): any => {
     
     redisClient.on('error', (error) => {
       logger.error(`Redis connection error: ${error.message}`);
-      
-      // Fall back to mock in development
-      if (process.env.NODE_ENV !== 'production' && !useRedisMock) {
+      // In production, do not fallback to mock, fail fast
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('Redis connection failed in production');
+      }
+      // In development, fallback to mock if not already using it
+      if (process.env.NODE_ENV === 'development' && !useRedisMock) {
         logger.warn('Redis connection failed, using mock implementation');
         redisClient = new RedisMock();
         useRedisMock = true;
@@ -81,15 +84,16 @@ export const getRedisClient = (): any => {
     return redisClient;
   } catch (error) {
     logger.error(`Failed to initialize Redis: ${(error as Error).message}`);
-    
-    // Fall back to mock in non-production
-    if (process.env.NODE_ENV !== 'production') {
+    // In production, do not fallback to mock, fail fast
+    if (process.env.NODE_ENV === 'production') {
+      throw error;
+    }
+    // In development, fallback to mock
+    if (process.env.NODE_ENV === 'development') {
       logger.warn('Using Redis mock due to initialization error');
       redisClient = new RedisMock();
       return redisClient;
     }
-    
-    throw error;
   }
 };
 

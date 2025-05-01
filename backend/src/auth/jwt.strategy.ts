@@ -15,6 +15,7 @@ const getSecret = () => {
     secret = secret.padEnd(32, 'x');
     logger.warn('JWT_SECRET was padded to 32 characters for development mode');
   } else if (secret.length < 32) {
+    // In production, throw error if not secure
     throw new Error('JWT_SECRET must be at least 32 characters');
   }
   
