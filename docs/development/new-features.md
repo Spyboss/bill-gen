@@ -273,4 +273,105 @@ This section outlines the specific steps for implementing the tricycle model fea
 3. **Test Edge Cases**
    - Test with minimum and maximum values for cargo capacity
    - Test tricycle models with and without cabins
-   - Test interactions with existing features (advance payment, leasing) 
+   - Test interactions with existing features (advance payment, leasing)
+
+## Dynamic Bike Model Management (Implemented May 2025)
+
+This feature allows administrators to dynamically add, update, and delete bike models through the UI.
+
+### Backend Changes
+
+1.  **Refactor `BikeModel.ts` (`backend/src/models/BikeModel.ts`)**
+    *   Consolidated business logic for the `can_be_leased` property into the `pre('save')` hook.
+    *   Ensured that `can_be_leased` is set to `false` if `is_tricycle` or `is_ebicycle` is true.
+
+    ```typescript
+    // backend/src/models/BikeModel.ts - pre('save') hook
+    BikeModelSchema.pre('save', function(next) {
+      // If this is a tricycle or an e-bicycle, it cannot be leased.
+      if (this.is_tricycle || this.is_ebicycle) {
+        this.can_be_leased = false;
+      }
+      next();
+    });
+    ```
+
+2.  **Refactor `bikeModelController.ts` (`backend/src/controllers/bikeModelController.ts`)**
+    *   Removed redundant `can_be_leased` logic from `createBikeModel` and `updateBikeModel` functions, as this is now handled by the model's `pre('save')` hook.
+    *   Improved error handling by checking `error instanceof Error` before accessing `error.message`.
+
+### Frontend Changes
+
+1.  **Create Admin UI for Bike Model Management**
+    *   **`BikeModelList.jsx` (`frontend/src/pages/Admin/BikeModelList.jsx`)**:
+        *   Displays a table of all bike models.
+        *   Provides "Edit" and "Delete" buttons for each model.
+        *   Includes an "Add New Bike Model" button linking to the form.
+    *   **`BikeModelForm.jsx` (`frontend/src/pages/Admin/BikeModelForm.jsx`)**:
+        *   A form for creating new bike models and editing existing ones.
+        *   Includes fields for name, price, motor number prefix, chassis number prefix, and checkboxes for `is_ebicycle` and `is_tricycle`.
+        *   Handles API calls for creating/updating bike models.
+
+2.  **Add Admin Routes in `App.jsx` (`frontend/src/App.jsx`)**
+    *   New protected routes were added for the bike model management pages:
+        *   `/admin/bike-models` (for `BikeModelList`)
+        *   `/admin/bike-models/new` (for `BikeModelForm` - create mode)
+        *   `/admin/bike-models/edit/:id` (for `BikeModelForm` - edit mode)
+
+3.  **Update Navbar (`frontend/src/components/Navbar.jsx`)**
+    *   Added a "Manage Models" link in the main navigation and mobile menu, visible to authenticated users, linking to `/admin/bike-models`.
+
+### Testing
+
+1.  Verify that bike models can be created, updated, and deleted from the admin UI.
+2.  Confirm that the `can_be_leased` status is correctly set based on the `is_ebicycle` and `is_tricycle` flags.
+3.  Ensure that form validations work as expected.
+4.  Test navigation to and from the admin pages.
+
+## Dark Theme Implementation (Implemented May 2025)
+
+This feature introduces a toggleable dark theme for the frontend application, with preference persistence.
+
+### Frontend Changes
+
+1.  **Enable Dark Mode in Tailwind CSS (`frontend/tailwind.config.js`)**
+    *   Set `darkMode: 'class'` in the Tailwind configuration.
+
+    ```javascript
+    // frontend/tailwind.config.js
+    module.exports = {
+      darkMode: 'class',
+      // ... other configurations
+    };
+    ```
+
+2.  **Create Theme Context (`frontend/src/contexts/ThemeContext.jsx`)**
+    *   `ThemeContext` created to manage `isDarkMode` state and `toggleTheme` function.
+    *   Initial theme is determined by `localStorage` or system preference (`prefers-color-scheme`).
+    *   Theme preference is saved to `localStorage` on change.
+    *   The `<html>` element's class (`dark`) is updated based on the theme.
+
+3.  **Wrap Application with `ThemeProvider` (`frontend/src/App.jsx`)**
+    *   The root of the application in `App.jsx` is wrapped with `<ThemeProvider>` to make the theme context available globally.
+    *   Added `dark:bg-gray-900` to the main container `div` for the base dark background.
+
+4.  **Add Theme Toggle to Navbar (`frontend/src/components/Navbar.jsx`)**
+    *   Imported `useTheme` hook.
+    *   Added a button with sun/moon icons to toggle the theme.
+    *   This button is available in both desktop and mobile navigation views.
+
+5.  **Apply Dark Mode Styles**
+    *   Updated various components with Tailwind's `dark:` prefix for styling in dark mode. This includes:
+        *   `App.jsx` (main layout, footer)
+        *   `Navbar.jsx` (background, text, links, buttons, dropdowns)
+        *   `BikeModelList.jsx` (text, table, buttons)
+        *   `BikeModelForm.jsx` (text, form elements, buttons)
+    *   Ensured consistent look and feel across light and dark themes.
+
+### Testing
+
+1.  Verify the theme toggle button correctly switches between light and dark modes.
+2.  Confirm that the theme preference is saved in `localStorage` and persists across browser sessions.
+3.  Check that the initial theme respects system preference if no user preference is set.
+4.  Review all pages and components to ensure proper styling and readability in both themes.
+5.  Test accessibility, particularly color contrast, in dark mode.

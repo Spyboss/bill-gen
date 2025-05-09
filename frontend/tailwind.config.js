@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 // Tailwind configuration with primary color palette
 module.exports = {
+  darkMode: 'class', // Enable class-based dark mode
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -27,4 +28,4 @@ module.exports = {
   plugins: [
     require('@tailwindcss/forms'),
   ],
-} 
+}

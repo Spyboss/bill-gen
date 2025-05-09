@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
+import { MongoServerError } from 'mongodb'; // Import MongoServerError
 import BikeModel from '../models/BikeModel.js';
 import logger from '../utils/logger.js';
 import { AppError } from '../middleware/errorHandler.js';
@@ -14,8 +15,13 @@ export const getAllBikeModels = async (req: Request, res: Response, next: NextFu
     const bikeModels = await BikeModel.find().sort({ name: 1 });
     res.status(200).json(bikeModels);
   } catch (error) {
-    logger.error(`Error getting bike models: ${(error as Error).message}`);
-    next(new AppError(`Failed to fetch bike models: ${(error as Error).message}`, 500));
+    if (error instanceof Error) {
+      logger.error(`Error getting bike models: ${(error as Error).message}`);
+      next(new AppError(`Failed to fetch bike models: ${(error as Error).message}`, 500));
+    } else {
+      logger.error(`An unexpected error occurred while getting bike models: ${String(error)}`);
+      next(new AppError(`An unexpected error occurred while getting bike models: ${String(error)}`, 500));
+    }
   }
 };
 
@@ -40,8 +46,13 @@ export const getBikeModelById = async (req: Request, res: Response, next: NextFu
     
     res.status(200).json(bikeModel);
   } catch (error) {
-    logger.error(`Error getting bike model: ${(error as Error).message}`);
-    next(new AppError(`Failed to fetch bike model: ${(error as Error).message}`, 500));
+    if (error instanceof Error) {
+      logger.error(`Error getting bike model: ${(error as Error).message}`);
+      next(new AppError(`Failed to fetch bike model: ${(error as Error).message}`, 500));
+    } else {
+      logger.error(`An unexpected error occurred while getting bike model: ${String(error)}`);
+      next(new AppError(`An unexpected error occurred while getting bike model: ${String(error)}`, 500));
+    }
   }
 };
 
@@ -54,16 +65,7 @@ export const createBikeModel = async (req: Request, res: Response, next: NextFun
   try {
     const modelData = req.body;
     
-    // Handle special rules for model types
-    if (modelData.is_tricycle) {
-      // Tricycles cannot be leased
-      modelData.can_be_leased = false;
-    }
-    
-    if (modelData.is_ebicycle) {
-      // E-Bicycles cannot be leased
-      modelData.can_be_leased = false;
-    }
+    // Business logic for can_be_leased is now handled by the pre('save') hook in BikeModel.ts
     
     const bikeModel = await BikeModel.create(modelData);
     
@@ -75,13 +77,18 @@ export const createBikeModel = async (req: Request, res: Response, next: NextFun
       return next(new AppError(`Validation error: ${messages.join(', ')}`, 400));
     }
     
-    // Check for duplicate key error
-    if ((error as any).code === 11000) {
+    // Check for duplicate key error (MongoDB error code 11000)
+    if (error instanceof MongoServerError && error.code === 11000) {
       return next(new AppError('Bike model with this name already exists', 400));
     }
     
-    logger.error(`Error creating bike model: ${(error as Error).message}`);
-    next(new AppError(`Failed to create bike model: ${(error as Error).message}`, 500));
+    if (error instanceof Error) {
+      logger.error(`Error creating bike model: ${(error as Error).message}`);
+      next(new AppError(`Failed to create bike model: ${(error as Error).message}`, 500));
+    } else {
+      logger.error(`An unexpected error occurred while creating bike model: ${String(error)}`);
+      next(new AppError(`An unexpected error occurred while creating bike model: ${String(error)}`, 500));
+    }
   }
 };
 
@@ -99,16 +106,7 @@ export const updateBikeModel = async (req: Request, res: Response, next: NextFun
       return next(new AppError('Invalid bike model ID', 400));
     }
     
-    // Handle special rules for model types
-    if (updateData.is_tricycle) {
-      // Tricycles cannot be leased
-      updateData.can_be_leased = false;
-    }
-    
-    if (updateData.is_ebicycle) {
-      // E-Bicycles cannot be leased
-      updateData.can_be_leased = false;
-    }
+    // Business logic for can_be_leased is now handled by the pre('save') hook in BikeModel.ts
     
     const updatedModel = await BikeModel.findByIdAndUpdate(
       id,
@@ -128,13 +126,18 @@ export const updateBikeModel = async (req: Request, res: Response, next: NextFun
       return next(new AppError(`Validation error: ${messages.join(', ')}`, 400));
     }
     
-    // Check for duplicate key error
-    if ((error as any).code === 11000) {
+    // Check for duplicate key error (MongoDB error code 11000)
+    if (error instanceof MongoServerError && error.code === 11000) {
       return next(new AppError('Bike model with this name already exists', 400));
     }
     
-    logger.error(`Error updating bike model: ${(error as Error).message}`);
-    next(new AppError(`Failed to update bike model: ${(error as Error).message}`, 500));
+    if (error instanceof Error) {
+      logger.error(`Error updating bike model: ${(error as Error).message}`);
+      next(new AppError(`Failed to update bike model: ${(error as Error).message}`, 500));
+    } else {
+      logger.error(`An unexpected error occurred while updating bike model: ${String(error)}`);
+      next(new AppError(`An unexpected error occurred while updating bike model: ${String(error)}`, 500));
+    }
   }
 };
 
@@ -159,7 +162,12 @@ export const deleteBikeModel = async (req: Request, res: Response, next: NextFun
     
     res.status(200).json({ message: 'Bike model deleted successfully' });
   } catch (error) {
-    logger.error(`Error deleting bike model: ${(error as Error).message}`);
-    next(new AppError(`Failed to delete bike model: ${(error as Error).message}`, 500));
+    if (error instanceof Error) {
+      logger.error(`Error deleting bike model: ${(error as Error).message}`);
+      next(new AppError(`Failed to delete bike model: ${(error as Error).message}`, 500));
+    } else {
+      logger.error(`An unexpected error occurred while deleting bike model: ${String(error)}`);
+      next(new AppError(`An unexpected error occurred while deleting bike model: ${String(error)}`, 500));
+    }
   }
-}; 
+};

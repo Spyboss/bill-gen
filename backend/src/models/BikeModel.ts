@@ -55,12 +55,14 @@ BikeModelSchema.index({ name: 'text' });
 
 // Add middleware to handle tricycle models
 BikeModelSchema.pre('save', function(next) {
-  // If this is a tricycle, ensure it can't be leased and isn't marked as ebicycle
-  if (this.is_tricycle) {
+  // If this is a tricycle or an e-bicycle, it cannot be leased.
+  if (this.is_tricycle || this.is_ebicycle) {
     this.can_be_leased = false;
-    // Note: We don't set is_ebicycle to false in case it's possible to have a tricycle e-bicycle
   }
+  // If it's not a tricycle and not an e-bicycle, it can be leased by default (unless specified otherwise).
+  // However, the schema already defaults can_be_leased to true,
+  // so we only need to explicitly set it to false under specific conditions.
   next();
 });
 
-export default mongoose.model<IBikeModel>('BikeModel', BikeModelSchema); 
+export default mongoose.model<IBikeModel>('BikeModel', BikeModelSchema);

@@ -13,6 +13,7 @@ import BillEdit from './pages/BillEdit'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import { AuthProvider } from './contexts/AuthContext'
+import { ThemeProvider } from './contexts/ThemeContext' // Import ThemeProvider
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Inventory pages
@@ -21,6 +22,10 @@ import AddInventoryItem from './pages/Inventory/AddInventoryItem'
 import BatchAddInventory from './pages/Inventory/BatchAddInventory'
 import EditInventoryItem from './pages/Inventory/EditInventoryItem'
 import InventoryReport from './pages/Inventory/InventoryReport'
+
+// Admin pages for Bike Models
+import BikeModelList from './pages/Admin/BikeModelList'
+import BikeModelForm from './pages/Admin/BikeModelForm'
 
 // Wrap each route component that requires authentication with ProtectedRoute
 const ProtectedBillList = () => (
@@ -102,13 +107,27 @@ const ProtectedBillGeneratorWithInventory = () => (
   </ProtectedRoute>
 );
 
+// Admin protected routes for Bike Models
+const ProtectedBikeModelList = () => (
+  <ProtectedRoute>
+    <BikeModelList />
+  </ProtectedRoute>
+);
+
+const ProtectedBikeModelForm = () => (
+  <ProtectedRoute>
+    <BikeModelForm />
+  </ProtectedRoute>
+);
+
 const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          <Navbar />
-          <main className="container mx-auto px-4 py-8 flex-grow">
+        <ThemeProvider> {/* Wrap with ThemeProvider */}
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col"> {/* Added dark mode background */}
+            <Navbar />
+            <main className="container mx-auto px-4 py-8 flex-grow">
             <Routes>
               {/* Public routes */}
               <Route path="/login" element={<Login />} />
@@ -131,15 +150,21 @@ const App = () => {
               <Route path="/inventory/batch" element={<ProtectedBatchAddInventory />} />
               <Route path="/inventory/edit/:id" element={<ProtectedEditInventoryItem />} />
               <Route path="/inventory/report" element={<ProtectedInventoryReport />} />
+
+              {/* Admin Bike Model Routes */}
+              <Route path="/admin/bike-models" element={<ProtectedBikeModelList />} />
+              <Route path="/admin/bike-models/new" element={<ProtectedBikeModelForm />} />
+              <Route path="/admin/bike-models/edit/:id" element={<ProtectedBikeModelForm />} />
             </Routes>
           </main>
 
-          <footer className="bg-gray-100 py-4 text-center text-gray-600 text-sm mt-auto border-t border-gray-200">
-            <p>Made with ❤️ by Uminda <a href="https://github.com/Spyboss" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">@uhadev</a></p>
+          <footer className="bg-gray-100 dark:bg-gray-800 py-4 text-center text-gray-600 dark:text-gray-400 text-sm mt-auto border-t border-gray-200 dark:border-gray-700">
+            <p>Made with ❤️ by Uminda <a href="https://github.com/Spyboss" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">@uhadev</a></p>
           </footer>
 
           <Toaster position="top-right" />
-        </div>
+          </div>
+        </ThemeProvider> {/* Close ThemeProvider */}
       </AuthProvider>
     </Router>
   )
