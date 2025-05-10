@@ -25,9 +25,9 @@ const BillGenerator = () => {
 
   const fetchBikeModels = async () => {
     try {
-      const data = await apiClient.get('/bike-models');
-      console.log('Fetched bike models:', data);
-      setBikeModels(data);
+      const response = await apiClient.get('/bike-models'); // Changed 'data' to 'response' for clarity
+      console.log('Fetched bike models:', response.data);
+      setBikeModels(response.data || []); // Access .data and provide fallback
     } catch (error) {
       console.error('Error fetching bike models:', error);
       message.error('Failed to fetch bike models');
@@ -267,20 +267,20 @@ const BillGenerator = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">Generate New Bill</h1>
+    <div className="max-w-2xl mx-auto p-6 dark:bg-slate-800 rounded-lg shadow-lg"> {/* Added dark bg for card-like appearance if on dark page */}
+      <h1 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">Generate New Bill</h1>
 
       {selectedModel?.is_ebicycle && (
-        <div className="bg-blue-50 p-4 mb-6 rounded border border-blue-200">
-          <h3 className="text-blue-800 font-medium">E-Bicycle Selected</h3>
-          <p className="text-blue-600 text-sm mt-1">This is an e-bicycle model. Only cash sales are allowed, and no RMV charges apply.</p>
+        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 mb-6 rounded border border-blue-200 dark:border-blue-700">
+          <h3 className="text-blue-800 dark:text-blue-300 font-medium">E-Bicycle Selected</h3>
+          <p className="text-blue-600 dark:text-blue-400 text-sm mt-1">This is an e-bicycle model. Only cash sales are allowed, and no RMV charges apply.</p>
         </div>
       )}
 
       {selectedModel?.is_tricycle && (
-        <div className="bg-green-50 p-4 mb-6 rounded border border-green-200">
-          <h3 className="text-green-800 font-medium">E-Tricycle Selected</h3>
-          <p className="text-green-600 text-sm mt-1">This is an e-tricycle model. Only cash sales are allowed, and no RMV charges apply.</p>
+        <div className="bg-green-50 dark:bg-green-900/30 p-4 mb-6 rounded border border-green-200 dark:border-green-700">
+          <h3 className="text-green-800 dark:text-green-300 font-medium">E-Tricycle Selected</h3>
+          <p className="text-green-600 dark:text-green-400 text-sm mt-1">This is an e-tricycle model. Only cash sales are allowed, and no RMV charges apply.</p>
         </div>
       )}
 
@@ -465,4 +465,4 @@ const BillGenerator = () => {
   );
 };
 
-export default BillGenerator; 
+export default BillGenerator;

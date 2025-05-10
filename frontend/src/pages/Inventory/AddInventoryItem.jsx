@@ -22,7 +22,7 @@ const AddInventoryItem = () => {
     try {
       setLoading(true);
       const response = await getAllBikeModels();
-      setBikeModels(response);
+      setBikeModels(response.data || []); // Ensure bikeModels is always an array, access .data
     } catch (error) {
       message.error('Failed to fetch bike models');
       console.error('Error fetching bike models:', error);
@@ -35,13 +35,15 @@ const AddInventoryItem = () => {
     const model = bikeModels.find(m => m._id === modelId);
     setSelectedModel(model);
     
-    if (model) {
-      // Pre-fill motor and chassis number prefixes
-      form.setFieldsValue({
-        motorNumber: model.motor_number_prefix ? `${model.motor_number_prefix}-` : '',
-        chassisNumber: model.chassis_number_prefix ? `${model.chassis_number_prefix}-` : ''
+    // Prefill logic for motor/chassis prefixes removed as these are no longer part of BikeModel
+    // Motor and Chassis numbers are now entered manually for each inventory item.
+    // If there was other model-specific data to pre-fill, it would go here.
+    // For now, we can clear the fields if a new model is selected, or leave them as is.
+    // Clearing them might be better to avoid carrying over old prefixes if the user was typing.
+    form.setFieldsValue({
+        motorNumber: '',
+        chassisNumber: ''
       });
-    }
   };
 
   const handleSubmit = async (values) => {
@@ -67,19 +69,19 @@ const AddInventoryItem = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 dark:bg-slate-900">
         <Spin size="large" />
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 dark:bg-slate-900 min-h-screen"> {/* Ensure full page dark background */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Add Bike to Inventory</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Add Bike to Inventory</h1>
       </div>
 
-      <Card className="max-w-2xl mx-auto">
+      <Card className="max-w-2xl mx-auto bg-white dark:bg-gray-800 dark:border dark:border-gray-700 rounded-lg shadow-md">
         <Form
           form={form}
           layout="vertical"

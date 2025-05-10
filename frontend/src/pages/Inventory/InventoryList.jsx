@@ -186,9 +186,9 @@ const InventoryList = () => {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-6 dark:bg-slate-900 min-h-screen"> {/* Ensure full page dark background */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Bike Inventory</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Bike Inventory</h1>
         <Space>
           <Button 
             type="primary" 
@@ -212,7 +212,7 @@ const InventoryList = () => {
         </Space>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow mb-6">
+      <div className="bg-white dark:bg-gray-800 dark:border dark:border-gray-700 p-6 rounded-lg shadow mb-6">
         <div className="flex flex-wrap gap-4 mb-4">
           <Input.Search
             placeholder="Search motor or chassis number"
@@ -259,13 +259,15 @@ const InventoryList = () => {
         onOk={handleDelete}
         onCancel={() => setDeleteModalVisible(false)}
         confirmLoading={loading}
+        // Assuming Antd Modal will pick up dark theme from ConfigProvider. 
+        // If not, specific styling for modal content might be needed if text is unreadable.
       >
-        <p>Are you sure you want to delete this inventory item?</p>
+        <p className="dark:text-gray-300">Are you sure you want to delete this inventory item?</p>
         {itemToDelete && (
-          <div className="mt-2">
-            <p><strong>Model:</strong> {itemToDelete.bikeModelId?.name}</p>
-            <p><strong>Motor Number:</strong> {itemToDelete.motorNumber}</p>
-            <p><strong>Chassis Number:</strong> {itemToDelete.chassisNumber}</p>
+          <div className="mt-2 dark:text-gray-300">
+            <p><strong className="dark:text-gray-200">Model:</strong> {itemToDelete.bikeModelId?.name}</p>
+            <p><strong className="dark:text-gray-200">Motor Number:</strong> {itemToDelete.motorNumber}</p>
+            <p><strong className="dark:text-gray-200">Chassis Number:</strong> {itemToDelete.chassisNumber}</p>
           </div>
         )}
       </Modal>
