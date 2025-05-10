@@ -11,8 +11,8 @@ const BikeModelForm = () => {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
-    motor_number_prefix: '',
-    chassis_number_prefix: '',
+    // motor_number_prefix: '', // Removed
+    // chassis_number_prefix: '', // Removed
     is_ebicycle: false,
     is_tricycle: false,
     // can_be_leased is determined by the backend based on is_ebicycle and is_tricycle
@@ -30,8 +30,8 @@ const BikeModelForm = () => {
           setFormData({
             name: modelData.name,
             price: modelData.price.toString(), // Ensure price is a string for input field
-            motor_number_prefix: modelData.motor_number_prefix,
-            chassis_number_prefix: modelData.chassis_number_prefix,
+            // motor_number_prefix: modelData.motor_number_prefix, // Removed
+            // chassis_number_prefix: modelData.chassis_number_prefix, // Removed
             is_ebicycle: modelData.is_ebicycle,
             is_tricycle: modelData.is_tricycle,
           });
@@ -150,35 +150,7 @@ const BikeModelForm = () => {
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="motor_number_prefix">
-            Motor Number Prefix
-          </label>
-          <input
-            type="text"
-            name="motor_number_prefix"
-            id="motor_number_prefix"
-            value={formData.motor_number_prefix}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
-            // required // No longer required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="chassis_number_prefix">
-            Chassis Number Prefix
-          </label>
-          <input
-            type="text"
-            name="chassis_number_prefix"
-            id="chassis_number_prefix"
-            value={formData.chassis_number_prefix}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
-            // required // No longer required
-          />
-        </div>
+        {/* Motor Number Prefix and Chassis Number Prefix fields removed */}
         
         <div className="mb-6">
           <span className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Properties</span>
