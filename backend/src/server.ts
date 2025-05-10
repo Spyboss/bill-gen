@@ -81,25 +81,32 @@ app.use(helmet({
 // Apply security middleware
 applySecurityMiddleware(app);
 
-// Custom CORS middleware to handle multiple origins
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  }
-
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  next();
-});
+// Standard CORS middleware configuration
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests) for specific scenarios if needed,
+    // or enforce origin check strictly. For now, let's be strict.
+    if (!origin && process.env.NODE_ENV !== 'development') { // Allow no origin in dev for tools like Postman
+        // In production, you might want to block requests with no origin or handle them differently.
+        // For now, if there's no origin and it's not dev, let's assume it's not allowed for safety.
+        // return callback(new Error('Not allowed by CORS (no origin)'), false);
+        // Allowing no-origin for now, but this can be tightened.
+         return callback(null, true); 
+    }
+    if (origin && allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      logger.warn(msg); // Log denied origins
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true, // Important for cookies, authorization headers with HTTPS
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Explicitly list allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'] // Explicitly list allowed headers
+}));
 
 // Security middlewares
+// Note: The cors() middleware handles OPTIONS preflight requests automatically.
 app.use(mongoSanitize()); // Sanitize inputs against NoSQL Injection
 app.use(express.json({ limit: '100kb' })); // Parse JSON bodies with size limit
 app.use(express.urlencoded({ extended: true, limit: '100kb' })); // Parse URL-encoded bodies with size limit
