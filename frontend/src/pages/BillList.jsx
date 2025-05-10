@@ -218,7 +218,7 @@ const BillList = () => {
       dataIndex: 'billNumber',
       key: 'billNumber',
       render: (billNumber, record) => (
-        <Link to={`/bills/${record._id}`} className="text-blue-600 hover:underline">
+        <Link to={`/bills/${record._id}`} className="text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
           {billNumber || record.bill_number || record._id.substring(0, 8)}
         </Link>
       ),
@@ -317,16 +317,16 @@ const BillList = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen dark:bg-slate-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     )
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 dark:bg-slate-900 min-h-full">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Bills</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Bills</h1>
         <div className="flex space-x-3">
           <Input
             placeholder="Search bills..."
@@ -369,7 +369,7 @@ const BillList = () => {
           dataSource={bills.filter(filterBills)}
           columns={columns}
           pagination={{ pageSize: 10 }}
-          className="bg-white rounded-lg shadow"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow dark:border dark:border-gray-700"
           onRow={(record) => ({
             onClick: () => navigate(`/bills/${record._id}`),
             style: { cursor: 'pointer' }
