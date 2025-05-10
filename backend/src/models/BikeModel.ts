@@ -3,8 +3,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IBikeModel extends Document {
   name: string;
   price: number;
-  motor_number_prefix: string;
-  chassis_number_prefix: string;
+  motor_number_prefix?: string; // Made optional
+  chassis_number_prefix?: string; // Made optional
   is_ebicycle: boolean;
   is_tricycle: boolean;
   can_be_leased: boolean;
@@ -24,12 +24,12 @@ const BikeModelSchema = new Schema<IBikeModel>({
   },
   motor_number_prefix: {
     type: String,
-    required: [true, 'Motor number prefix is required'],
+    // required: false, // No longer required
     trim: true
   },
   chassis_number_prefix: {
     type: String,
-    required: [true, 'Chassis number prefix is required'],
+    // required: false, // No longer required
     trim: true
   },
   is_ebicycle: {

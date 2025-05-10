@@ -75,16 +75,18 @@ const BikeModelForm = () => {
       setLoading(false);
       return;
     }
-    if (!dataToSubmit.motor_number_prefix.trim()) {
-      setFormError('Motor number prefix is required.');
-      setLoading(false);
-      return;
-    }
-    if (!dataToSubmit.chassis_number_prefix.trim()) {
-      setFormError('Chassis number prefix is required.');
-      setLoading(false);
-      return;
-    }
+    // Motor number prefix is now optional
+    // if (!dataToSubmit.motor_number_prefix.trim()) {
+    //   setFormError('Motor number prefix is required.');
+    //   setLoading(false);
+    //   return;
+    // }
+    // Chassis number prefix is now optional
+    // if (!dataToSubmit.chassis_number_prefix.trim()) {
+    //   setFormError('Chassis number prefix is required.');
+    //   setLoading(false);
+    //   return;
+    // }
 
     try {
       if (isEditing) {
@@ -159,7 +161,7 @@ const BikeModelForm = () => {
             value={formData.motor_number_prefix}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
-            required
+            // required // No longer required
           />
         </div>
 
@@ -174,7 +176,7 @@ const BikeModelForm = () => {
             value={formData.chassis_number_prefix}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
-            required
+            // required // No longer required
           />
         </div>
         
