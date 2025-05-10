@@ -115,7 +115,7 @@ const AddInventoryItem = () => {
             label="Motor Number"
             rules={[{ required: true, message: 'Please enter motor number' }]}
           >
-            <Input placeholder="Enter motor number" />
+            <Input placeholder="Enter motor number" className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
           </Form.Item>
 
           <Form.Item
@@ -123,7 +123,7 @@ const AddInventoryItem = () => {
             label="Chassis Number"
             rules={[{ required: true, message: 'Please enter chassis number' }]}
           >
-            <Input placeholder="Enter chassis number" />
+            <Input placeholder="Enter chassis number" className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
           </Form.Item>
 
           <Form.Item
@@ -149,7 +149,7 @@ const AddInventoryItem = () => {
             name="notes"
             label="Notes"
           >
-            <Input.TextArea rows={4} placeholder="Enter any additional notes" />
+            <Input.TextArea rows={4} placeholder="Enter any additional notes" className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
           </Form.Item>
 
           <Form.Item>

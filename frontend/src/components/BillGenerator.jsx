@@ -371,7 +371,7 @@ const BillGenerator = () => {
           label="Customer Name"
           rules={[{ required: true, message: 'Please enter customer name' }]}
         >
-          <Input />
+          <Input className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
         </Form.Item>
 
         <Form.Item
@@ -379,7 +379,7 @@ const BillGenerator = () => {
           label="Customer NIC"
           rules={[{ required: true, message: 'Please enter customer NIC' }]}
         >
-          <Input />
+          <Input className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
         </Form.Item>
 
         <Form.Item
@@ -387,7 +387,7 @@ const BillGenerator = () => {
           label="Customer Address"
           rules={[{ required: true, message: 'Please enter customer address' }]}
         >
-          <Input.TextArea />
+          <Input.TextArea className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
         </Form.Item>
 
         <Form.Item
@@ -395,7 +395,7 @@ const BillGenerator = () => {
           label="Motor Number"
           rules={[{ required: true, message: 'Please enter motor number' }]}
         >
-          <Input />
+          <Input className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
         </Form.Item>
 
         <Form.Item
@@ -403,7 +403,7 @@ const BillGenerator = () => {
           label="Chassis Number"
           rules={[{ required: true, message: 'Please enter chassis number' }]}
         >
-          <Input />
+          <Input className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
         </Form.Item>
 
         <Form.Item
