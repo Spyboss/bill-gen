@@ -24,7 +24,7 @@ const BatchAddInventory = () => {
     try {
       setLoading(true);
       const response = await getAllBikeModels();
-      setBikeModels(response);
+      setBikeModels(response.data || []); // Ensure bikeModels is always an array, access .data
     } catch (error) {
       message.error('Failed to fetch bike models');
       console.error('Error fetching bike models:', error);
@@ -37,13 +37,12 @@ const BatchAddInventory = () => {
     const model = bikeModels.find(m => m._id === modelId);
     setSelectedModel(model);
     
-    if (model) {
-      // Pre-fill motor and chassis number prefixes
-      form.setFieldsValue({
-        motorNumber: model.motor_number_prefix ? `${model.motor_number_prefix}-` : '',
-        chassisNumber: model.chassis_number_prefix ? `${model.chassis_number_prefix}-` : ''
+    // Prefill logic for motor/chassis prefixes removed as these are no longer part of BikeModel
+    // Motor and Chassis numbers are now entered manually for each inventory item.
+    form.setFieldsValue({
+        motorNumber: '', // Clear previous motor number if any
+        chassisNumber: '' // Clear previous chassis number if any
       });
-    }
   };
 
   const addItem = () => {
@@ -62,8 +61,9 @@ const BatchAddInventory = () => {
       if (modelId) {
         form.setFieldsValue({ 
           bikeModelId: modelId,
-          motorNumber: selectedModel?.motor_number_prefix ? `${selectedModel.motor_number_prefix}-` : '',
-          chassisNumber: selectedModel?.chassis_number_prefix ? `${selectedModel.chassis_number_prefix}-` : ''
+          // Prefixes removed, motorNumber and chassisNumber will be entered manually
+          motorNumber: '', 
+          chassisNumber: ''
         });
       }
       
@@ -144,20 +144,20 @@ const BatchAddInventory = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 dark:bg-slate-900">
         <Spin size="large" />
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 dark:bg-slate-900 min-h-screen">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Batch Add Bikes to Inventory</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Batch Add Bikes to Inventory</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="Add New Item">
+        <Card title="Add New Item" className="bg-white dark:bg-gray-800 dark:border dark:border-gray-700">
           <Form
             form={form}
             layout="vertical"
@@ -190,7 +190,7 @@ const BatchAddInventory = () => {
               label="Motor Number"
               rules={[{ required: true, message: 'Please enter motor number' }]}
             >
-              <Input placeholder="Enter motor number" />
+              <Input placeholder="Enter motor number" className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
             </Form.Item>
 
             <Form.Item
@@ -198,7 +198,7 @@ const BatchAddInventory = () => {
               label="Chassis Number"
               rules={[{ required: true, message: 'Please enter chassis number' }]}
             >
-              <Input placeholder="Enter chassis number" />
+              <Input placeholder="Enter chassis number" className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
             </Form.Item>
 
             <Form.Item
@@ -224,7 +224,7 @@ const BatchAddInventory = () => {
               name="notes"
               label="Notes"
             >
-              <Input.TextArea rows={2} placeholder="Enter any additional notes" />
+              <Input.TextArea rows={2} placeholder="Enter any additional notes" className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
             </Form.Item>
 
             <Form.Item>
@@ -242,6 +242,7 @@ const BatchAddInventory = () => {
 
         <Card 
           title={`Batch Items (${items.length})`}
+          className="bg-white dark:bg-gray-800 dark:border dark:border-gray-700"
           extra={
             <Space>
               <Button onClick={() => navigate('/inventory')}>
@@ -260,7 +261,7 @@ const BatchAddInventory = () => {
           }
         >
           {items.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               No items added yet. Add items using the form on the left.
             </div>
           ) : (

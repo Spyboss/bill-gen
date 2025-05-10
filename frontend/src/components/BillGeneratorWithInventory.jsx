@@ -34,7 +34,7 @@ const BillGeneratorWithInventory = () => {
     try {
       setLoading(true);
       const response = await apiClient.get('/bike-models');
-      setBikeModels(response);
+      setBikeModels(response.data || []); // Access .data and provide fallback
     } catch (error) {
       console.error('Error fetching bike models:', error);
       message.error('Failed to fetch bike models');
@@ -60,18 +60,16 @@ const BillGeneratorWithInventory = () => {
       // If it's an e-bicycle or a tricycle, enforce cash bill type
       if (model.is_ebicycle || model.is_tricycle) {
         setBillType('cash');
-        // Set price field
         setBikePrice(model.price);
       } else {
-        // Regular e-bike
         setBikePrice(model.price);
       }
       
-      // Clear any previously selected inventory item
+      // Clear any previously selected inventory item and related fields
       setSelectedInventoryItem(null);
       form.setFieldsValue({
-        motor_number: '',
-        chassis_number: '',
+        motor_number: '', // Clear motor number as it will come from selected inventory or be manual
+        chassis_number: '', // Clear chassis number
         inventoryItemId: null
       });
     }
@@ -85,8 +83,8 @@ const BillGeneratorWithInventory = () => {
     
     try {
       setLoadingInventory(true);
-      const bikes = await getAvailableBikesByModel(selectedModel._id);
-      setAvailableBikes(bikes);
+      const response = await getAvailableBikesByModel(selectedModel._id);
+      setAvailableBikes(response.data || []); // Access .data and provide fallback
       setInventoryModalVisible(true);
     } catch (error) {
       console.error('Error fetching available bikes:', error);
@@ -305,27 +303,27 @@ const BillGeneratorWithInventory = () => {
   ];
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">Generate New Bill</h1>
+    <div className="max-w-2xl mx-auto p-6 dark:bg-slate-800 rounded-lg shadow-lg">
+      <h1 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">Generate New Bill with Inventory</h1>
 
       {selectedModel?.is_ebicycle && (
-        <div className="bg-blue-50 p-4 mb-6 rounded border border-blue-200">
-          <h3 className="text-blue-800 font-medium">E-Bicycle Selected</h3>
-          <p className="text-blue-600 text-sm mt-1">This is an e-bicycle model. Only cash sales are allowed, and no RMV charges apply.</p>
+        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 mb-6 rounded border border-blue-200 dark:border-blue-700">
+          <h3 className="text-blue-800 dark:text-blue-300 font-medium">E-Bicycle Selected</h3>
+          <p className="text-blue-600 dark:text-blue-400 text-sm mt-1">This is an e-bicycle model. Only cash sales are allowed, and no RMV charges apply.</p>
         </div>
       )}
 
       {selectedModel?.is_tricycle && (
-        <div className="bg-green-50 p-4 mb-6 rounded border border-green-200">
-          <h3 className="text-green-800 font-medium">E-Tricycle Selected</h3>
-          <p className="text-green-600 text-sm mt-1">This is an e-tricycle model. Only cash sales are allowed, and no RMV charges apply.</p>
+        <div className="bg-green-50 dark:bg-green-900/30 p-4 mb-6 rounded border border-green-200 dark:border-green-700">
+          <h3 className="text-green-800 dark:text-green-300 font-medium">E-Tricycle Selected</h3>
+          <p className="text-green-600 dark:text-green-400 text-sm mt-1">This is an e-tricycle model. Only cash sales are allowed, and no RMV charges apply.</p>
         </div>
       )}
 
       {selectedInventoryItem && (
-        <div className="bg-yellow-50 p-4 mb-6 rounded border border-yellow-200">
-          <h3 className="text-yellow-800 font-medium">Bike Selected from Inventory</h3>
-          <p className="text-yellow-600 text-sm mt-1">
+        <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 mb-6 rounded border border-yellow-200 dark:border-yellow-700">
+          <h3 className="text-yellow-800 dark:text-yellow-300 font-medium">Bike Selected from Inventory</h3>
+          <p className="text-yellow-600 dark:text-yellow-400 text-sm mt-1">
             Motor Number: {selectedInventoryItem.motorNumber}, 
             Chassis Number: {selectedInventoryItem.chassisNumber}
           </p>
@@ -439,7 +437,7 @@ const BillGeneratorWithInventory = () => {
           label="Customer Name"
           rules={[{ required: true, message: 'Please enter customer name' }]}
         >
-          <Input />
+          <Input className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
         </Form.Item>
 
         <Form.Item
@@ -447,7 +445,7 @@ const BillGeneratorWithInventory = () => {
           label="Customer NIC"
           rules={[{ required: true, message: 'Please enter customer NIC' }]}
         >
-          <Input />
+          <Input className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
         </Form.Item>
 
         <Form.Item
@@ -455,7 +453,7 @@ const BillGeneratorWithInventory = () => {
           label="Customer Address"
           rules={[{ required: true, message: 'Please enter customer address' }]}
         >
-          <Input.TextArea />
+          <Input.TextArea className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
         </Form.Item>
 
         <Form.Item
@@ -463,7 +461,7 @@ const BillGeneratorWithInventory = () => {
           label="Motor Number"
           rules={[{ required: true, message: 'Please enter motor number' }]}
         >
-          <Input disabled={!!selectedInventoryItem} />
+          <Input disabled={!!selectedInventoryItem} className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600 disabled:dark:bg-gray-600 disabled:dark:text-gray-400" />
         </Form.Item>
 
         <Form.Item
@@ -471,7 +469,7 @@ const BillGeneratorWithInventory = () => {
           label="Chassis Number"
           rules={[{ required: true, message: 'Please enter chassis number' }]}
         >
-          <Input disabled={!!selectedInventoryItem} />
+          <Input disabled={!!selectedInventoryItem} className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600 disabled:dark:bg-gray-600 disabled:dark:text-gray-400" />
         </Form.Item>
 
         <Form.Item
@@ -526,7 +524,7 @@ const BillGeneratorWithInventory = () => {
             <Spin size="large" />
           </div>
         ) : availableBikes.length === 0 ? (
-          <div className="text-center py-8">
+          <div className="text-center py-8 dark:text-gray-300">
             <p>No available bikes found for this model.</p>
             <Button 
               type="primary" 
