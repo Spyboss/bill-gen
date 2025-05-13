@@ -13,7 +13,7 @@ const BikeModelList = () => {
       try {
         setLoading(true);
         const response = await bikeModelService.getAllBikeModels();
-        setBikeModels(response.data || []); // Ensure bikeModels is always an array
+        setBikeModels(response || []); // Use the response directly
         setError(null);
       } catch (err) {
         setError(err.message || 'Failed to fetch bike models');

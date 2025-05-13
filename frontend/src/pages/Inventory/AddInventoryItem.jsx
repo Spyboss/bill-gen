@@ -22,7 +22,7 @@ const AddInventoryItem = () => {
     try {
       setLoading(true);
       const response = await getAllBikeModels();
-      setBikeModels(response.data || []); // Ensure bikeModels is always an array, access .data
+      setBikeModels(response || []); // Use the response directly
     } catch (error) {
       message.error('Failed to fetch bike models');
       console.error('Error fetching bike models:', error);
