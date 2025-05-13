@@ -87,7 +87,7 @@ export default function BillForm() {
           : '/bike-models';
           
         const response = await api.get(url)
-        setBikeModels(response.data)
+        setBikeModels(response || [])
       } catch (error) {
         toast.error('Failed to load bike models')
         console.error('Error fetching bike models:', error)
@@ -493,4 +493,4 @@ export default function BillForm() {
       </form>
     </div>
   )
-} 
+}
