@@ -78,23 +78,24 @@ export default function BillForm() {
 
   useEffect(() => {
     // Fetch bike models when component mounts
-    const fetchBikeModels = async () => {
-      try {
-        setLoading(true)
-        // Filter models only if bill type is leasing
-        const url = formData.bill_type === 'leasing'
-          ? `/bike-models?bill_type=${formData.bill_type}`
-          : '/bike-models';
-          
-        const response = await api.get(url)
-        setBikeModels(response || [])
-      } catch (error) {
-        toast.error('Failed to load bike models')
-        console.error('Error fetching bike models:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+const fetchBikeModels = async () => {
+  try {
+    setLoading(true)
+    // Filter models only if bill type is leasing
+    const url = formData.bill_type === 'leasing'
+      ? `/bike-models?bill_type=${formData.bill_type}`
+      : '/bike-models';
+    
+    const response = await api.get(url)
+    console.log('bikeModels state:', response)
+setBikeModels(response.data)
+  } catch (error) {
+    toast.error('Failed to load bike models')
+    console.error('Error fetching bike models:', error)
+  } finally {
+    setLoading(false)
+  }
+}
     fetchBikeModels()
   }, [formData.bill_type])
 
