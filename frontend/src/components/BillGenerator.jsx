@@ -25,9 +25,9 @@ const BillGenerator = () => {
 
   const fetchBikeModels = async () => {
     try {
-      const response = await apiClient.get('/bike-models'); // Changed 'data' to 'response' for clarity
-      console.log('Fetched bike models:', response.data);
-      setBikeModels(response.data || []); // Access .data and provide fallback
+      const response = await apiClient.get('/bike-models');
+      console.log('Fetched bike models:', response);
+      setBikeModels(response || []); // apiClient.get already returns the data
     } catch (error) {
       console.error('Error fetching bike models:', error);
       message.error('Failed to fetch bike models');
@@ -36,18 +36,18 @@ const BillGenerator = () => {
 
   const handleModelChange = async (modelId) => {
     if (!modelId) return;
-    
+
     // Find the selected model from the models list
     const model = bikeModels.find(model => model._id === modelId);
-    
+
     if (model) {
       setSelectedModel(model);
-      
+
       // Update the form with the model price
       form.setFieldsValue({
         bike_price: model.price,
       });
-      
+
       // If it's an e-bicycle or a tricycle, enforce cash bill type
       if (model.is_ebicycle || model.is_tricycle) {
         setBillType('cash');
@@ -74,7 +74,7 @@ const BillGenerator = () => {
     if (!model) return 0;
 
     const bikePrice = parseFloat(model.price);
-    
+
     // For e-bicycles and tricycles, the price is already the final price
     if (model.is_ebicycle || model.is_tricycle) {
       return bikePrice;
@@ -93,7 +93,7 @@ const BillGenerator = () => {
     try {
       setPreviewLoading(true);
       const values = await form.validateFields();
-      
+
       // Prepare bill data for preview
       const billData = {
         ...values,
@@ -102,9 +102,9 @@ const BillGenerator = () => {
         is_tricycle: selectedModel?.is_tricycle || false,
         can_be_leased: selectedModel?.can_be_leased || true
       };
-      
+
       const bikePrice = values.bike_price || 0;
-      
+
       // Calculate total amount based on bill type and model
       if (billType === 'cash') {
         if (selectedModel?.is_ebicycle || selectedModel?.is_tricycle) {
@@ -128,7 +128,7 @@ const BillGenerator = () => {
         billData.advance_amount = parseFloat(values.advance_amount || 0);
         billData.balance_amount = billData.total_amount - billData.advance_amount;
       }
-      
+
       // Set vehicle type
       if (selectedModel?.is_tricycle) {
         billData.vehicle_type = 'E-TRICYCLE';
@@ -137,15 +137,15 @@ const BillGenerator = () => {
       } else {
         billData.vehicle_type = 'E-MOTORCYCLE';
       }
-      
+
       // Get the preview PDF
       const blob = await apiClient.get(
         `/bills/preview/pdf?formData=${encodeURIComponent(JSON.stringify(billData))}`
       );
-      
+
       // Create a blob URL for the preview
       const url = URL.createObjectURL(blob);
-      
+
       setPreviewUrl(url);
       setPreviewVisible(true);
     } catch (error) {
@@ -159,40 +159,40 @@ const BillGenerator = () => {
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
-      
+
       // Check if a model was selected
       if (!selectedModel) {
         toast.error('Please select a bike model');
         return;
       }
-      
+
       // Create the bill data
       const billData = {
         // Customer details
         customerName: values.customer_name,
         customerNIC: values.customer_nic,
         customerAddress: values.customer_address,
-        
+
         // Bike details
         bikeModel: selectedModel.name,
         bikePrice: selectedModel.price,
         motorNumber: values.motor_number,
         chassisNumber: values.chassis_number,
-        
+
         // Vehicle type flags
         isEbicycle: selectedModel.is_ebicycle || false,
         isTricycle: selectedModel.is_tricycle || false,
-        
+
         // Bill type
         billType: billType,
-        
+
         // Dates
         billDate: values.bill_date ? values.bill_date.toISOString() : new Date().toISOString(),
-        
+
         // Advance payment
         isAdvancePayment: isAdvancePayment,
       };
-      
+
       // Set vehicle type
       if (selectedModel.is_tricycle) {
         billData.vehicleType = 'E-TRICYCLE';
@@ -211,22 +211,22 @@ const BillGenerator = () => {
         // RMV charges depend on bill type
         billData.rmvCharge = billType === 'leasing' ? 13500 : 13000;
       }
-      
+
       // Handle bill type specific fields
       if (billType === 'leasing' && !selectedModel.is_ebicycle && !selectedModel.is_tricycle) {
         // For leasing, add down payment
         const downPayment = parseFloat(values.down_payment || 0);
         billData.downPayment = downPayment;
-        
+
         // Total amount for leasing is down payment only
         billData.totalAmount = downPayment;
-        
+
         // Handle advance payment for leasing
         if (isAdvancePayment) {
           const advanceAmount = parseFloat(values.advance_amount || 0);
           billData.advanceAmount = advanceAmount;
           billData.balanceAmount = downPayment - advanceAmount;
-          
+
           if (values.estimated_delivery_date) {
             billData.estimatedDeliveryDate = values.estimated_delivery_date.toISOString();
           }
@@ -239,23 +239,23 @@ const BillGenerator = () => {
         } else {
           billData.totalAmount = selectedModel.price + 13000;  // Regular bikes: price + RMV
         }
-        
+
         // Handle advance payment for cash
         if (isAdvancePayment) {
           const advanceAmount = parseFloat(values.advance_amount || 0);
           billData.advanceAmount = advanceAmount;
           billData.balanceAmount = billData.totalAmount - advanceAmount;
-          
+
           if (values.estimated_delivery_date) {
             billData.estimatedDeliveryDate = values.estimated_delivery_date.toISOString();
           }
         }
       }
-      
+
       console.log('Submitting bill data:', billData);
-      
+
       const response = await apiClient.post('/bills', billData);
-      
+
       toast.success('Bill generated successfully');
       navigate(`/bills/${response._id || response.id}`);
     } catch (error) {
@@ -454,9 +454,9 @@ const BillGenerator = () => {
         ]}
       >
         <div className="h-[700px]">
-          <iframe 
-            src={previewUrl} 
-            title="Bill Preview" 
+          <iframe
+            src={previewUrl}
+            title="Bill Preview"
             className="w-full h-full border-0"
           />
         </div>
