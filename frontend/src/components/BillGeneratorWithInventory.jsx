@@ -34,7 +34,7 @@ const BillGeneratorWithInventory = () => {
     try {
       setLoading(true);
       const response = await apiClient.get('/bike-models');
-      setBikeModels(response.data || []); // Access .data and provide fallback
+      setBikeModels(response || []); // Use the response directly
     } catch (error) {
       console.error('Error fetching bike models:', error);
       message.error('Failed to fetch bike models');
