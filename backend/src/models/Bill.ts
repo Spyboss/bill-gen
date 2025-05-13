@@ -264,7 +264,7 @@ BillSchema.pre('save', function(this: any, next) {
 BillSchema.plugin(encryptionPlugin);
 
 // Create indexes for better query performance
-BillSchema.index({ billNumber: 1 });
+// Note: billNumber already has an index from the unique: true in the schema
 BillSchema.index({ owner: 1 });
 BillSchema.index({ customerName: 'text' });
 
