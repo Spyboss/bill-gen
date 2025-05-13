@@ -19,7 +19,7 @@ const BillGeneratorWithInventory = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [previewLoading, setPreviewLoading] = useState(false);
   const [bikePrice, setBikePrice] = useState(0);
-  
+
   // Inventory related states
   const [inventoryModalVisible, setInventoryModalVisible] = useState(false);
   const [availableBikes, setAvailableBikes] = useState([]);
@@ -45,18 +45,18 @@ const BillGeneratorWithInventory = () => {
 
   const handleModelChange = async (modelId) => {
     if (!modelId) return;
-    
+
     // Find the selected model from the models list
     const model = bikeModels.find(model => model._id === modelId);
-    
+
     if (model) {
       setSelectedModel(model);
-      
+
       // Update the form with the model price
       form.setFieldsValue({
         bike_price: model.price,
       });
-      
+
       // If it's an e-bicycle or a tricycle, enforce cash bill type
       if (model.is_ebicycle || model.is_tricycle) {
         setBillType('cash');
@@ -64,7 +64,7 @@ const BillGeneratorWithInventory = () => {
       } else {
         setBikePrice(model.price);
       }
-      
+
       // Clear any previously selected inventory item and related fields
       setSelectedInventoryItem(null);
       form.setFieldsValue({
@@ -80,11 +80,12 @@ const BillGeneratorWithInventory = () => {
       message.warning('Please select a bike model first');
       return;
     }
-    
+
     try {
       setLoadingInventory(true);
       const response = await getAvailableBikesByModel(selectedModel._id);
-      setAvailableBikes(response.data || []); // Access .data and provide fallback
+      console.log('Available bikes response:', response);
+      setAvailableBikes(response || []); // apiClient.get already returns the data
       setInventoryModalVisible(true);
     } catch (error) {
       console.error('Error fetching available bikes:', error);
@@ -96,28 +97,28 @@ const BillGeneratorWithInventory = () => {
 
   const handleSelectInventoryItem = (item) => {
     setSelectedInventoryItem(item);
-    
+
     // Update form with the selected bike's details
     form.setFieldsValue({
       motor_number: item.motorNumber,
       chassis_number: item.chassisNumber,
       inventoryItemId: item._id
     });
-    
+
     setInventoryModalVisible(false);
   };
 
   const handlePreview = async () => {
     try {
       await form.validateFields();
-      
+
       setPreviewLoading(true);
-      
+
       const values = form.getFieldsValue();
-      
+
       // Calculate total amount
       const totalAmount = calculateTotalAmount(values);
-      
+
       // Prepare bill data for preview
       const billData = {
         customerName: values.customer_name,
@@ -133,7 +134,7 @@ const BillGeneratorWithInventory = () => {
         totalAmount: totalAmount,
         billDate: values.bill_date ? values.bill_date.format('YYYY-MM-DD') : new Date().toISOString().split('T')[0]
       };
-      
+
       // Add leasing details if applicable
       if (billType === 'leasing') {
         billData.downPayment = values.down_payment;
@@ -146,28 +147,28 @@ const BillGeneratorWithInventory = () => {
           billData.rmvCharge = 0;
         }
       }
-      
+
       // Add advance payment details if applicable
       if (isAdvancePayment) {
         billData.isAdvancePayment = true;
         billData.advanceAmount = values.advance_amount;
         billData.balanceAmount = totalAmount - values.advance_amount;
-        
+
         if (values.estimated_delivery_date) {
           billData.estimatedDeliveryDate = values.estimated_delivery_date.format('YYYY-MM-DD');
         }
       }
-      
+
       // Add inventory item ID if selected
       if (selectedInventoryItem) {
         billData.inventoryItemId = selectedInventoryItem._id;
       }
-      
+
       // Generate preview PDF
       const response = await apiClient.post('/bills/preview', billData, {
         responseType: 'blob'
       });
-      
+
       // Create a URL for the blob
       const url = URL.createObjectURL(new Blob([response], { type: 'application/pdf' }));
       setPreviewUrl(url);
@@ -185,7 +186,7 @@ const BillGeneratorWithInventory = () => {
     if (!model) return 0;
 
     const bikePrice = parseFloat(model.price);
-    
+
     // For e-bicycles and tricycles, the price is already the final price
     if (model.is_ebicycle || model.is_tricycle) {
       return bikePrice;
@@ -203,57 +204,57 @@ const BillGeneratorWithInventory = () => {
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
-      
+
       // Create the bill data
       const billData = {
         // Customer details
         customerName: values.customer_name,
         customerNIC: values.customer_nic,
         customerAddress: values.customer_address,
-        
+
         // Bike details
         bikeModel: selectedModel.name,
         bikePrice: selectedModel.price,
         motorNumber: values.motor_number,
         chassisNumber: values.chassis_number,
-        
+
         // Vehicle type flags
         isEbicycle: selectedModel.is_ebicycle || false,
         isTricycle: selectedModel.is_tricycle || false,
-        
+
         // Bill type
         billType: billType,
-        
+
         // Dates
         billDate: values.bill_date ? values.bill_date.toISOString() : new Date().toISOString(),
-        
+
         // Advance payment
         isAdvancePayment: isAdvancePayment,
       };
-      
+
       // Add inventory item ID if selected
       if (selectedInventoryItem) {
         billData.inventoryItemId = selectedInventoryItem._id;
       }
-      
+
       // Add leasing details if applicable
       if (billType === 'leasing') {
         billData.downPayment = parseFloat(values.down_payment || 0);
       }
-      
+
       // Add advance payment details if applicable
       if (isAdvancePayment) {
         billData.advanceAmount = parseFloat(values.advance_amount || 0);
-        
+
         if (values.estimated_delivery_date) {
           billData.estimatedDeliveryDate = values.estimated_delivery_date.toISOString();
         }
       }
-      
+
       console.log('Submitting bill data:', billData);
-      
+
       const response = await apiClient.post('/bills', billData);
-      
+
       toast.success('Bill generated successfully');
       navigate(`/bills/${response._id || response.id}`);
     } catch (error) {
@@ -291,8 +292,8 @@ const BillGeneratorWithInventory = () => {
       title: 'Action',
       key: 'action',
       render: (_, record) => (
-        <Button 
-          type="primary" 
+        <Button
+          type="primary"
           size="small"
           onClick={() => handleSelectInventoryItem(record)}
         >
@@ -324,7 +325,7 @@ const BillGeneratorWithInventory = () => {
         <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 mb-6 rounded border border-yellow-200 dark:border-yellow-700">
           <h3 className="text-yellow-800 dark:text-yellow-300 font-medium">Bike Selected from Inventory</h3>
           <p className="text-yellow-600 dark:text-yellow-400 text-sm mt-1">
-            Motor Number: {selectedInventoryItem.motorNumber}, 
+            Motor Number: {selectedInventoryItem.motorNumber},
             Chassis Number: {selectedInventoryItem.chassisNumber}
           </p>
         </div>
@@ -358,9 +359,9 @@ const BillGeneratorWithInventory = () => {
         </Form.Item>
 
         <div className="mb-4">
-          <Button 
-            type="dashed" 
-            onClick={showInventoryModal} 
+          <Button
+            type="dashed"
+            onClick={showInventoryModal}
             disabled={!selectedModel}
             className="w-full"
           >
@@ -490,15 +491,15 @@ const BillGeneratorWithInventory = () => {
           <Button onClick={() => navigate('/bills')}>
             Cancel
           </Button>
-          <Button 
-            type="default" 
+          <Button
+            type="default"
             onClick={handlePreview}
             loading={previewLoading}
           >
             Preview
           </Button>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             htmlType="submit"
             loading={loading}
           >
@@ -526,8 +527,8 @@ const BillGeneratorWithInventory = () => {
         ) : availableBikes.length === 0 ? (
           <div className="text-center py-8 dark:text-gray-300">
             <p>No available bikes found for this model.</p>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={() => navigate('/inventory/add')}
               className="mt-4"
             >
@@ -566,9 +567,9 @@ const BillGeneratorWithInventory = () => {
         ]}
       >
         <div className="h-[700px]">
-          <iframe 
-            src={previewUrl} 
-            title="Bill Preview" 
+          <iframe
+            src={previewUrl}
+            title="Bill Preview"
             className="w-full h-full border-0"
           />
         </div>
