@@ -1,3 +1,6 @@
+// Import crypto polyfill first
+import './utils/crypto-polyfill.js';
+
 // Load environment variables
 import dotenv from 'dotenv';
 import path from 'path';
@@ -91,7 +94,7 @@ app.use(cors({
         // For now, if there's no origin and it's not dev, let's assume it's not allowed for safety.
         // return callback(new Error('Not allowed by CORS (no origin)'), false);
         // Allowing no-origin for now, but this can be tightened.
-         return callback(null, true); 
+         return callback(null, true);
     }
     if (origin && allowedOrigins.indexOf(origin) === -1) {
       const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;

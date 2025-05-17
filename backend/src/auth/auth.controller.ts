@@ -1,9 +1,10 @@
+import '../utils/crypto-polyfill.js'; // Import the crypto polyfill first
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User.js';
-import { 
-  createToken, 
-  verifyToken, 
-  createRefreshToken, 
+import {
+  createToken,
+  verifyToken,
+  createRefreshToken,
   revokeTokens,
   verifyRefreshToken,
   revokeRefreshToken
@@ -40,26 +41,26 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     if (existingUser) {
       // Track repeated registration attempts
       securityMonitor.trackApiAnomaly('unknown', clientIp, `REGISTER:DUPLICATE:${email}`);
-      
+
       await securityDelay();
       res.status(409).json({ message: 'User already exists' });
       return;
     }
 
     // Create new user with all provided fields
-    const user = await User.create({ 
-      email, 
+    const user = await User.create({
+      email,
       password,
       name: name || undefined,
       nic: nic || undefined,
       address: address || undefined,
       phoneNumber: phoneNumber || undefined
     });
-    
+
     // Generate tokens
     const accessToken = await createToken(user._id.toString());
     const refreshToken = createRefreshToken(user._id.toString());
-    
+
     // Save refresh token hash to user for additional verification
     user.refreshTokenHash = hashToken(refreshToken);
     user.lastLogin = new Date();
@@ -67,9 +68,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     // Set refresh token as HttpOnly cookie
     res.cookie('refreshToken', refreshToken, cookieOptions);
-    
+
     logger.info(`User registered: ${user._id} (${email})`);
-    
+
     res.status(201).json({
       message: 'User registered successfully',
       accessToken,
@@ -90,47 +91,47 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
     const clientIp = req.ip || 'unknown';
-    
+
     // Find user and include password for verification
     const user = await User.findOne({ email }).select('+password');
-    
+
     if (!user) {
       // Track failed login attempt for security monitoring
       await securityMonitor.trackFailedLogin(email, clientIp);
-      
+
       // Don't reveal if email exists
       await securityDelay();
       res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
-    
+
     // Check if account is locked
     if (user.accountLocked) {
       // Track failed login attempt for security monitoring
       await securityMonitor.trackFailedLogin(user._id.toString(), clientIp);
-      
+
       logger.warn(`Login attempt on locked account: ${email} from IP ${clientIp}`);
       res.status(401).json({ message: 'Account is locked. Please reset your password or contact support.' });
       return;
     }
-    
+
     // Verify password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       // Track failed login attempt for security monitoring
       await securityMonitor.trackFailedLogin(user._id.toString(), clientIp);
-      
+
       // Increment failed login attempts
       user.loginAttempts = (user.loginAttempts || 0) + 1;
-      
+
       // Lock account after 5 failed attempts
       if (user.loginAttempts >= 5) {
         user.accountLocked = true;
         logger.warn(`Account locked due to multiple failed attempts: ${email} from IP ${clientIp}`);
       }
-      
+
       await user.save();
-      
+
       await securityDelay();
       res.status(401).json({ message: 'Invalid credentials' });
       return;
@@ -140,20 +141,20 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     user.loginAttempts = 0;
     user.accountLocked = false;
     user.lastLogin = new Date();
-    
+
     // Generate tokens
     const accessToken = await createToken(user._id.toString());
     const refreshToken = createRefreshToken(user._id.toString());
-    
+
     // Update user's refresh token hash and save
     user.refreshTokenHash = hashToken(refreshToken);
     await user.save();
-    
+
     // Set refresh token as HttpOnly cookie
     res.cookie('refreshToken', refreshToken, cookieOptions);
-    
+
     logger.info(`User login: ${user._id} (${email})`);
-    
+
     res.status(200).json({
       message: 'Login successful',
       accessToken,
@@ -183,7 +184,7 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
     // Get refresh token from cookies
     const refreshToken = req.cookies.refreshToken;
     const clientIp = req.ip || 'unknown';
-    
+
     if (!refreshToken) {
       res.status(401).json({ message: 'Refresh token is required' });
       return;
@@ -191,25 +192,25 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
 
     // Verify the refresh token from Redis
     const userId = await verifyRefreshToken(refreshToken);
-    
+
     if (!userId) {
       // Track invalid refresh token usage
       securityMonitor.trackApiAnomaly('unknown', clientIp, 'REFRESH:INVALID_TOKEN');
-      
+
       res.status(401).json({ message: 'Invalid refresh token' });
       return;
     }
 
     // Find the user to validate token
     const user = await User.findById(userId).select('+refreshTokenHash');
-    
+
     if (!user || !user.refreshTokenHash || user.refreshTokenHash !== hashToken(refreshToken)) {
       // Track suspicious refresh token activity
       securityMonitor.trackApiAnomaly(userId, clientIp, 'REFRESH:TOKEN_MISMATCH');
-      
+
       // Revoke the token
       await revokeRefreshToken(refreshToken);
-      
+
       res.status(401).json({ message: 'Invalid refresh token' });
       return;
     }
@@ -217,17 +218,17 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
     // Generate new tokens
     const newAccessToken = await createToken(user._id.toString());
     const newRefreshToken = createRefreshToken(user._id.toString());
-    
+
     // Revoke the old refresh token
     await revokeRefreshToken(refreshToken);
-    
+
     // Update refresh token hash
     user.refreshTokenHash = hashToken(newRefreshToken);
     await user.save();
 
     // Set new refresh token
     res.cookie('refreshToken', newRefreshToken, cookieOptions);
-    
+
     res.status(200).json({
       accessToken: newAccessToken
     });
@@ -242,18 +243,18 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
     // Get refresh token from cookies
     const refreshToken = req.cookies.refreshToken;
     const clientIp = req.ip || 'unknown';
-    
+
     if (refreshToken) {
       // Revoke the refresh token first
       await revokeRefreshToken(refreshToken);
-      
+
       // Verify the token to get user ID
       const userId = await verifyRefreshToken(refreshToken);
-      
+
       if (userId) {
         // Find and update user
         await User.findByIdAndUpdate(userId, { $unset: { refreshTokenHash: 1 } });
-        
+
         // Revoke all tokens for this user
         await revokeTokens(userId);
       }
@@ -262,10 +263,10 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
     // Also try to revoke tokens for the authenticated user
     if (req.user && req.user.id) {
       await revokeTokens(req.user.id);
-      
+
       // Clear user's refresh token hash
       await User.findByIdAndUpdate(req.user.id, { $unset: { refreshTokenHash: 1 } });
-      
+
       logger.info(`User logout: ${req.user.id}`);
     }
 
@@ -275,7 +276,7 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
       secure: process.env.NODE_ENV === 'production',
       path: '/'
     });
-    
+
     res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
     logger.error(`Logout error: ${(error as Error).message}`);
@@ -286,14 +287,14 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
 export const getCurrentUser = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.id;
-    
+
     if (!userId || !Types.ObjectId.isValid(userId)) {
       res.status(401).json({ message: 'Unauthorized' });
       return;
     }
 
     const user = await User.findById(userId);
-    
+
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
@@ -342,23 +343,23 @@ const hashToken = (token: string): string => {
 export const createAdmin = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password, name, setupKey } = req.body;
-    
+
     // Verify setup key (this should be a strong, unique key known only to administrators)
     // For development purposes, we're using a simple check
     const expectedSetupKey = process.env.ADMIN_SETUP_KEY || 'admin-setup-secret-key';
-    
+
     if (setupKey !== expectedSetupKey) {
       res.status(403).json({ message: 'Invalid setup key' });
       return;
     }
-    
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(409).json({ message: 'User already exists' });
       return;
     }
-    
+
     // Create admin user
     const user = await User.create({
       email,
@@ -366,9 +367,9 @@ export const createAdmin = async (req: Request, res: Response): Promise<void> =>
       name: name || 'Administrator',
       role: 'admin'
     });
-    
+
     logger.info(`Admin user created: ${user._id} (${email})`);
-    
+
     res.status(201).json({
       message: 'Admin user created successfully',
       userId: user._id
@@ -377,4 +378,4 @@ export const createAdmin = async (req: Request, res: Response): Promise<void> =>
     logger.error(`Admin creation error: ${(error as Error).message}`);
     res.status(500).json({ message: 'Error creating admin user' });
   }
-}; 
+};

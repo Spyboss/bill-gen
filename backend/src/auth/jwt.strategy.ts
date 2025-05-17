@@ -1,3 +1,4 @@
+import '../utils/crypto-polyfill.js'; // Import the crypto polyfill first
 import { SignJWT, jwtVerify } from 'jose';
 import * as crypto from 'crypto';
 import { getRedisClient } from '../config/redis.js';
@@ -9,7 +10,7 @@ console.log('typeof crypto at top of jwt.strategy:', typeof crypto);
 // 256-bit secret (32 chars) from env
 const getSecret = () => {
   let secret = process.env.JWT_SECRET || '';
-  
+
   // In development mode, if the secret is less than 32 characters,
   // pad it to 32 characters to meet the requirement
   if (process.env.NODE_ENV === 'development' && secret.length < 32) {
@@ -20,7 +21,7 @@ const getSecret = () => {
     // In production, throw error if not secure
     throw new Error('JWT_SECRET must be at least 32 characters');
   }
-  
+
   return new TextEncoder().encode(secret);
 };
 
@@ -36,8 +37,8 @@ const REFRESH_TOKEN_EXPIRY_SECONDS = process.env.NODE_ENV === 'production' ? 7 *
 export const createToken = async (userId: string): Promise<string> => {
   console.log('typeof crypto in createToken:', typeof crypto);
   const tokenId = crypto.randomBytes(16).toString('hex'); // Unique token ID for revocation
-  
-  return await new SignJWT({ 
+
+  return await new SignJWT({
     sub: userId,
     jti: tokenId // JWT ID for revocation of specific tokens
   })
@@ -57,12 +58,12 @@ export const createToken = async (userId: string): Promise<string> => {
  */
 export const createRefreshToken = (userId: string): string => {
   const refreshToken = crypto.randomBytes(40).toString('hex');
-  
+
   // Store refresh token in Redis with expiration
   try {
     const redis = getRedisClient();
     redis.set(
-      `refresh:${refreshToken}`, 
+      `refresh:${refreshToken}`,
       userId,
       'EX',
       REFRESH_TOKEN_EXPIRY_SECONDS
@@ -72,7 +73,7 @@ export const createRefreshToken = (userId: string): string => {
   } catch (error) {
     logger.error(`Redis error when storing refresh token: ${(error as Error).message}`);
   }
-  
+
   return refreshToken;
 };
 
@@ -87,11 +88,11 @@ export const verifyToken = async (token: string) => {
       issuer: 'bill-gen-api',
       audience: 'bill-gen-client',
     });
-    
+
     if (!payload.sub) {
       throw new Error('Invalid token: missing subject claim');
     }
-    
+
     // Check if token has been revoked
     const isRevoked = await isTokenRevoked(payload.sub as string, payload.jti as string);
     if (isRevoked) {
@@ -103,10 +104,10 @@ export const verifyToken = async (token: string) => {
       ).catch(error => {
         logger.error(`Error tracking revoked token usage: ${(error as Error).message}`);
       });
-      
+
       throw new Error('Token has been revoked');
     }
-    
+
     return payload;
   } catch (error) {
     logger.error(`Token verification error: ${(error as Error).message}`);
@@ -123,17 +124,17 @@ export const verifyToken = async (token: string) => {
 export const isTokenRevoked = async (userId: string, tokenId?: string): Promise<boolean> => {
   try {
     const redis = getRedisClient();
-    
+
     // Check for user-level revocation
     const userRevoked = await redis.get(`revoked:user:${userId}`);
     if (userRevoked) return true;
-    
+
     // Check for specific token revocation if token ID provided
     if (tokenId) {
       const tokenRevoked = await redis.get(`revoked:token:${tokenId}`);
       if (tokenRevoked) return true;
     }
-    
+
     return false;
   } catch (error) {
     logger.error(`Token revocation check error: ${(error as Error).message}`);
@@ -166,12 +167,12 @@ export const verifyRefreshToken = async (refreshToken: string): Promise<string |
   try {
     const redis = getRedisClient();
     const userId = await redis.get(`refresh:${refreshToken}`);
-    
+
     // If no user ID found, token is invalid or expired
     if (!userId) {
       return null;
     }
-    
+
     return userId;
   } catch (error) {
     logger.error(`Refresh token verification error: ${(error as Error).message}`);
@@ -191,4 +192,4 @@ export const revokeRefreshToken = async (refreshToken: string): Promise<void> =>
     logger.error(`Refresh token revocation error: ${(error as Error).message}`);
     throw new Error('Failed to revoke refresh token');
   }
-}; 
+};
