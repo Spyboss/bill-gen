@@ -1,7 +1,25 @@
-// Import our jose-crypto implementation first
-import crypto from '../utils/jose-crypto.js';
+// Ensure we have a crypto object
+const crypto = globalThis.crypto || {
+  randomBytes: (size) => {
+    console.log('Using fallback randomBytes in jwt.strategy');
+    const array = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      array[i] = Math.floor(Math.random() * 256);
+    }
+    return {
+      toString: (encoding) => {
+        if (encoding === 'hex') {
+          return Array.from(array)
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+        }
+        return array.toString();
+      }
+    };
+  }
+};
 
-// Import jose after crypto is set up
+// Import jose
 import { SignJWT, jwtVerify } from 'jose';
 import { getRedisClient } from '../config/redis.js';
 import logger from '../utils/logger.js';

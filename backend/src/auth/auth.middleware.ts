@@ -1,14 +1,4 @@
-// Ensure crypto is available
-if (typeof globalThis.crypto === 'undefined') {
-  try {
-    // Try to import the crypto polyfill
-    import('../utils/crypto-polyfill.js').catch(error => {
-      console.error('Failed to import crypto polyfill in auth.middleware:', error);
-    });
-  } catch (error) {
-    console.error('Error importing crypto polyfill in auth.middleware:', error);
-  }
-}
+// No need for crypto in this file, removed crypto polyfill import
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from './jwt.strategy.js';
 import User, { UserRole } from '../models/User.js';

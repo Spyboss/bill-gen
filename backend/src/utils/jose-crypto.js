@@ -1,7 +1,8 @@
 // jose-crypto.js
 // This file provides a direct implementation for jose to use instead of relying on the crypto module
 
-import * as crypto from 'crypto';
+// Create a minimal crypto object if it doesn't exist
+const crypto = globalThis.crypto || {};
 
 // Create a TextEncoder implementation if not available
 if (typeof TextEncoder === 'undefined') {
@@ -29,7 +30,7 @@ if (!crypto.subtle) {
     async importKey(format, keyData, algorithm, extractable, keyUsages) {
       return { type: algorithm.name, key: keyData };
     },
-    
+
     async sign(algorithm, key, data) {
       if (algorithm.name === 'HMAC') {
         const hmac = crypto.createHmac('sha256', Buffer.from(key.key));
@@ -38,23 +39,23 @@ if (!crypto.subtle) {
       }
       throw new Error(`Unsupported algorithm: ${algorithm.name}`);
     },
-    
+
     async verify(algorithm, key, signature, data) {
       if (algorithm.name === 'HMAC') {
         const hmac = crypto.createHmac('sha256', Buffer.from(key.key));
         hmac.update(Buffer.from(data));
         const expected = hmac.digest();
-        
+
         // Compare signatures
         if (expected.length !== signature.length) {
           return false;
         }
-        
+
         let result = 0;
         for (let i = 0; i < expected.length; i++) {
           result |= expected[i] ^ signature[i];
         }
-        
+
         return result === 0;
       }
       throw new Error(`Unsupported algorithm: ${algorithm.name}`);

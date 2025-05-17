@@ -1,14 +1,24 @@
-// Ensure crypto is available
-if (typeof globalThis.crypto === 'undefined') {
-  try {
-    // Try to import the crypto polyfill
-    import('../utils/crypto-polyfill.js').catch(error => {
-      console.error('Failed to import crypto polyfill in auth.controller:', error);
-    });
-  } catch (error) {
-    console.error('Error importing crypto polyfill in auth.controller:', error);
+// Ensure we have a crypto object
+const crypto = globalThis.crypto || {
+  randomBytes: (size) => {
+    console.log('Using fallback randomBytes in auth.controller');
+    const array = new Uint8Array(size);
+    for (let i = 0; i < size; i++) {
+      array[i] = Math.floor(Math.random() * 256);
+    }
+    return {
+      toString: (encoding) => {
+        if (encoding === 'hex') {
+          return Array.from(array)
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+        }
+        return array.toString();
+      }
+    };
   }
-}
+};
+
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User.js';
 import {
@@ -22,7 +32,6 @@ import {
 import { Types } from 'mongoose';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
-import * as crypto from 'crypto';
 console.log('typeof crypto at top of auth.controller:', typeof crypto);
 
 // Define the extended Request type with user property
