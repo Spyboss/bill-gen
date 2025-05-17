@@ -1,16 +1,12 @@
-# Using Node.js 22 bookworm-slim variant for better security and stability
-FROM node:22-bookworm-slim
+# Using Node.js 18 Alpine for compatibility with Railway
+FROM node:18-alpine
 
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=8080
 
 # Install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    ca-certificates \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl ca-certificates
 
 # Set working directory
 WORKDIR /app
@@ -29,7 +25,9 @@ RUN cp .env.production .env
 
 # Build the application
 RUN npm run build:prod || echo "Build completed with warnings" && \
-    mkdir -p dist
+    mkdir -p dist && \
+    echo "Checking for deprecated packages..." && \
+    npm ls inflight rimraf @humanwhocodes/object-schema @humanwhocodes/config-array are-we-there-yet gauge || true
 
 # Expose the port the app runs on
 EXPOSE 8080

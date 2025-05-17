@@ -5,10 +5,11 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
+    "preinstall": "echo 'Applying package overrides...'",
     "start": "node -r dotenv/config dist/server.js",
     "dev": "tsx watch src/server.ts",
     "build": "tsc && npm run copy-assets",
-    "build:prod": "NODE_ENV=production tsc --skipLibCheck || npm run build:fallback",
+    "build:prod": "NODE_ENV=production npm ls inflight rimraf @humanwhocodes/object-schema @humanwhocodes/config-array are-we-there-yet gauge || true && tsc --skipLibCheck || npm run build:fallback",
     "build:fallback": "echo 'TypeScript compilation failed, using fallback build' && npm run copy-src && npm run copy-assets",
     "copy-src": "cpx \"src/**/*.{js,ts}\" dist",
     "copy-assets": "cpx \"src/templates/**/*\" dist/templates",
@@ -28,6 +29,8 @@
   "author": "TMR",
   "license": "ISC",
   "dependencies": {
+    "@eslint/config-array": "^1.0.0",
+    "@eslint/object-schema": "^1.0.0",
     "@fastify/helmet": "^13.0.1",
     "@types/archiver": "^6.0.3",
     "archiver": "^7.0.1",
@@ -44,6 +47,7 @@
     "helmet": "^7.2.0",
     "ioredis": "^5.3.2",
     "jose": "^6.0.10",
+    "lru-cache": "^7.14.1",
     "mongodb": "^6.3.0",
     "mongodb-client-encryption": "^6.3.0",
     "mongoose": "^8.1.1",
@@ -51,6 +55,7 @@
     "multer": "^1.4.5-lts.1",
     "pdfkit": "^0.14.0",
     "rate-limiter-flexible": "^7.0.0",
+    "rimraf": "^4.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "winston": "^3.11.0"

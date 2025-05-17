@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm install --no-package-lock && npm run build:prod"
+buildCommand = "cp .npmrc ~/.npmrc && npm install --no-package-lock && npm ls inflight rimraf @humanwhocodes/object-schema @humanwhocodes/config-array are-we-there-yet gauge || true && npm run build:prod"
 
 [deploy]
 startCommand = "ls -la && ls -la dist && cat dist/server.js || echo 'server.js not found' && node -r dotenv/config dist/server.js"
