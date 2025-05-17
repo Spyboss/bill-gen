@@ -16,9 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Copy package files first for better caching
-COPY backend/package*.json ./
+COPY backend/package*.json backend/.npmrc ./
 
-# Install dependencies
+# Install dependencies with overrides
 RUN npm install --omit=dev
 
 # Copy the rest of the application

@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm install && npm run build:prod"
+buildCommand = "npm install --no-package-lock && npm run build:prod"
 
 [deploy]
 startCommand = "ls -la && ls -la dist && cat dist/server.js || echo 'server.js not found' && node -r dotenv/config dist/server.js"
