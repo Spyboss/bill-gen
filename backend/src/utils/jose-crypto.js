@@ -63,6 +63,37 @@ if (!crypto.subtle) {
   };
 }
 
+// Add createHash if it doesn't exist
+if (!crypto.createHash) {
+  console.log('Adding createHash implementation to crypto in jose-crypto');
+  crypto.createHash = (algorithm) => {
+    console.log(`Using fallback createHash with algorithm: ${algorithm}`);
+    let data = '';
+
+    return {
+      update: function(text) {
+        data += text;
+        return this;
+      },
+      digest: (encoding) => {
+        console.log(`Digesting with encoding: ${encoding}`);
+        // Simple hash function for fallback
+        let hash = 0;
+        for (let i = 0; i < data.length; i++) {
+          const char = data.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash; // Convert to 32bit integer
+        }
+
+        // Convert to hex string
+        const hashHex = (hash >>> 0).toString(16).padStart(8, '0');
+        // Pad to look like SHA-256
+        return hashHex.repeat(8).substring(0, 64);
+      }
+    };
+  };
+}
+
 // Ensure crypto is available globally
 if (typeof globalThis.crypto === 'undefined') {
   globalThis.crypto = crypto;

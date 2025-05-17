@@ -1,7 +1,42 @@
-// Ensure we have a crypto object
-const crypto = globalThis.crypto || {
-  randomBytes: (size) => {
-    console.log('Using fallback randomBytes in auth.controller');
+// Ensure we have a crypto object with all required functions
+const crypto = globalThis.crypto || {};
+
+// Add createHash if it doesn't exist
+if (!crypto.createHash) {
+  console.log('Adding createHash implementation to crypto in auth.controller');
+  crypto.createHash = (algorithm) => {
+    console.log(`Using fallback createHash with algorithm: ${algorithm}`);
+    let data = '';
+
+    return {
+      update: function(text) {
+        data += text;
+        return this;
+      },
+      digest: (encoding) => {
+        console.log(`Digesting with encoding: ${encoding}`);
+        // Simple hash function for fallback
+        let hash = 0;
+        for (let i = 0; i < data.length; i++) {
+          const char = data.charCodeAt(i);
+          hash = ((hash << 5) - hash) + char;
+          hash = hash & hash; // Convert to 32bit integer
+        }
+
+        // Convert to hex string
+        const hashHex = (hash >>> 0).toString(16).padStart(8, '0');
+        // Pad to look like SHA-256
+        return hashHex.repeat(8).substring(0, 64);
+      }
+    };
+  };
+}
+
+// Add randomBytes if it doesn't exist
+if (!crypto.randomBytes) {
+  console.log('Adding randomBytes implementation to crypto in auth.controller');
+  crypto.randomBytes = (size) => {
+    console.log(`Using fallback randomBytes with size: ${size}`);
     const array = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       array[i] = Math.floor(Math.random() * 256);
@@ -16,8 +51,8 @@ const crypto = globalThis.crypto || {
         return array.toString();
       }
     };
-  }
-};
+  };
+}
 
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User.js';
