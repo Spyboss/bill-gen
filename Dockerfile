@@ -14,8 +14,8 @@ WORKDIR /app
 # Copy package files first for better caching
 COPY backend/package*.json backend/.npmrc ./
 
-# Install dependencies with overrides
-RUN npm install --omit=dev
+# Install dependencies with overrides and global tools
+RUN npm install --omit=dev && npm install -g cpx
 
 # Copy the rest of the application
 COPY backend ./

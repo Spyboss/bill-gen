@@ -1,4 +1,14 @@
-import '../utils/crypto-polyfill.js'; // Import the crypto polyfill first
+// Ensure crypto is available
+if (typeof globalThis.crypto === 'undefined') {
+  try {
+    // Try to import the crypto polyfill
+    import('../utils/crypto-polyfill.js').catch(error => {
+      console.error('Failed to import crypto polyfill in auth.controller:', error);
+    });
+  } catch (error) {
+    console.error('Error importing crypto polyfill in auth.controller:', error);
+  }
+}
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User.js';
 import {

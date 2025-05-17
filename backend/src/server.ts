@@ -1,5 +1,33 @@
 // Import crypto polyfill first
-import './utils/crypto-polyfill.js';
+try {
+  // Try to import the crypto polyfill
+  // @ts-ignore
+  globalThis.require = require;
+  import('./utils/crypto-polyfill.js').catch(error => {
+    console.error('Failed to import crypto polyfill:', error);
+    try {
+      // Fallback to CommonJS version
+      // @ts-ignore
+      require('./utils/crypto-polyfill.cjs');
+    } catch (requireError) {
+      console.error('Failed to require crypto polyfill:', requireError);
+      // Create a minimal crypto object if all else fails
+      if (typeof globalThis.crypto === 'undefined') {
+        globalThis.crypto = {
+          subtle: {},
+          getRandomValues: (array) => {
+            for (let i = 0; i < array.length; i++) {
+              array[i] = Math.floor(Math.random() * 256);
+            }
+            return array;
+          }
+        };
+      }
+    }
+  });
+} catch (error) {
+  console.error('Error setting up crypto polyfill:', error);
+}
 
 // Load environment variables
 import dotenv from 'dotenv';

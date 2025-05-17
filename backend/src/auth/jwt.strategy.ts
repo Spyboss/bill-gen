@@ -1,6 +1,8 @@
-import '../utils/crypto-polyfill.js'; // Import the crypto polyfill first
+// Import our jose-crypto implementation first
+import crypto from '../utils/jose-crypto.js';
+
+// Import jose after crypto is set up
 import { SignJWT, jwtVerify } from 'jose';
-import * as crypto from 'crypto';
 import { getRedisClient } from '../config/redis.js';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
