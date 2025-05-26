@@ -82,6 +82,17 @@ export default function Navbar() {
 
                   {/* Link to Bike Models Management */}
                   <Link
+                    to="/quotations"
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      location.pathname.startsWith('/quotations')
+                        ? 'border-blue-500 text-gray-900 dark:text-white'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white dark:hover:border-gray-700'
+                    }`}
+                  >
+                    Quotations
+                  </Link>
+
+                  <Link
                     to="/admin/bike-models"
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                       location.pathname.startsWith('/admin/bike-models')
@@ -315,6 +326,13 @@ export default function Navbar() {
               onClick={() => setUserMenuOpen(false)}
             >
               Inventory
+            </Link>
+            <Link
+              to="/quotations"
+              className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"
+              onClick={() => setUserMenuOpen(false)}
+            >
+              Quotations
             </Link>
             {/* Mobile Menu Link for Bike Models Management */}
             <Link

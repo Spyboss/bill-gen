@@ -114,10 +114,13 @@ import bikeModelsRoutes from './routes/bike-models.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
 import authRoutes from './auth/auth.routes.js';
 import gdprRoutes from './routes/gdprRoutes.js';
+import quotationRoutes from './routes/quotationRoutes.js';
 import { apiRateLimit } from './auth/rate-limit.middleware.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 import { applySecurityMiddleware } from './middleware/security-middleware.js';
 import Bill from './models/Bill.js';
+import Quotation from './models/Quotation.js';
+import User from './models/User.js';
 
 // Initialize express
 const app = express();
@@ -202,7 +205,8 @@ app.use(apiRateLimit);
 app.use((req, res, next) => {
   req.app.locals.models = {
     User,
-    Bill
+    Bill,
+    Quotation
   };
   next();
 });
@@ -218,6 +222,7 @@ app.get('/', (req, res) => {
       '/api/bills',
       '/api/bike-models',
       '/api/inventory',
+      '/api/quotations',
       '/api/gdpr'
     ]
   });
@@ -227,6 +232,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/bike-models', bikeModelsRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/quotations', quotationRoutes);
 app.use('/api/gdpr', gdprRoutes);
 
 // Error handling

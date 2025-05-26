@@ -38,6 +38,25 @@ export default function Dashboard() {
         </div>
 
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Quotations</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">Manage quotations and invoices</p>
+          <div className="flex flex-col space-y-2">
+            <Link
+              to="/quotations"
+              className="inline-block px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 dark:hover:bg-orange-500 text-center"
+            >
+              View Quotations
+            </Link>
+            <Link
+              to="/quotations/new"
+              className="inline-block px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 dark:hover:bg-orange-400 text-center"
+            >
+              New Quotation
+            </Link>
+          </div>
+        </div>
+
+        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">Inventory</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-4">Manage your bike inventory</p>
           <div className="flex flex-col space-y-2">

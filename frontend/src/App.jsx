@@ -12,6 +12,10 @@ import BillGeneratorWithInventory from './components/BillGeneratorWithInventory'
 import BillConversion from './components/BillConversion';
 import BillEdit from './pages/BillEdit';
 import Login from './pages/auth/Login';
+import QuotationGenerator from './components/QuotationGenerator';
+import QuotationList from './pages/QuotationList';
+import QuotationView from './pages/QuotationView';
+import QuotationEdit from './pages/QuotationEdit';
 import Register from './pages/auth/Register';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'; // Import ThemeProvider and useTheme
@@ -44,6 +48,10 @@ const ProtectedInventoryReport = () => <ProtectedRoute><InventoryReport /></Prot
 const ProtectedBillGeneratorWithInventory = () => <ProtectedRoute><BillGeneratorWithInventory /></ProtectedRoute>;
 const ProtectedBikeModelList = () => <ProtectedRoute><BikeModelList /></ProtectedRoute>;
 const ProtectedBikeModelForm = () => <ProtectedRoute><BikeModelForm /></ProtectedRoute>;
+const ProtectedQuotationGenerator = () => <ProtectedRoute><QuotationGenerator /></ProtectedRoute>;
+const ProtectedQuotationList = () => <ProtectedRoute><QuotationList /></ProtectedRoute>;
+const ProtectedQuotationView = () => <ProtectedRoute><QuotationView /></ProtectedRoute>;
+const ProtectedQuotationEdit = () => <ProtectedRoute><QuotationEdit /></ProtectedRoute>;
 
 // Inner component to access ThemeContext and apply Ant Design theme
 const AppContent = () => {
@@ -81,6 +89,10 @@ const AppContent = () => {
             <Route path="/admin/bike-models" element={<ProtectedBikeModelList />} />
             <Route path="/admin/bike-models/new" element={<ProtectedBikeModelForm />} />
             <Route path="/admin/bike-models/edit/:id" element={<ProtectedBikeModelForm />} />
+            <Route path="/quotations" element={<ProtectedQuotationList />} />
+            <Route path="/quotations/new" element={<ProtectedQuotationGenerator />} />
+            <Route path="/quotations/:id" element={<ProtectedQuotationView />} />
+            <Route path="/quotations/:id/edit" element={<ProtectedQuotationEdit />} />
           </Routes>
         </main>
         <footer className="bg-gray-100 dark:bg-gray-800 py-4 text-center text-gray-600 dark:text-gray-400 text-sm mt-auto border-t border-gray-200 dark:border-gray-700">
