@@ -73,7 +73,8 @@ const QuotationSchema = new Schema({
   quotationNumber: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: true
   },
   quotationDate: {
     type: Date,
@@ -164,7 +165,7 @@ QuotationSchema.pre('validate', function(this: any, next) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const random = Math.floor(Math.random() * 900) + 100;
-    
+
     // Different prefixes for quotations vs invoices
     const prefix = this.type === 'invoice' ? 'INV' : 'QUO';
     this.quotationNumber = `GM-${prefix}-${year}${month}${day}-${random}`;
@@ -183,8 +184,7 @@ QuotationSchema.pre('save', function(this: any, next) {
   next();
 });
 
-// Index for better performance
-QuotationSchema.index({ quotationNumber: 1 });
+// Index for better performance (quotationNumber already has unique index)
 QuotationSchema.index({ owner: 1 });
 QuotationSchema.index({ customerName: 1 });
 QuotationSchema.index({ quotationDate: -1 });

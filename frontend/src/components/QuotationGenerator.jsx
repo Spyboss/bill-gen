@@ -63,12 +63,12 @@ const QuotationGenerator = () => {
   const handleItemChange = (index, field, value) => {
     const newItems = [...items];
     newItems[index][field] = value;
-    
+
     // Calculate amount for this item
     if (field === 'quantity' || field === 'rate') {
       newItems[index].amount = newItems[index].quantity * newItems[index].rate;
     }
-    
+
     setItems(newItems);
   };
 
@@ -91,7 +91,7 @@ const QuotationGenerator = () => {
     try {
       // Validate items
       const validItems = items.filter(item => item.description && item.quantity > 0 && item.rate >= 0);
-      
+
       if (validItems.length === 0) {
         toast.error('Please add at least one valid item');
         setLoading(false);
@@ -126,7 +126,7 @@ const QuotationGenerator = () => {
     try {
       const values = await form.validateFields();
       const validItems = items.filter(item => item.description && item.quantity > 0 && item.rate >= 0);
-      
+
       if (validItems.length === 0) {
         toast.error('Please add at least one valid item');
         return;
@@ -198,7 +198,7 @@ const QuotationGenerator = () => {
       title: 'Amount (LKR)',
       dataIndex: 'amount',
       key: 'amount',
-      width: 120,
+      width: 140,
       render: (text) => (
         <span>{text.toLocaleString()}</span>
       ),
@@ -373,7 +373,7 @@ const QuotationGenerator = () => {
             rowKey={(record, index) => index}
             className="mb-4"
           />
-          
+
           <div className="flex justify-between items-center mb-4">
             <Button
               type="dashed"
@@ -382,7 +382,7 @@ const QuotationGenerator = () => {
             >
               Add Item
             </Button>
-            
+
             <div className="text-lg font-semibold">
               Total: LKR {totalAmount.toLocaleString()}
             </div>

@@ -36,7 +36,7 @@ const QuotationView = () => {
       const response = await apiClient.get(`/quotations/${id}/pdf`, {
         responseType: 'blob'
       });
-      
+
       // Create blob link to download
       const url = window.URL.createObjectURL(new Blob([response]));
       const link = document.createElement('a');
@@ -46,7 +46,7 @@ const QuotationView = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      
+
       toast.success('PDF downloaded successfully');
     } catch (error) {
       console.error('Error downloading PDF:', error);
@@ -74,10 +74,12 @@ const QuotationView = () => {
     try {
       const response = await apiClient.post(`/quotations/${id}/convert-to-invoice`);
       toast.success('Quotation converted to invoice successfully');
+      // Navigate to the new invoice
       navigate(`/quotations/${response._id || response.id}`);
     } catch (error) {
       console.error('Error converting to invoice:', error);
       toast.error('Failed to convert to invoice');
+    } finally {
       setActionLoading(false);
     }
   };
@@ -120,7 +122,7 @@ const QuotationView = () => {
       title: 'Amount (LKR)',
       dataIndex: 'amount',
       key: 'amount',
-      width: 120,
+      width: 140,
       render: (amount) => amount.toLocaleString(),
     },
   ];

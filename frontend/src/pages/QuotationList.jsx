@@ -27,6 +27,16 @@ const QuotationList = () => {
     fetchQuotations();
   }, [pagination.current, pagination.pageSize, filters]);
 
+  // Refresh data when component comes back into focus
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchQuotations();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
   const fetchQuotations = async () => {
     setLoading(true);
     try {
@@ -42,7 +52,7 @@ const QuotationList = () => {
       });
 
       const response = await apiClient.get('/quotations', { params });
-      
+
       setQuotations(response.quotations || []);
       setPagination(prev => ({
         ...prev,
@@ -91,7 +101,7 @@ const QuotationList = () => {
       const response = await apiClient.get(`/quotations/${id}/pdf`, {
         responseType: 'blob'
       });
-      
+
       // Create blob link to download
       const url = window.URL.createObjectURL(new Blob([response]));
       const link = document.createElement('a');
@@ -101,7 +111,7 @@ const QuotationList = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      
+
       toast.success('PDF downloaded successfully');
     } catch (error) {
       console.error('Error downloading PDF:', error);
@@ -113,8 +123,9 @@ const QuotationList = () => {
     try {
       const response = await apiClient.post(`/quotations/${id}/convert-to-invoice`);
       toast.success('Quotation converted to invoice successfully');
+      // Refresh the list to show updated status
+      await fetchQuotations();
       navigate(`/quotations/${response._id || response.id}`);
-      fetchQuotations();
     } catch (error) {
       console.error('Error converting to invoice:', error);
       toast.error('Failed to convert to invoice');
@@ -172,10 +183,11 @@ const QuotationList = () => {
       render: (date) => moment(date).format('DD/MM/YYYY'),
     },
     {
-      title: 'Total Amount',
+      title: 'Total Amount (LKR)',
       dataIndex: 'totalAmount',
       key: 'totalAmount',
-      render: (amount) => `LKR ${amount.toLocaleString()}`,
+      width: 150,
+      render: (amount) => amount.toLocaleString(),
     },
     {
       title: 'Status',
@@ -217,12 +229,19 @@ const QuotationList = () => {
             title="Download PDF"
           />
           {record.type === 'quotation' && record.status !== 'converted' && (
-            <Button
-              type="text"
-              icon={<FileTextOutlined />}
-              onClick={() => handleConvertToInvoice(record._id)}
+            <Popconfirm
               title="Convert to Invoice"
-            />
+              description="Are you sure you want to convert this quotation to an invoice?"
+              onConfirm={() => handleConvertToInvoice(record._id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                type="text"
+                icon={<FileTextOutlined />}
+                title="Convert to Invoice"
+              />
+            </Popconfirm>
           )}
           <Popconfirm
             title="Are you sure you want to delete this quotation?"

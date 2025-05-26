@@ -36,7 +36,7 @@ const QuotationEdit = () => {
       const response = await apiClient.get(`/quotations/${id}`);
       setQuotation(response);
       setItems(response.items || [{ description: '', quantity: 1, rate: 0, amount: 0 }]);
-      
+
       // Set form values
       form.setFieldsValue({
         ...response,
@@ -88,12 +88,12 @@ const QuotationEdit = () => {
   const handleItemChange = (index, field, value) => {
     const newItems = [...items];
     newItems[index][field] = value;
-    
+
     // Calculate amount for this item
     if (field === 'quantity' || field === 'rate') {
       newItems[index].amount = newItems[index].quantity * newItems[index].rate;
     }
-    
+
     setItems(newItems);
   };
 
@@ -116,7 +116,7 @@ const QuotationEdit = () => {
     try {
       // Validate items
       const validItems = items.filter(item => item.description && item.quantity > 0 && item.rate >= 0);
-      
+
       if (validItems.length === 0) {
         toast.error('Please add at least one valid item');
         setSaving(false);
@@ -193,7 +193,7 @@ const QuotationEdit = () => {
       title: 'Amount (LKR)',
       dataIndex: 'amount',
       key: 'amount',
-      width: 120,
+      width: 140,
       render: (text) => (
         <span>{text.toLocaleString()}</span>
       ),
@@ -412,7 +412,7 @@ const QuotationEdit = () => {
             rowKey={(record, index) => index}
             className="mb-4"
           />
-          
+
           <div className="flex justify-between items-center mb-4">
             <Button
               type="dashed"
@@ -421,7 +421,7 @@ const QuotationEdit = () => {
             >
               Add Item
             </Button>
-            
+
             <div className="text-lg font-semibold">
               Total: LKR {totalAmount.toLocaleString()}
             </div>
