@@ -27,14 +27,14 @@ export const AuthProvider = ({ children }) => {
     const checkAuthStatus = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        
+
         if (token) {
           // Set axios authorization header
           apiClient.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          
+
           // Fetch current user profile
           const response = await apiClient.get('/api/auth/me');
-          
+
           if (response.user) {
             setUser(response.user);
             setIsAuthenticated(true);
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        
+
         // If error is 401 and not a retry and not from auth endpoints
         if (
           error.response?.status === 401 &&
@@ -70,16 +70,16 @@ export const AuthProvider = ({ children }) => {
           !originalRequest.url.includes('/auth/refresh')
         ) {
           originalRequest._retry = true;
-          
+
           try {
             // Try to refresh the token
             const response = await apiClient.post('/api/auth/refresh');
-            
+
             if (response.accessToken) {
               // Update localStorage and axios header
               localStorage.setItem('accessToken', response.accessToken);
               apiClient.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.accessToken}`;
-              
+
               // Retry the original request
               return apiClient.axiosInstance(originalRequest);
             }
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
             return Promise.reject(refreshError);
           }
         }
-        
+
         return Promise.reject(error);
       }
     );
@@ -103,37 +103,37 @@ export const AuthProvider = ({ children }) => {
   const handleLogin = async (email, password) => {
     try {
       setLoading(true);
-      
+
       const response = await apiClient.post('/api/auth/login', { email, password });
-      
+
       if (response.accessToken) {
         // Store token in localStorage
         localStorage.setItem('accessToken', response.accessToken);
-        
+
         // Set axios authorization header
         apiClient.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.accessToken}`;
-        
+
         // Update state
         setUser(response.user);
         setIsAuthenticated(true);
-        
+
         // Show success message
         toast.success('Logged in successfully');
-        
+
         // Redirect to intended page or dashboard
         const redirectTo = location.state?.from?.pathname || '/';
         navigate(redirectTo);
-        
+
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Login error:', error);
-      
+
       // Show appropriate error message
       const errorMessage = error.message || 'Failed to login. Please try again.';
-      
+
       // Show specific messages for different errors
       if (error.response?.status === 401) {
         toast.error('Invalid email or password');
@@ -142,7 +142,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         toast.error(errorMessage);
       }
-      
+
       return false;
     } finally {
       setLoading(false);
@@ -152,36 +152,36 @@ export const AuthProvider = ({ children }) => {
   const handleRegister = async (userData) => {
     try {
       setLoading(true);
-      
+
       const response = await apiClient.post('/api/auth/register', userData);
-      
+
       if (response.accessToken) {
         // Store token in localStorage
         localStorage.setItem('accessToken', response.accessToken);
-        
+
         // Set axios authorization header
         apiClient.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.accessToken}`;
-        
+
         // Update state
         setUser(response.user);
         setIsAuthenticated(true);
-        
+
         // Show success message
         toast.success('Account created successfully');
-        
+
         // Redirect to dashboard
         navigate('/');
-        
+
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Registration error:', error);
-      
+
       // Show appropriate error message
       const errorMessage = error.message || 'Failed to register. Please try again.';
-      
+
       if (error.response?.status === 409) {
         toast.error('Email already in use. Please try a different email or login.');
       } else if (error.response?.status === 429) {
@@ -189,7 +189,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         toast.error(errorMessage);
       }
-      
+
       return false;
     } finally {
       setLoading(false);
@@ -208,19 +208,19 @@ export const AuthProvider = ({ children }) => {
       // Clear auth state regardless of API success
       localStorage.removeItem('accessToken');
       delete apiClient.axiosInstance.defaults.headers.common['Authorization'];
-      
+
       setUser(null);
       setIsAuthenticated(false);
-      
+
       if (showMessage) {
         toast.success('Logged out successfully');
       }
-      
+
       // Redirect to login page
       navigate('/login');
     }
   };
-  
+
   // Check if user has admin role
   const isAdmin = () => {
     return user?.role === 'admin';
@@ -230,6 +230,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         loading,
         isAuthenticated,
         isAdmin,
@@ -241,4 +242,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-}; 
+};

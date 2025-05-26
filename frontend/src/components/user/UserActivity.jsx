@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Table, 
-  Select, 
-  DatePicker, 
-  Button, 
-  message, 
-  Typography, 
+import {
+  Card,
+  Table,
+  Select,
+  DatePicker,
+  Button,
+  message,
+  Typography,
   Space,
   Tag,
   Tooltip,
@@ -14,15 +14,15 @@ import {
   Col,
   Statistic
 } from 'antd';
-import { 
-  HistoryOutlined, 
-  FilterOutlined, 
+import {
+  HistoryOutlined,
+  FilterOutlined,
   ReloadOutlined,
   DeleteOutlined,
   BarChartOutlined
 } from '@ant-design/icons';
 import { format } from 'date-fns';
-import apiClient from '../../utils/apiClient';
+import apiClient from '../../config/apiClient';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -50,20 +50,20 @@ const UserActivity = () => {
   const fetchActivities = async () => {
     try {
       setLoading(true);
-      
+
       const params = {
         page: pagination.current,
         limit: pagination.pageSize
       };
-      
+
       if (filters.type) params.type = filters.type;
       if (filters.dateRange) {
         params.startDate = filters.dateRange[0].toISOString();
         params.endDate = filters.dateRange[1].toISOString();
       }
-      
+
       const response = await apiClient.get('/api/user/activity', { params });
-      
+
       if (response.activities) {
         setActivities(response.activities);
         setPagination(prev => ({
@@ -179,11 +179,11 @@ const UserActivity = () => {
       key: 'metadata',
       render: (metadata) => {
         if (!metadata) return '-';
-        
+
         const details = [];
         if (metadata.resourceId) details.push(`ID: ${metadata.resourceId}`);
         if (metadata.ipAddress) details.push(`IP: ${metadata.ipAddress}`);
-        
+
         return details.length > 0 ? (
           <Tooltip title={JSON.stringify(metadata, null, 2)}>
             <Text type="secondary" className="text-sm">
@@ -296,14 +296,14 @@ const UserActivity = () => {
             </Col>
             <Col xs={24} sm={6} md={4}>
               <Space>
-                <Button 
-                  icon={<FilterOutlined />} 
+                <Button
+                  icon={<FilterOutlined />}
                   onClick={clearFilters}
                 >
                   Clear
                 </Button>
-                <Button 
-                  icon={<ReloadOutlined />} 
+                <Button
+                  icon={<ReloadOutlined />}
                   onClick={fetchActivities}
                   loading={loading}
                 >
@@ -322,7 +322,7 @@ const UserActivity = () => {
             ...pagination,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
+            showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} activities`
           }}
           onChange={handleTableChange}

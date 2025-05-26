@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, message, Spin, Typography, Divider } from 'antd';
 import { UserOutlined, IdcardOutlined, HomeOutlined, PhoneOutlined, SaveOutlined } from '@ant-design/icons';
 import { useAuth } from '../../contexts/AuthContext';
-import apiClient from '../../utils/apiClient';
+import apiClient from '../../config/apiClient';
 
 const { Title, Text } = Typography;
 
@@ -27,7 +27,7 @@ const UserProfile = () => {
   const handleSubmit = async (values) => {
     try {
       setSaving(true);
-      
+
       // Only send fields that have changed
       const updates = {};
       if (values.name !== user.name) updates.name = values.name;
@@ -41,7 +41,7 @@ const UserProfile = () => {
       }
 
       const response = await apiClient.put('/api/auth/profile', updates);
-      
+
       if (response.user) {
         setUser(response.user);
         message.success('Profile updated successfully');
@@ -123,7 +123,7 @@ const UserProfile = () => {
             label="National Identity Card (NIC)"
             name="nic"
             rules={[
-              { 
+              {
                 pattern: /^[0-9]{9}[vVxX]?$|^[0-9]{12}$/,
                 message: 'Please enter a valid NIC number'
               }
@@ -155,7 +155,7 @@ const UserProfile = () => {
             label="Phone Number"
             name="phoneNumber"
             rules={[
-              { 
+              {
                 pattern: /^[+]?[0-9\s\-\(\)]{7,15}$/,
                 message: 'Please enter a valid phone number'
               }
@@ -174,7 +174,7 @@ const UserProfile = () => {
             <Text type="secondary" className="text-sm">
               Last updated: {user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : 'Never'}
             </Text>
-            
+
             <div className="space-x-3">
               <Button onClick={handleReset} disabled={saving}>
                 Reset

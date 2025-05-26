@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Form, Input, Button, message, Typography, Alert, Progress } from 'antd';
 import { LockOutlined, EyeInvisibleOutlined, EyeTwoTone, SafetyOutlined } from '@ant-design/icons';
-import apiClient from '../../utils/apiClient';
+import apiClient from '../../config/apiClient';
 
 const { Title, Text } = Typography;
 
@@ -12,19 +12,19 @@ const PasswordChange = () => {
 
   const calculatePasswordStrength = (password) => {
     if (!password) return 0;
-    
+
     let strength = 0;
-    
+
     // Length check
     if (password.length >= 8) strength += 20;
     if (password.length >= 12) strength += 10;
-    
+
     // Character variety checks
     if (/[a-z]/.test(password)) strength += 20;
     if (/[A-Z]/.test(password)) strength += 20;
     if (/[0-9]/.test(password)) strength += 20;
     if (/[^A-Za-z0-9]/.test(password)) strength += 10;
-    
+
     return Math.min(strength, 100);
   };
 
@@ -49,23 +49,23 @@ const PasswordChange = () => {
   const handleSubmit = async (values) => {
     try {
       setLoading(true);
-      
+
       await apiClient.put('/api/auth/password', {
         currentPassword: values.currentPassword,
         newPassword: values.newPassword
       });
-      
+
       message.success('Password changed successfully. You will be redirected to login.');
-      
+
       // Clear form
       form.resetFields();
       setPasswordStrength(0);
-      
+
       // Redirect to login after a short delay
       setTimeout(() => {
         window.location.href = '/login';
       }, 2000);
-      
+
     } catch (error) {
       console.error('Password change error:', error);
       message.error(error.response?.data?.message || 'Failed to change password');

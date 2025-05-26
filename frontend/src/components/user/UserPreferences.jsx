@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Form, 
-  Select, 
-  Switch, 
-  InputNumber, 
-  Button, 
-  message, 
-  Spin, 
-  Typography, 
+import {
+  Card,
+  Form,
+  Select,
+  Switch,
+  InputNumber,
+  Button,
+  message,
+  Spin,
+  Typography,
   Divider,
   Row,
   Col,
   Space
 } from 'antd';
-import { 
-  SettingOutlined, 
-  BellOutlined, 
-  DashboardOutlined, 
+import {
+  SettingOutlined,
+  BellOutlined,
+  DashboardOutlined,
   ShieldOutlined,
   SaveOutlined,
   ReloadOutlined
 } from '@ant-design/icons';
 import { useTheme } from '../../contexts/ThemeContext';
-import apiClient from '../../utils/apiClient';
+import apiClient from '../../config/apiClient';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -43,7 +43,7 @@ const UserPreferences = () => {
     try {
       setLoading(true);
       const response = await apiClient.get('/api/user/preferences');
-      
+
       if (response.preferences) {
         setPreferences(response.preferences);
         form.setFieldsValue(response.preferences);
@@ -59,13 +59,13 @@ const UserPreferences = () => {
   const handleSubmit = async (values) => {
     try {
       setSaving(true);
-      
+
       const response = await apiClient.put('/api/user/preferences', values);
-      
+
       if (response.preferences) {
         setPreferences(response.preferences);
         message.success('Preferences updated successfully');
-        
+
         // Update theme if changed
         if (values.theme !== preferences?.theme) {
           if (values.theme === 'dark' && !isDarkMode) {
@@ -86,9 +86,9 @@ const UserPreferences = () => {
   const handleReset = async () => {
     try {
       setSaving(true);
-      
+
       const response = await apiClient.delete('/api/user/preferences');
-      
+
       if (response.preferences) {
         setPreferences(response.preferences);
         form.setFieldsValue(response.preferences);
@@ -176,7 +176,7 @@ const UserPreferences = () => {
                       <Switch />
                     </div>
                   </Form.Item>
-                  
+
                   <Form.Item
                     name={['notifications', 'browser']}
                     valuePropName="checked"
@@ -187,7 +187,7 @@ const UserPreferences = () => {
                       <Switch />
                     </div>
                   </Form.Item>
-                  
+
                   <Form.Item
                     name={['notifications', 'billReminders']}
                     valuePropName="checked"
@@ -212,7 +212,7 @@ const UserPreferences = () => {
                       <Switch />
                     </div>
                   </Form.Item>
-                  
+
                   <Form.Item
                     name={['notifications', 'systemUpdates']}
                     valuePropName="checked"
@@ -284,7 +284,7 @@ const UserPreferences = () => {
                     <Option value="public">Public</Option>
                   </Select>
                 </Form.Item>
-                
+
                 <Form.Item
                   name={['privacy', 'activityTracking']}
                   valuePropName="checked"
@@ -314,10 +314,10 @@ const UserPreferences = () => {
             <Text type="secondary" className="text-sm">
               Changes are saved automatically and take effect immediately
             </Text>
-            
+
             <Space>
-              <Button 
-                onClick={handleReset} 
+              <Button
+                onClick={handleReset}
                 disabled={saving}
                 icon={<ReloadOutlined />}
               >
