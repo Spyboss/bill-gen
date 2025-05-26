@@ -190,7 +190,90 @@ const InventoryReport = () => {
     }
   ];
 
-  // Analytics-enhanced columns when analytics data is available
+  // Print-optimized columns (simplified for single page)
+  const printColumns = [
+    {
+      title: 'Model',
+      dataIndex: 'modelName',
+      key: 'modelName',
+      width: '25%',
+      render: (text, record) => (
+        <div>
+          <Text strong style={{ fontSize: '7px' }}>{text}</Text>
+          {(record.isEbicycle || record.isTricycle) && (
+            <div>
+              {record.isEbicycle && <Tag color="cyan" size="small" style={{ fontSize: '6px', padding: '0 2px' }}>E-Bike</Tag>}
+              {record.isTricycle && <Tag color="purple" size="small" style={{ fontSize: '6px', padding: '0 2px' }}>Tricycle</Tag>}
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      title: 'Price',
+      dataIndex: 'price',
+      key: 'price',
+      width: '15%',
+      render: (price) => <Text style={{ fontSize: '7px' }}>Rs. {price?.toLocaleString() || 0}</Text>
+    },
+    {
+      title: 'Available',
+      key: 'available',
+      width: '10%',
+      render: (_, record) => {
+        const available = analytics?.modelPerformance ?
+          record.availableUnits :
+          record.statusCounts?.find(s => s.status === 'available')?.count || 0;
+        return <Text style={{ fontSize: '7px', color: '#52c41a' }}>{available}</Text>;
+      }
+    },
+    {
+      title: 'Sold',
+      key: 'sold',
+      width: '10%',
+      render: (_, record) => {
+        const sold = analytics?.modelPerformance ?
+          record.soldUnits :
+          record.statusCounts?.find(s => s.status === 'sold')?.count || 0;
+        return <Text style={{ fontSize: '7px', color: '#1890ff' }}>{sold}</Text>;
+      }
+    },
+    {
+      title: 'Revenue',
+      key: 'revenue',
+      width: '20%',
+      render: (_, record) => {
+        const revenue = analytics?.modelPerformance ?
+          record.soldValue :
+          (record.statusCounts?.find(s => s.status === 'sold')?.count || 0) * record.price;
+        return <Text style={{ fontSize: '7px', color: '#722ed1' }}>Rs. {revenue?.toLocaleString() || 0}</Text>;
+      }
+    },
+    {
+      title: 'Performance',
+      key: 'performance',
+      width: '20%',
+      render: (_, record) => {
+        const sellThrough = analytics?.modelPerformance ?
+          record.sellThroughRate :
+          record.totalCount > 0 ? ((record.statusCounts?.find(s => s.status === 'sold')?.count || 0) / record.totalCount * 100) : 0;
+
+        return (
+          <div>
+            <Progress
+              percent={sellThrough}
+              size="small"
+              status={sellThrough > 50 ? 'success' : sellThrough > 25 ? 'normal' : 'exception'}
+              style={{ fontSize: '6px' }}
+            />
+            <Text style={{ fontSize: '6px' }}>{sellThrough.toFixed(0)}%</Text>
+          </div>
+        );
+      }
+    }
+  ];
+
+  // Analytics-enhanced columns when analytics data is available (for screen)
   const analyticsColumns = analytics?.modelPerformance ? [
     {
       title: 'Model',
@@ -399,9 +482,9 @@ const InventoryReport = () => {
           </Row>
         </div>
 
-        {/* Business Insights */}
+        {/* Business Insights - Hidden on print to save space */}
         {analytics?.insights && analytics.insights.length > 0 && (
-          <div className="insights-section mb-8 print:mb-6">
+          <div className="insights-section mb-8 print:mb-6 print:hidden">
             <Title level={3} className="section-title !mb-4">Key Insights & Recommendations</Title>
             <Row gutter={[16, 8]}>
               {analytics.insights.map((insight, index) => (
@@ -419,9 +502,9 @@ const InventoryReport = () => {
           </div>
         )}
 
-        {/* Category Performance */}
+        {/* Category Performance - Hidden on print to save space */}
         {analytics?.categoryBreakdown && (
-          <div className="category-section mb-8 print:mb-6">
+          <div className="category-section mb-8 print:mb-6 print:hidden">
             <Title level={3} className="section-title !mb-4">Category Performance</Title>
             <Row gutter={16}>
               {analytics.categoryBreakdown.map((category, index) => (
@@ -457,17 +540,32 @@ const InventoryReport = () => {
 
         {/* Detailed Model Performance Table */}
         <div className="model-performance-section mb-8 print:mb-6">
-          <Title level={3} className="section-title !mb-4">Detailed Model Performance</Title>
+          <Title level={3} className="section-title !mb-4">Model Performance Summary</Title>
           <Card size="small" className="performance-table-card">
-            <Table
-              columns={analyticsColumns}
-              dataSource={analytics?.modelPerformance || summary}
-              rowKey={analytics?.modelPerformance ? 'modelName' : 'modelId'}
-              pagination={false}
-              size="small"
-              className="performance-table"
-              scroll={{ x: 800 }}
-            />
+            {/* Screen version - full featured */}
+            <div className="print:hidden">
+              <Table
+                columns={analyticsColumns}
+                dataSource={analytics?.modelPerformance || summary}
+                rowKey={analytics?.modelPerformance ? 'modelName' : 'modelId'}
+                pagination={false}
+                size="small"
+                className="performance-table"
+                scroll={{ x: 800 }}
+              />
+            </div>
+            {/* Print version - compact */}
+            <div className="hidden print:block">
+              <Table
+                columns={printColumns}
+                dataSource={analytics?.modelPerformance || summary}
+                rowKey={analytics?.modelPerformance ? 'modelName' : 'modelId'}
+                pagination={false}
+                size="small"
+                className="performance-table"
+                showHeader={true}
+              />
+            </div>
           </Card>
         </div>
 
