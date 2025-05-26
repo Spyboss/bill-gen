@@ -705,66 +705,84 @@ export const getInventoryAnalytics = async (req: Request, res: Response, next: N
 };
 
 /**
- * Generate business insights from inventory data
+ * Generate actionable business insights from inventory data
  */
 const generateInventoryInsights = (modelPerformance: any[], kpis: any) => {
   const insights = [];
 
-  // Top performers
-  const topPerformer = modelPerformance[0];
+  // Critical stock alerts (highest priority)
+  const lowStock = modelPerformance.filter(model => model.availableUnits <= 2 && model.availableUnits > 0);
+  const outOfStock = modelPerformance.filter(model => model.availableUnits === 0);
+
+  if (outOfStock.length > 0) {
+    insights.push({
+      type: 'error',
+      title: 'URGENT: Restock Required',
+      message: `${outOfStock.map(m => m.modelName).join(', ')} - Zero inventory. Order immediately.`
+    });
+  }
+
+  if (lowStock.length > 0) {
+    insights.push({
+      type: 'warning',
+      title: 'Low Stock Alert',
+      message: `${lowStock.map(m => m.modelName).join(', ')} - Only ${lowStock[0]?.availableUnits || 0} units left. Reorder soon.`
+    });
+  }
+
+  // Revenue opportunities
+  const topPerformer = modelPerformance.find(model => model.sellThroughRate > 70);
   if (topPerformer) {
     insights.push({
       type: 'success',
-      title: 'Top Revenue Generator',
-      message: `${topPerformer.modelName} leads with Rs. ${topPerformer.soldValue?.toLocaleString()} in sales revenue`
+      title: 'Hot Seller Opportunity',
+      message: `${topPerformer.modelName} has ${topPerformer.sellThroughRate.toFixed(0)}% sell-through. Increase stock for more revenue.`
     });
   }
 
-  // Slow moving stock
-  const slowMoving = modelPerformance.filter(model => model.stockHealth === 'Slow Moving');
+  // Slow movers that need action
+  const slowMoving = modelPerformance.filter(model =>
+    model.stockHealth === 'Slow Moving' && model.availableUnits > 5
+  );
   if (slowMoving.length > 0) {
+    const slowModel = slowMoving[0];
     insights.push({
       type: 'warning',
-      title: 'Slow Moving Inventory',
-      message: `${slowMoving.length} model(s) have stock older than 90 days. Consider promotional strategies.`
+      title: 'Clear Dead Stock',
+      message: `${slowModel.modelName} - ${slowModel.availableUnits} units aging 90+ days. Run promotion to move inventory.`
     });
   }
 
-  // Stock level alerts
-  if (kpis.stockoutRisk === 'High') {
+  // Cash flow insights
+  const totalSlowValue = slowMoving.reduce((sum, model) => sum + (model.availableUnits * model.price), 0);
+  if (totalSlowValue > 1000000) {
     insights.push({
       type: 'error',
-      title: 'Low Stock Alert',
-      message: 'Critical stock levels detected. Immediate restocking recommended.'
+      title: 'Cash Flow Risk',
+      message: `Rs. ${(totalSlowValue/1000000).toFixed(1)}M tied up in slow inventory. Consider discounts to free cash.`
     });
   }
 
-  // Turnover insights
-  if (kpis.inventoryTurnoverRate > 0.5) {
-    insights.push({
-      type: 'success',
-      title: 'Healthy Turnover',
-      message: 'Good inventory turnover rate indicates efficient stock management.'
-    });
-  } else if (kpis.inventoryTurnoverRate < 0.2) {
+  // Performance benchmarks
+  const avgSellThrough = modelPerformance.reduce((sum, model) => sum + model.sellThroughRate, 0) / modelPerformance.length;
+  if (avgSellThrough < 30) {
     insights.push({
       type: 'warning',
-      title: 'Low Turnover',
-      message: 'Consider reviewing pricing strategy or marketing efforts to improve sales velocity.'
+      title: 'Sales Velocity Low',
+      message: `Average sell-through only ${avgSellThrough.toFixed(0)}%. Review pricing or marketing strategy.`
     });
   }
 
-  // Fast moving items
-  const fastMoving = modelPerformance.filter(model => model.stockHealth === 'Fast Moving');
-  if (fastMoving.length > 0) {
+  // Inventory balance insights
+  if (kpis.availableUnits < 10) {
     insights.push({
-      type: 'info',
-      title: 'High Demand Models',
-      message: `${fastMoving.length} model(s) showing strong sales momentum. Ensure adequate stock levels.`
+      type: 'error',
+      title: 'Inventory Crisis',
+      message: `Only ${kpis.availableUnits} total units available. Risk of stockouts across all models.`
     });
   }
 
-  return insights;
+  return insights.slice(0, 4); // Limit to top 4 most actionable insights
 };
 
 /**

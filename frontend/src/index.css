@@ -370,7 +370,7 @@
   }
 
   @page {
-    margin: 0.75in 0.5in !important;
+    margin: 0.4in !important;
     size: A4 portrait !important;
   }
 
@@ -404,49 +404,49 @@
     page-break-inside: avoid !important;
   }
 
-  /* Professional Header */
+  /* Compact Business Header */
   .report-header {
-    margin-bottom: 20px !important;
-    padding: 15px 0 !important;
+    margin-bottom: 15px !important;
+    padding: 10px 0 !important;
     background: none !important;
-    border-bottom: 2px solid #1890ff !important;
+    border-bottom: 1px solid #1890ff !important;
     text-align: center !important;
   }
 
   .company-logo-section {
-    margin-bottom: 10px !important;
+    margin-bottom: 5px !important;
   }
 
   .company-name {
-    font-size: 22px !important;
+    font-size: 18px !important;
     font-weight: bold !important;
-    margin-bottom: 5px !important;
+    margin-bottom: 2px !important;
     color: #1890ff !important;
-    letter-spacing: 0.5px !important;
+    letter-spacing: 0.3px !important;
   }
 
   .company-subtitle {
-    font-size: 12px !important;
+    font-size: 9px !important;
     color: #666 !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 5px !important;
     font-style: italic !important;
   }
 
   .report-title-section {
-    margin-top: 10px !important;
+    margin-top: 5px !important;
   }
 
   .report-title {
-    font-size: 16px !important;
+    font-size: 14px !important;
     font-weight: bold !important;
-    margin-bottom: 5px !important;
+    margin-bottom: 2px !important;
     color: #333 !important;
     text-transform: uppercase !important;
-    letter-spacing: 1px !important;
+    letter-spacing: 0.5px !important;
   }
 
   .report-date {
-    font-size: 10px !important;
+    font-size: 8px !important;
     color: #666 !important;
     font-weight: normal !important;
   }
@@ -469,61 +469,73 @@
     letter-spacing: 0.5px !important;
   }
 
-  /* Professional Executive Summary */
+  /* Compact Executive Summary */
   .executive-summary {
-    margin-bottom: 25px !important;
+    margin-bottom: 15px !important;
     page-break-inside: avoid !important;
   }
 
   .executive-summary .ant-row {
-    margin: 0 -8px !important;
+    margin: 0 -4px !important;
   }
 
   .executive-summary .ant-col {
-    padding: 0 8px !important;
-    margin-bottom: 10px !important;
+    padding: 0 4px !important;
+    margin-bottom: 5px !important;
   }
 
   .kpi-card {
     margin-bottom: 0 !important;
-    border: 2px solid #e8e8e8 !important;
-    border-radius: 8px !important;
+    border: 1px solid #e8e8e8 !important;
+    border-radius: 4px !important;
     box-shadow: none !important;
-    background: #fafafa !important;
+    background: #f8f9fa !important;
   }
 
   .kpi-card .ant-card-body {
-    padding: 12px !important;
+    padding: 8px !important;
     text-align: center !important;
   }
 
   .kpi-card .ant-statistic-title {
-    font-size: 10px !important;
+    font-size: 8px !important;
     font-weight: bold !important;
-    margin-bottom: 5px !important;
+    margin-bottom: 3px !important;
     color: #666 !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+    letter-spacing: 0.3px !important;
   }
 
   .kpi-card .ant-statistic-content {
-    font-size: 16px !important;
+    font-size: 12px !important;
     font-weight: bold !important;
   }
 
   .kpi-card .ant-statistic-content-value {
-    font-size: 16px !important;
+    font-size: 12px !important;
     font-weight: bold !important;
   }
 
   .kpi-card .ant-statistic-content-suffix {
-    font-size: 12px !important;
-    margin-left: 4px !important;
+    font-size: 10px !important;
+    margin-left: 2px !important;
   }
 
-  /* Hide insights section on print to save space */
+  /* Compact Insights Section */
   .insights-section {
-    display: none !important;
+    margin-bottom: 10px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .insights-compact {
+    margin: 0 !important;
+  }
+
+  .insight-item {
+    margin-bottom: 3px !important;
+    padding: 3px 6px !important;
+    font-size: 8px !important;
+    line-height: 1.2 !important;
   }
 
   /* Hide category section on print to save space */
@@ -531,60 +543,60 @@
     display: none !important;
   }
 
-  /* Professional Table Section */
+  /* Compact Data Table */
   .model-performance-section {
-    margin-bottom: 25px !important;
+    margin-bottom: 15px !important;
     page-break-inside: avoid !important;
   }
 
   .performance-table-card {
-    border: 2px solid #e8e8e8 !important;
-    border-radius: 8px !important;
+    border: 1px solid #e8e8e8 !important;
+    border-radius: 4px !important;
     box-shadow: none !important;
     background: white !important;
   }
 
   .performance-table-card .ant-card-body {
-    padding: 15px !important;
+    padding: 8px !important;
   }
 
   .performance-table .ant-table {
-    font-size: 10px !important;
+    font-size: 9px !important;
     margin: 0 !important;
     border-collapse: collapse !important;
   }
 
   .performance-table .ant-table-container {
     border: 1px solid #d9d9d9 !important;
-    border-radius: 6px !important;
+    border-radius: 3px !important;
   }
 
   .performance-table .ant-table-thead > tr > th {
-    font-size: 11px !important;
+    font-size: 9px !important;
     font-weight: bold !important;
-    padding: 8px 12px !important;
+    padding: 4px 6px !important;
     background: #1890ff !important;
     color: white !important;
     border: 1px solid #1890ff !important;
     text-align: center !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+    letter-spacing: 0.3px !important;
   }
 
   .performance-table .ant-table-tbody > tr > td {
-    font-size: 10px !important;
-    padding: 8px 12px !important;
+    font-size: 9px !important;
+    padding: 4px 6px !important;
     border: 1px solid #e8e8e8 !important;
     text-align: center !important;
     vertical-align: middle !important;
   }
 
   .performance-table .ant-table-tbody > tr:nth-child(even) {
-    background: #fafafa !important;
+    background: #f8f9fa !important;
   }
 
   .performance-table .ant-table-tbody > tr:hover {
-    background: #f0f8ff !important;
+    background: #e3f2fd !important;
   }
 
   .model-tags .ant-tag {
@@ -620,19 +632,19 @@
     border-radius: 5px !important;
   }
 
-  /* Professional Footer */
+  /* Minimal Footer */
   .report-footer {
-    margin-top: 30px !important;
-    padding-top: 15px !important;
-    border-top: 2px solid #1890ff !important;
-    font-size: 9px !important;
+    margin-top: 15px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid #e8e8e8 !important;
+    font-size: 7px !important;
     color: #666 !important;
     text-align: center !important;
     page-break-inside: avoid !important;
   }
 
   .footer-content {
-    line-height: 1.4 !important;
+    line-height: 1.2 !important;
   }
 
   /* Page Break Management */

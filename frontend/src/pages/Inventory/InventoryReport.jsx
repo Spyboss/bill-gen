@@ -482,23 +482,29 @@ const InventoryReport = () => {
           </Row>
         </div>
 
-        {/* Business Insights - Hidden on print to save space */}
+        {/* Actionable Insights - Compact for print */}
         {analytics?.insights && analytics.insights.length > 0 && (
-          <div className="insights-section mb-8 print:mb-6 print:hidden">
-            <Title level={3} className="section-title !mb-4">Key Insights & Recommendations</Title>
-            <Row gutter={[16, 8]}>
-              {analytics.insights.map((insight, index) => (
-                <Col span={24} key={index}>
-                  <Alert
-                    message={insight.title}
-                    description={insight.message}
-                    type={insight.type}
-                    showIcon
-                    className="insight-alert"
-                  />
-                </Col>
+          <div className="insights-section mb-4 print:mb-3">
+            <Title level={4} className="section-title !mb-2" style={{ fontSize: '12px', marginBottom: '8px' }}>
+              📊 Action Items
+            </Title>
+            <div className="insights-compact">
+              {analytics.insights.slice(0, 3).map((insight, index) => (
+                <div key={index} className="insight-item" style={{
+                  fontSize: '9px',
+                  marginBottom: '4px',
+                  padding: '4px 8px',
+                  backgroundColor: insight.type === 'success' ? '#f6ffed' : insight.type === 'warning' ? '#fffbe6' : '#fff2f0',
+                  border: `1px solid ${insight.type === 'success' ? '#b7eb8f' : insight.type === 'warning' ? '#ffe58f' : '#ffccc7'}`,
+                  borderRadius: '3px'
+                }}>
+                  <Text strong style={{ fontSize: '9px' }}>
+                    {insight.type === 'success' ? '✅' : insight.type === 'warning' ? '⚠️' : '🚨'} {insight.title}:
+                  </Text>
+                  <Text style={{ fontSize: '8px', marginLeft: '4px' }}>{insight.message}</Text>
+                </div>
               ))}
-            </Row>
+            </div>
           </div>
         )}
 
