@@ -438,7 +438,7 @@ const BillGeneratorWithInventory = () => {
           label="Customer Name"
           rules={[{ required: true, message: 'Please enter customer name' }]}
         >
-          <Input className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
+          <Input />
         </Form.Item>
 
         <Form.Item
@@ -446,7 +446,7 @@ const BillGeneratorWithInventory = () => {
           label="Customer NIC"
           rules={[{ required: true, message: 'Please enter customer NIC' }]}
         >
-          <Input className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
+          <Input />
         </Form.Item>
 
         <Form.Item
@@ -454,7 +454,7 @@ const BillGeneratorWithInventory = () => {
           label="Customer Address"
           rules={[{ required: true, message: 'Please enter customer address' }]}
         >
-          <Input.TextArea className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
+          <Input.TextArea />
         </Form.Item>
 
         <Form.Item
@@ -462,7 +462,7 @@ const BillGeneratorWithInventory = () => {
           label="Motor Number"
           rules={[{ required: true, message: 'Please enter motor number' }]}
         >
-          <Input disabled={!!selectedInventoryItem} className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600 disabled:dark:bg-gray-600 disabled:dark:text-gray-400" />
+          <Input disabled={!!selectedInventoryItem} />
         </Form.Item>
 
         <Form.Item
@@ -470,7 +470,7 @@ const BillGeneratorWithInventory = () => {
           label="Chassis Number"
           rules={[{ required: true, message: 'Please enter chassis number' }]}
         >
-          <Input disabled={!!selectedInventoryItem} className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600 disabled:dark:bg-gray-600 disabled:dark:text-gray-400" />
+          <Input disabled={!!selectedInventoryItem} />
         </Form.Item>
 
         <Form.Item

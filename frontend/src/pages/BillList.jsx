@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import apiClient from '../config/apiClient'
-import { Table, Tag, Button, Space, Popconfirm, message, Spin, Input, Badge } from 'antd'
-import { PlusOutlined, SearchOutlined, DownloadOutlined, EyeOutlined, DeleteOutlined, FileExcelOutlined } from '@ant-design/icons'
+import { Table, Tag, Button, Space, Popconfirm, message, Spin, Input, Badge, Select } from 'antd'
+import { PlusOutlined, SearchOutlined, DownloadOutlined, EyeOutlined, EditOutlined, DeleteOutlined, FileExcelOutlined } from '@ant-design/icons'
 
 const BillList = () => {
   const navigate = useNavigate()
@@ -249,8 +249,19 @@ const BillList = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => (
-        <Badge status={getStatusBadgeClass(status)} text={status} />
+      render: (status, record) => (
+        <Select
+          value={status || 'pending'}
+          onChange={(newStatus) => handleStatusChange(record._id, newStatus)}
+          size="small"
+          style={{ width: 120 }}
+          options={[
+            { label: 'Pending', value: 'pending' },
+            { label: 'Completed', value: 'completed' },
+            { label: 'Cancelled', value: 'cancelled' },
+            { label: 'Converted', value: 'converted' }
+          ]}
+        />
       ),
     },
     {
@@ -283,6 +294,15 @@ const BillList = () => {
               handlePreviewPDF(record._id);
             }}
             title="Preview"
+          />
+          <Button
+            type="text"
+            icon={<EditOutlined />}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent row click
+              navigate(`/bills/${record._id}/edit`);
+            }}
+            title="Edit"
           />
           <Button
             type="text"

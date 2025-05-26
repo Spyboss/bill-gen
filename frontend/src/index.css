@@ -181,6 +181,158 @@
   color: #fca5a5 !important;
 }
 
+/* Dark theme table styles */
+.dark .ant-table {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-table-thead > tr > th {
+  background-color: #4b5563 !important;
+  color: #f9fafb !important;
+  border-color: #6b7280 !important;
+}
+
+.dark .ant-table-tbody > tr > td {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-table-tbody > tr:hover > td {
+  background-color: #4b5563 !important;
+}
+
+/* Dark theme card styles */
+.dark .ant-card {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-card-head {
+  background-color: #4b5563 !important;
+  border-color: #6b7280 !important;
+}
+
+.dark .ant-card-head-title {
+  color: #f9fafb !important;
+}
+
+.dark .ant-card-body {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme modal styles */
+.dark .ant-modal-content {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-modal-header {
+  background-color: #4b5563 !important;
+  border-color: #6b7280 !important;
+}
+
+.dark .ant-modal-title {
+  color: #f9fafb !important;
+}
+
+.dark .ant-modal-body {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-modal-footer {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+/* Dark theme button styles */
+.dark .ant-btn {
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-btn:not(.ant-btn-primary):not(.ant-btn-danger) {
+  background-color: #374151 !important;
+}
+
+.dark .ant-btn:not(.ant-btn-primary):not(.ant-btn-danger):hover {
+  background-color: #4b5563 !important;
+  border-color: #6b7280 !important;
+}
+
+/* Dark theme descriptions styles */
+.dark .ant-descriptions {
+  color: #f9fafb !important;
+}
+
+.dark .ant-descriptions-item-label {
+  color: #d1d5db !important;
+}
+
+.dark .ant-descriptions-item-content {
+  color: #f9fafb !important;
+}
+
+.dark .ant-descriptions-bordered .ant-descriptions-item-label,
+.dark .ant-descriptions-bordered .ant-descriptions-item-content {
+  border-color: #4b5563 !important;
+}
+
+/* Enhanced autofill styles for better contrast */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Dark theme for native form elements */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="tel"],
+.dark input[type="url"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="tel"]:focus,
+.dark input[type="url"]:focus,
+.dark input[type="search"]:focus,
+.dark textarea:focus,
+.dark select:focus {
+  background-color: #374151 !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Dark theme for custom utility classes */
+.dark .input {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark .label {
+  color: #f9fafb !important;
+}
+
 @layer base {
   body {
     @apply text-gray-900 antialiased;

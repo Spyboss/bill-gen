@@ -34,7 +34,7 @@ const AddInventoryItem = () => {
   const handleModelChange = (modelId) => {
     const model = bikeModels.find(m => m._id === modelId);
     setSelectedModel(model);
-    
+
     // Prefill logic for motor/chassis prefixes removed as these are no longer part of BikeModel
     // Motor and Chassis numbers are now entered manually for each inventory item.
     // If there was other model-specific data to pre-fill, it would go here.
@@ -49,14 +49,14 @@ const AddInventoryItem = () => {
   const handleSubmit = async (values) => {
     try {
       setSubmitting(true);
-      
+
       const inventoryData = {
         ...values,
         dateAdded: values.dateAdded ? values.dateAdded.toISOString() : new Date().toISOString()
       };
-      
+
       await addToInventory(inventoryData);
-      
+
       message.success('Bike added to inventory successfully');
       navigate('/inventory');
     } catch (error) {
@@ -103,7 +103,7 @@ const AddInventoryItem = () => {
             >
               {bikeModels.map(model => (
                 <Option key={model._id} value={model._id}>
-                  {model.name} - Rs. {model.price?.toLocaleString() || 'N/A'} 
+                  {model.name} - Rs. {model.price?.toLocaleString() || 'N/A'}
                   {model.is_tricycle ? ' (E-TRICYCLE)' : model.is_ebicycle ? ' (E-MOTORBICYCLE)' : ' (E-MOTORCYCLE)'}
                 </Option>
               ))}
@@ -149,7 +149,7 @@ const AddInventoryItem = () => {
             name="notes"
             label="Notes"
           >
-            <Input.TextArea rows={4} placeholder="Enter any additional notes" className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
+            <Input.TextArea rows={4} placeholder="Enter any additional notes" />
           </Form.Item>
 
           <Form.Item>

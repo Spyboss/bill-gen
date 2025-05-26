@@ -36,7 +36,7 @@ const BatchAddInventory = () => {
   const handleModelChange = (modelId) => {
     const model = bikeModels.find(m => m._id === modelId);
     setSelectedModel(model);
-    
+
     // Prefill logic for motor/chassis prefixes removed as these are no longer part of BikeModel
     // Motor and Chassis numbers are now entered manually for each inventory item.
     form.setFieldsValue({
@@ -52,21 +52,21 @@ const BatchAddInventory = () => {
         key: Date.now(), // Unique key for React
         dateAdded: values.dateAdded ? values.dateAdded.toISOString() : new Date().toISOString()
       };
-      
+
       setItems([...items, newItem]);
-      
+
       // Reset form fields except bikeModelId
       const modelId = form.getFieldValue('bikeModelId');
       form.resetFields();
       if (modelId) {
-        form.setFieldsValue({ 
+        form.setFieldsValue({
           bikeModelId: modelId,
           // Prefixes removed, motorNumber and chassisNumber will be entered manually
-          motorNumber: '', 
+          motorNumber: '',
           chassisNumber: ''
         });
       }
-      
+
       message.success('Item added to batch');
     }).catch(error => {
       console.error('Validation failed:', error);
@@ -82,15 +82,15 @@ const BatchAddInventory = () => {
       message.warning('Please add at least one item to the batch');
       return;
     }
-    
+
     try {
       setSubmitting(true);
-      
+
       // Remove the key property from each item
       const itemsToSubmit = items.map(({ key, ...rest }) => rest);
-      
+
       await batchAddToInventory(itemsToSubmit);
-      
+
       message.success(`${items.length} bikes added to inventory successfully`);
       navigate('/inventory');
     } catch (error) {
@@ -131,9 +131,9 @@ const BatchAddInventory = () => {
       key: 'actions',
       render: (_, record) => (
         <Tooltip title="Remove">
-          <Button 
-            icon={<DeleteOutlined />} 
-            size="small" 
+          <Button
+            icon={<DeleteOutlined />}
+            size="small"
             danger
             onClick={() => removeItem(record.key)}
           />
@@ -178,7 +178,7 @@ const BatchAddInventory = () => {
               >
                 {bikeModels.map(model => (
                   <Option key={model._id} value={model._id}>
-                    {model.name} - Rs. {model.price?.toLocaleString() || 'N/A'} 
+                    {model.name} - Rs. {model.price?.toLocaleString() || 'N/A'}
                     {model.is_tricycle ? ' (E-TRICYCLE)' : model.is_ebicycle ? ' (E-MOTORBICYCLE)' : ' (E-MOTORCYCLE)'}
                   </Option>
                 ))}
@@ -224,14 +224,14 @@ const BatchAddInventory = () => {
               name="notes"
               label="Notes"
             >
-              <Input.TextArea rows={2} placeholder="Enter any additional notes" className="dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-400 dark:border-gray-600" />
+              <Input.TextArea rows={2} placeholder="Enter any additional notes" />
             </Form.Item>
 
             <Form.Item>
-              <Button 
-                type="dashed" 
-                onClick={addItem} 
-                block 
+              <Button
+                type="dashed"
+                onClick={addItem}
+                block
                 icon={<PlusOutlined />}
               >
                 Add to Batch
@@ -240,7 +240,7 @@ const BatchAddInventory = () => {
           </Form>
         </Card>
 
-        <Card 
+        <Card
           title={`Batch Items (${items.length})`}
           className="bg-white dark:bg-gray-800 dark:border dark:border-gray-700"
           extra={
@@ -248,10 +248,10 @@ const BatchAddInventory = () => {
               <Button onClick={() => navigate('/inventory')}>
                 Cancel
               </Button>
-              <Button 
-                type="primary" 
-                icon={<SaveOutlined />} 
-                onClick={handleSubmit} 
+              <Button
+                type="primary"
+                icon={<SaveOutlined />}
+                onClick={handleSubmit}
                 loading={submitting}
                 disabled={items.length === 0}
               >
