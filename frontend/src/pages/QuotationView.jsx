@@ -61,7 +61,12 @@ const QuotationView = () => {
     try {
       await apiClient.delete(`/quotations/${id}`);
       toast.success('Quotation deleted successfully');
-      navigate('/quotations');
+      // Add a small delay to ensure backend processing is complete
+      setTimeout(() => {
+        navigate('/quotations', { replace: true });
+        // Force a page reload to ensure fresh data
+        window.location.reload();
+      }, 500);
     } catch (error) {
       console.error('Error deleting quotation:', error);
       toast.error('Failed to delete quotation');
@@ -115,14 +120,14 @@ const QuotationView = () => {
       title: 'Rate (LKR)',
       dataIndex: 'rate',
       key: 'rate',
-      width: 120,
+      width: 130,
       render: (rate) => rate.toLocaleString(),
     },
     {
       title: 'Amount (LKR)',
       dataIndex: 'amount',
       key: 'amount',
-      width: 140,
+      width: 150,
       render: (amount) => amount.toLocaleString(),
     },
   ];

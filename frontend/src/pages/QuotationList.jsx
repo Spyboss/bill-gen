@@ -186,7 +186,7 @@ const QuotationList = () => {
       title: 'Total Amount (LKR)',
       dataIndex: 'totalAmount',
       key: 'totalAmount',
-      width: 150,
+      width: 160,
       render: (amount) => amount.toLocaleString(),
     },
     {

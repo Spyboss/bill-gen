@@ -182,7 +182,7 @@ const QuotationGenerator = () => {
       title: 'Rate (LKR)',
       dataIndex: 'rate',
       key: 'rate',
-      width: 120,
+      width: 130,
       render: (text, record, index) => (
         <InputNumber
           value={text}
@@ -198,7 +198,7 @@ const QuotationGenerator = () => {
       title: 'Amount (LKR)',
       dataIndex: 'amount',
       key: 'amount',
-      width: 140,
+      width: 150,
       render: (text) => (
         <span>{text.toLocaleString()}</span>
       ),

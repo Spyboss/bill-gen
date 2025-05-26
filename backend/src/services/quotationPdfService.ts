@@ -10,14 +10,14 @@ export const generateQuotationPDF = async (quotation: IQuotation): Promise<Buffe
   return new Promise((resolve, reject) => {
     try {
       // Create a document
-      const doc = new PDFDocument({ 
+      const doc = new PDFDocument({
         margin: 50,
         size: 'A4'
       });
-      
+
       // Set up streams to capture PDF data
       const buffers: Buffer[] = [];
-      
+
       // Handle document stream events
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => {
@@ -29,7 +29,7 @@ export const generateQuotationPDF = async (quotation: IQuotation): Promise<Buffe
       doc.fontSize(20)
          .font('Helvetica-Bold')
          .text('TMR Trading Lanka Pvt Ltd', 50, 50);
-      
+
       doc.fontSize(12)
          .font('Helvetica')
          .text('Dealer: Gunawardana Motors - Embilipitiya', 50, 75)
@@ -79,26 +79,26 @@ export const generateQuotationPDF = async (quotation: IQuotation): Promise<Buffe
         doc.fontSize(14)
            .font('Helvetica-Bold')
            .text('Insurance Details:', 50, yPosition);
-        
+
         yPosition += 20;
-        
+
         if (quotation.claimNumber) {
           doc.fontSize(12)
              .font('Helvetica')
              .text(`Claim Number: ${quotation.claimNumber}`, 50, yPosition);
           yPosition += 15;
         }
-        
+
         if (quotation.insuranceCompany) {
           doc.text(`Insurance Company: ${quotation.insuranceCompany}`, 50, yPosition);
           yPosition += 15;
         }
-        
+
         if (quotation.accidentDate) {
           doc.text(`Accident Date: ${quotation.accidentDate.toLocaleDateString()}`, 50, yPosition);
           yPosition += 15;
         }
-        
+
         yPosition += 10;
       }
 
@@ -114,11 +114,16 @@ export const generateQuotationPDF = async (quotation: IQuotation): Promise<Buffe
          .font('Helvetica-Bold')
          .text('Description', 50, yPosition)
          .text('Qty', 350, yPosition)
-         .text('Rate (LKR)', 400, yPosition)
-         .text('Amount (LKR)', 480, yPosition);
+         .text('Rate', 400, yPosition)
+         .text('Amount', 480, yPosition);
+
+      // Add (LKR) labels on the same line with smaller font
+      doc.fontSize(8)
+         .text('(LKR)', 400, yPosition + 10)
+         .text('(LKR)', 480, yPosition + 10);
 
       // Draw header line
-      yPosition += 15;
+      yPosition += 20; // Extra space for the (LKR) labels
       doc.moveTo(50, yPosition)
          .lineTo(550, yPosition)
          .stroke();

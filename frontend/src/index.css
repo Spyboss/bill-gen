@@ -2,6 +2,185 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark Theme Form Input Fixes */
+.dark .ant-input,
+.dark .ant-input-affix-wrapper,
+.dark .ant-select-selector,
+.dark .ant-picker,
+.dark .ant-input-number,
+.dark .ant-input-number-input,
+.dark .ant-mentions,
+.dark .ant-cascader-picker,
+.dark .ant-tree-select-selector {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme input focus states */
+.dark .ant-input:focus,
+.dark .ant-input-affix-wrapper:focus,
+.dark .ant-input-affix-wrapper-focused,
+.dark .ant-select-focused .ant-select-selector,
+.dark .ant-picker:focus,
+.dark .ant-picker-focused,
+.dark .ant-input-number:focus,
+.dark .ant-input-number-focused,
+.dark .ant-mentions:focus,
+.dark .ant-cascader-picker:focus {
+  background-color: #374151 !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme input hover states */
+.dark .ant-input:hover,
+.dark .ant-input-affix-wrapper:hover,
+.dark .ant-select:hover .ant-select-selector,
+.dark .ant-picker:hover,
+.dark .ant-input-number:hover,
+.dark .ant-mentions:hover,
+.dark .ant-cascader-picker:hover {
+  background-color: #374151 !important;
+  border-color: #6b7280 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme placeholder text */
+.dark .ant-input::placeholder,
+.dark .ant-input-affix-wrapper input::placeholder,
+.dark .ant-select-selection-placeholder,
+.dark .ant-picker-input input::placeholder,
+.dark .ant-input-number input::placeholder,
+.dark .ant-mentions textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Dark theme autofill styles */
+.dark .ant-input:-webkit-autofill,
+.dark .ant-input-affix-wrapper input:-webkit-autofill,
+.dark .ant-input-number input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  background-color: #374151 !important;
+}
+
+.dark .ant-input:-webkit-autofill:hover,
+.dark .ant-input-affix-wrapper input:-webkit-autofill:hover,
+.dark .ant-input-number input:-webkit-autofill:hover {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+}
+
+.dark .ant-input:-webkit-autofill:focus,
+.dark .ant-input-affix-wrapper input:-webkit-autofill:focus,
+.dark .ant-input-number input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+}
+
+/* Dark theme textarea */
+.dark .ant-input {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme select dropdown */
+.dark .ant-select-dropdown {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-select-item {
+  color: #f9fafb !important;
+}
+
+.dark .ant-select-item:hover {
+  background-color: #4b5563 !important;
+}
+
+.dark .ant-select-item-option-selected {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* Dark theme date picker */
+.dark .ant-picker-panel-container {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-picker-panel {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-picker-header {
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-picker-header button {
+  color: #f9fafb !important;
+}
+
+.dark .ant-picker-content th,
+.dark .ant-picker-content td {
+  color: #f9fafb !important;
+}
+
+.dark .ant-picker-cell:hover .ant-picker-cell-inner {
+  background-color: #4b5563 !important;
+}
+
+.dark .ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: #3b82f6 !important;
+}
+
+/* Dark theme input number */
+.dark .ant-input-number-handler-wrap {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-input-number-handler {
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-input-number-handler:hover {
+  background-color: #4b5563 !important;
+}
+
+/* Dark theme disabled states */
+.dark .ant-input:disabled,
+.dark .ant-input-affix-wrapper.ant-input-affix-wrapper-disabled,
+.dark .ant-select.ant-select-disabled .ant-select-selector,
+.dark .ant-picker.ant-picker-disabled,
+.dark .ant-input-number.ant-input-number-disabled {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #6b7280 !important;
+}
+
+/* Dark theme form labels */
+.dark .ant-form-item-label > label {
+  color: #f9fafb !important;
+}
+
+/* Dark theme form validation */
+.dark .ant-form-item-has-error .ant-input,
+.dark .ant-form-item-has-error .ant-input-affix-wrapper,
+.dark .ant-form-item-has-error .ant-select-selector,
+.dark .ant-form-item-has-error .ant-picker {
+  border-color: #ef4444 !important;
+}
+
+.dark .ant-form-item-explain-error {
+  color: #fca5a5 !important;
+}
+
 @layer base {
   body {
     @apply text-gray-900 antialiased;
@@ -12,20 +191,20 @@
   .btn {
     @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
   }
-  
+
   .btn-primary {
     @apply bg-primary-600 text-white hover:bg-primary-700;
   }
-  
+
   .btn-secondary {
     @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
   }
-  
+
   .input {
     @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
   }
-  
+
   .label {
     @apply block text-sm font-medium text-gray-700 mb-1;
   }
-} 
+}
