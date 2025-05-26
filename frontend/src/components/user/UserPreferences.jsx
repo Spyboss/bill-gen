@@ -18,7 +18,7 @@ import {
   SettingOutlined,
   BellOutlined,
   DashboardOutlined,
-  ShieldOutlined,
+  SecurityScanOutlined,
   SaveOutlined,
   ReloadOutlined
 } from '@ant-design/icons';
@@ -270,7 +270,7 @@ const UserPreferences = () => {
           </Card>
 
           {/* Privacy Settings */}
-          <Card type="inner" title={<><ShieldOutlined className="mr-2" />Privacy</>} className="mb-6">
+          <Card type="inner" title={<><SecurityScanOutlined className="mr-2" />Privacy</>} className="mb-6">
             <Row gutter={24}>
               <Col xs={24} md={12}>
                 <Form.Item
