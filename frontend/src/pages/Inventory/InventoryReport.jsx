@@ -190,83 +190,83 @@ const InventoryReport = () => {
     }
   ];
 
-  // Print-optimized columns (simplified for single page)
+  // Professional print-optimized columns
   const printColumns = [
     {
-      title: 'Model',
+      title: 'Model Name',
       dataIndex: 'modelName',
       key: 'modelName',
       width: '25%',
       render: (text, record) => (
         <div>
-          <Text strong style={{ fontSize: '7px' }}>{text}</Text>
+          <Text strong style={{ fontSize: '10px', fontWeight: 'bold' }}>{text}</Text>
           {(record.isEbicycle || record.isTricycle) && (
-            <div>
-              {record.isEbicycle && <Tag color="cyan" size="small" style={{ fontSize: '6px', padding: '0 2px' }}>E-Bike</Tag>}
-              {record.isTricycle && <Tag color="purple" size="small" style={{ fontSize: '6px', padding: '0 2px' }}>Tricycle</Tag>}
+            <div style={{ marginTop: '2px' }}>
+              {record.isEbicycle && <Tag color="cyan" size="small" style={{ fontSize: '8px', padding: '2px 6px' }}>E-Bike</Tag>}
+              {record.isTricycle && <Tag color="purple" size="small" style={{ fontSize: '8px', padding: '2px 6px' }}>Tricycle</Tag>}
             </div>
           )}
         </div>
       )
     },
     {
-      title: 'Price',
+      title: 'Unit Price',
       dataIndex: 'price',
       key: 'price',
       width: '15%',
-      render: (price) => <Text style={{ fontSize: '7px' }}>Rs. {price?.toLocaleString() || 0}</Text>
+      render: (price) => <Text strong style={{ fontSize: '10px' }}>Rs. {price?.toLocaleString() || 0}</Text>
     },
     {
       title: 'Available',
       key: 'available',
-      width: '10%',
+      width: '12%',
       render: (_, record) => {
         const available = analytics?.modelPerformance ?
           record.availableUnits :
           record.statusCounts?.find(s => s.status === 'available')?.count || 0;
-        return <Text style={{ fontSize: '7px', color: '#52c41a' }}>{available}</Text>;
+        return <Text strong style={{ fontSize: '10px', color: '#52c41a' }}>{available}</Text>;
       }
     },
     {
       title: 'Sold',
       key: 'sold',
-      width: '10%',
+      width: '12%',
       render: (_, record) => {
         const sold = analytics?.modelPerformance ?
           record.soldUnits :
           record.statusCounts?.find(s => s.status === 'sold')?.count || 0;
-        return <Text style={{ fontSize: '7px', color: '#1890ff' }}>{sold}</Text>;
+        return <Text strong style={{ fontSize: '10px', color: '#1890ff' }}>{sold}</Text>;
       }
     },
     {
-      title: 'Revenue',
+      title: 'Total Revenue',
       key: 'revenue',
-      width: '20%',
+      width: '18%',
       render: (_, record) => {
         const revenue = analytics?.modelPerformance ?
           record.soldValue :
           (record.statusCounts?.find(s => s.status === 'sold')?.count || 0) * record.price;
-        return <Text style={{ fontSize: '7px', color: '#722ed1' }}>Rs. {revenue?.toLocaleString() || 0}</Text>;
+        return <Text strong style={{ fontSize: '10px', color: '#722ed1' }}>Rs. {revenue?.toLocaleString() || 0}</Text>;
       }
     },
     {
-      title: 'Performance',
+      title: 'Sell-Through Rate',
       key: 'performance',
-      width: '20%',
+      width: '18%',
       render: (_, record) => {
         const sellThrough = analytics?.modelPerformance ?
           record.sellThroughRate :
           record.totalCount > 0 ? ((record.statusCounts?.find(s => s.status === 'sold')?.count || 0) / record.totalCount * 100) : 0;
 
         return (
-          <div>
+          <div style={{ textAlign: 'center' }}>
             <Progress
               percent={sellThrough}
               size="small"
               status={sellThrough > 50 ? 'success' : sellThrough > 25 ? 'normal' : 'exception'}
-              style={{ fontSize: '6px' }}
+              style={{ fontSize: '8px', marginBottom: '2px' }}
             />
-            <Text style={{ fontSize: '6px' }}>{sellThrough.toFixed(0)}%</Text>
+            <Text strong style={{ fontSize: '10px' }}>{sellThrough.toFixed(1)}%</Text>
           </div>
         );
       }

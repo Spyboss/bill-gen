@@ -361,122 +361,164 @@
   }
 }
 
-/* Aggressive Single-Page Print Optimization */
+/* Professional Business PDF Report Styles */
 @media print {
   * {
     -webkit-print-color-adjust: exact !important;
     color-adjust: exact !important;
+    box-sizing: border-box !important;
   }
 
   @page {
-    margin: 0.5in !important;
-    size: A4 !important;
+    margin: 0.75in 0.5in !important;
+    size: A4 portrait !important;
   }
 
   body {
-    font-size: 9px !important;
-    line-height: 1.1 !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
     margin: 0 !important;
     padding: 0 !important;
+    color: #333 !important;
+    background: white !important;
   }
 
   .inventory-report-container {
     padding: 0 !important;
     margin: 0 !important;
     max-width: none !important;
+    width: 100% !important;
   }
 
   .professional-report {
     max-width: none !important;
     width: 100% !important;
-    font-size: 9px !important;
-    line-height: 1.1 !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
     padding: 0 !important;
     margin: 0 !important;
     background: white !important;
     box-shadow: none !important;
     border-radius: 0 !important;
+    page-break-inside: avoid !important;
   }
 
-  /* Compact Header */
+  /* Professional Header */
   .report-header {
-    margin-bottom: 8px !important;
-    padding: 8px 0 !important;
+    margin-bottom: 20px !important;
+    padding: 15px 0 !important;
     background: none !important;
+    border-bottom: 2px solid #1890ff !important;
+    text-align: center !important;
+  }
+
+  .company-logo-section {
+    margin-bottom: 10px !important;
   }
 
   .company-name {
-    font-size: 16px !important;
-    margin-bottom: 2px !important;
-    color: #000 !important;
+    font-size: 22px !important;
+    font-weight: bold !important;
+    margin-bottom: 5px !important;
+    color: #1890ff !important;
+    letter-spacing: 0.5px !important;
   }
 
   .company-subtitle {
-    font-size: 9px !important;
+    font-size: 12px !important;
     color: #666 !important;
-    margin-bottom: 4px !important;
+    margin-bottom: 8px !important;
+    font-style: italic !important;
+  }
+
+  .report-title-section {
+    margin-top: 10px !important;
   }
 
   .report-title {
-    font-size: 12px !important;
-    margin-bottom: 4px !important;
-    color: #000 !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    margin-bottom: 5px !important;
+    color: #333 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
   }
 
   .report-date {
-    font-size: 8px !important;
+    font-size: 10px !important;
     color: #666 !important;
+    font-weight: normal !important;
   }
 
   .ant-divider {
-    margin: 4px 0 !important;
+    margin: 8px 0 !important;
+    border-color: #e8e8e8 !important;
   }
 
-  /* Compact Section Titles */
+  /* Professional Section Titles */
   .section-title {
-    font-size: 10px !important;
-    margin-bottom: 4px !important;
-    color: #000 !important;
-    border-bottom: 1px solid #ccc !important;
-    padding-bottom: 2px !important;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    margin-bottom: 12px !important;
+    margin-top: 20px !important;
+    color: #1890ff !important;
+    border-bottom: 2px solid #1890ff !important;
+    padding-bottom: 5px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
   }
 
-  /* Ultra-compact Executive Summary */
+  /* Professional Executive Summary */
   .executive-summary {
-    margin-bottom: 8px !important;
+    margin-bottom: 25px !important;
+    page-break-inside: avoid !important;
   }
 
   .executive-summary .ant-row {
-    margin: 0 !important;
+    margin: 0 -8px !important;
   }
 
   .executive-summary .ant-col {
-    padding: 0 2px !important;
+    padding: 0 8px !important;
+    margin-bottom: 10px !important;
   }
 
   .kpi-card {
-    margin-bottom: 4px !important;
-    border: 1px solid #ddd !important;
+    margin-bottom: 0 !important;
+    border: 2px solid #e8e8e8 !important;
+    border-radius: 8px !important;
     box-shadow: none !important;
+    background: #fafafa !important;
   }
 
   .kpi-card .ant-card-body {
-    padding: 4px !important;
+    padding: 12px !important;
+    text-align: center !important;
   }
 
   .kpi-card .ant-statistic-title {
-    font-size: 7px !important;
-    margin-bottom: 2px !important;
+    font-size: 10px !important;
+    font-weight: bold !important;
+    margin-bottom: 5px !important;
     color: #666 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
   }
 
   .kpi-card .ant-statistic-content {
-    font-size: 11px !important;
+    font-size: 16px !important;
     font-weight: bold !important;
   }
 
   .kpi-card .ant-statistic-content-value {
-    font-size: 11px !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+  }
+
+  .kpi-card .ant-statistic-content-suffix {
+    font-size: 12px !important;
+    margin-left: 4px !important;
   }
 
   /* Hide insights section on print to save space */
@@ -489,87 +531,114 @@
     display: none !important;
   }
 
-  /* Compact Table */
+  /* Professional Table Section */
   .model-performance-section {
-    margin-bottom: 8px !important;
+    margin-bottom: 25px !important;
+    page-break-inside: avoid !important;
   }
 
   .performance-table-card {
-    border: 1px solid #ddd !important;
+    border: 2px solid #e8e8e8 !important;
+    border-radius: 8px !important;
     box-shadow: none !important;
+    background: white !important;
   }
 
   .performance-table-card .ant-card-body {
-    padding: 4px !important;
+    padding: 15px !important;
   }
 
   .performance-table .ant-table {
-    font-size: 7px !important;
+    font-size: 10px !important;
     margin: 0 !important;
+    border-collapse: collapse !important;
   }
 
   .performance-table .ant-table-container {
-    border: none !important;
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 6px !important;
   }
 
   .performance-table .ant-table-thead > tr > th {
-    font-size: 7px !important;
-    padding: 2px 4px !important;
-    background: #f0f0f0 !important;
-    border: 1px solid #ddd !important;
+    font-size: 11px !important;
     font-weight: bold !important;
+    padding: 8px 12px !important;
+    background: #1890ff !important;
+    color: white !important;
+    border: 1px solid #1890ff !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
   }
 
   .performance-table .ant-table-tbody > tr > td {
-    font-size: 7px !important;
-    padding: 2px 4px !important;
-    border: 1px solid #ddd !important;
+    font-size: 10px !important;
+    padding: 8px 12px !important;
+    border: 1px solid #e8e8e8 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+
+  .performance-table .ant-table-tbody > tr:nth-child(even) {
+    background: #fafafa !important;
+  }
+
+  .performance-table .ant-table-tbody > tr:hover {
+    background: #f0f8ff !important;
   }
 
   .model-tags .ant-tag {
-    font-size: 6px !important;
-    padding: 0 2px !important;
-    margin: 1px !important;
-    line-height: 1 !important;
+    font-size: 8px !important;
+    padding: 2px 6px !important;
+    margin: 2px !important;
+    line-height: 1.2 !important;
+    border-radius: 4px !important;
+    font-weight: bold !important;
   }
 
   .status-tags .ant-tag {
-    font-size: 6px !important;
-    padding: 0 2px !important;
-    margin: 1px !important;
-    line-height: 1 !important;
+    font-size: 8px !important;
+    padding: 2px 6px !important;
+    margin: 2px !important;
+    line-height: 1.2 !important;
+    border-radius: 4px !important;
+    font-weight: bold !important;
   }
 
   .ant-progress {
-    font-size: 6px !important;
-    height: 8px !important;
+    font-size: 8px !important;
+    height: 12px !important;
   }
 
   .ant-progress-text {
-    font-size: 6px !important;
+    font-size: 8px !important;
+    font-weight: bold !important;
   }
 
   .ant-progress-inner {
-    height: 6px !important;
+    height: 10px !important;
+    border-radius: 5px !important;
   }
 
-  /* Compact Footer */
+  /* Professional Footer */
   .report-footer {
-    margin-top: 8px !important;
-    font-size: 7px !important;
+    margin-top: 30px !important;
+    padding-top: 15px !important;
+    border-top: 2px solid #1890ff !important;
+    font-size: 9px !important;
     color: #666 !important;
     text-align: center !important;
+    page-break-inside: avoid !important;
   }
 
   .footer-content {
-    line-height: 1.2 !important;
+    line-height: 1.4 !important;
   }
 
-  /* Force single page */
+  /* Page Break Management */
   .professional-report {
-    page-break-inside: avoid !important;
-    max-height: calc(100vh - 1in) !important;
-    overflow: hidden !important;
+    page-break-inside: auto !important;
+    overflow: visible !important;
   }
 
   .executive-summary,
@@ -583,22 +652,44 @@
     display: none !important;
   }
 
-  /* Remove all margins and padding that could cause overflow */
-  .ant-card,
-  .ant-table,
-  .ant-row,
-  .ant-col {
+  /* Ensure proper spacing */
+  .ant-card {
+    margin-bottom: 0 !important;
+  }
+
+  .ant-table {
     margin: 0 !important;
   }
 
-  /* Ensure table fits */
+  .ant-row {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+
+  .ant-col {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  /* Ensure table fits and looks professional */
   .performance-table .ant-table-scroll {
     overflow: visible !important;
   }
 
   .performance-table table {
     width: 100% !important;
-    table-layout: fixed !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+  }
+
+  /* Professional print-specific adjustments */
+  .performance-table .ant-table-thead > tr > th:first-child {
+    text-align: left !important;
+  }
+
+  .performance-table .ant-table-tbody > tr > td:first-child {
+    text-align: left !important;
+    font-weight: bold !important;
   }
 }
 
