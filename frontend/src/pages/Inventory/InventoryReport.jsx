@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Spin, Statistic, Table, Tag, Button, Row, Col, Divider, Progress, Alert, Typography } from 'antd';
-import { DownloadOutlined, PrinterOutlined, ReloadOutlined, RiseOutlined, FallOutlined, WarningOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { DownloadOutlined, PrinterOutlined, ReloadOutlined, ArrowUpOutlined, ArrowDownOutlined, WarningOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getInventorySummary, getInventoryAnalytics } from '../../services/inventoryService';
 import { format } from 'date-fns';
@@ -254,8 +254,8 @@ const InventoryReport = () => {
       width: 100,
       render: (health) => {
         const color = health === 'Fast Moving' ? 'success' : health === 'Slow Moving' ? 'warning' : 'default';
-        const icon = health === 'Fast Moving' ? <RiseOutlined /> :
-                    health === 'Slow Moving' ? <FallOutlined /> : null;
+        const icon = health === 'Fast Moving' ? <ArrowUpOutlined /> :
+                    health === 'Slow Moving' ? <ArrowDownOutlined /> : null;
         return <Tag color={color} icon={icon}>{health}</Tag>;
       }
     }
@@ -378,7 +378,7 @@ const InventoryReport = () => {
                   title="Monthly Sales"
                   value={analytics?.kpis?.recentSales || 0}
                   valueStyle={{ color: '#722ed1', fontSize: '24px', fontWeight: 'bold' }}
-                  suffix={<RiseOutlined />}
+                  suffix={<ArrowUpOutlined />}
                 />
               </Card>
             </Col>
