@@ -3,6 +3,10 @@ import * as authController from './auth.controller.js';
 import { authenticate } from './auth.middleware.js';
 import { validateRegistration, validateLogin } from './auth.validation.js';
 import { loginRateLimit, registrationRateLimit } from './rate-limit.middleware.js';
+import {
+  validateProfileUpdate,
+  validatePasswordChange
+} from '../middleware/userValidation.middleware.js';
 
 const router = Router();
 
@@ -42,10 +46,24 @@ router.post('/logout', authController.logout);
 router.get('/me', authenticate, authController.getCurrentUser);
 
 /**
+ * @route  PUT /api/auth/profile
+ * @desc   Update user profile information
+ * @access Private
+ */
+router.put('/profile', authenticate, validateProfileUpdate, authController.updateProfile);
+
+/**
+ * @route  PUT /api/auth/password
+ * @desc   Change user password
+ * @access Private
+ */
+router.put('/password', authenticate, validatePasswordChange, authController.changePassword);
+
+/**
  * @route  POST /api/auth/create-admin
  * @desc   Create an admin user (protected by setup key)
  * @access Public (but protected by setup key)
  */
 router.post('/create-admin', authController.createAdmin);
 
-export default router; 
+export default router;

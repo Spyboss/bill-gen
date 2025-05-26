@@ -32,6 +32,9 @@ import InventoryReport from './pages/Inventory/InventoryReport';
 import BikeModelList from './pages/Admin/BikeModelList';
 import BikeModelForm from './pages/Admin/BikeModelForm';
 
+// User Management pages
+import ProfilePage from './pages/user/ProfilePage';
+
 // Protected Route Wrappers
 const ProtectedBillList = () => <ProtectedRoute><BillList /></ProtectedRoute>;
 const ProtectedBillForm = () => <ProtectedRoute><BillForm /></ProtectedRoute>;
@@ -52,6 +55,7 @@ const ProtectedQuotationGenerator = () => <ProtectedRoute><QuotationGenerator />
 const ProtectedQuotationList = () => <ProtectedRoute><QuotationList /></ProtectedRoute>;
 const ProtectedQuotationView = () => <ProtectedRoute><QuotationView /></ProtectedRoute>;
 const ProtectedQuotationEdit = () => <ProtectedRoute><QuotationEdit /></ProtectedRoute>;
+const ProtectedProfilePage = () => <ProtectedRoute><ProfilePage /></ProtectedRoute>;
 
 // Inner component to access ThemeContext and apply Ant Design theme
 const AppContent = () => {
@@ -93,6 +97,10 @@ const AppContent = () => {
             <Route path="/quotations/new" element={<ProtectedQuotationGenerator />} />
             <Route path="/quotations/:id" element={<ProtectedQuotationView />} />
             <Route path="/quotations/:id/edit" element={<ProtectedQuotationEdit />} />
+
+            {/* User Management routes */}
+            <Route path="/profile" element={<ProtectedProfilePage />} />
+            <Route path="/settings" element={<ProtectedProfilePage />} />
           </Routes>
         </main>
         <footer className="bg-gray-100 dark:bg-gray-800 py-4 text-center text-gray-600 dark:text-gray-400 text-sm mt-auto border-t border-gray-200 dark:border-gray-700">

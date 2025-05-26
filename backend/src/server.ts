@@ -115,12 +115,16 @@ import inventoryRoutes from './routes/inventoryRoutes.js';
 import authRoutes from './auth/auth.routes.js';
 import gdprRoutes from './routes/gdprRoutes.js';
 import quotationRoutes from './routes/quotationRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import { apiRateLimit } from './auth/rate-limit.middleware.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 import { applySecurityMiddleware } from './middleware/security-middleware.js';
+import { activityLogger } from './middleware/activityLogger.middleware.js';
 import Bill from './models/Bill.js';
 import Quotation from './models/Quotation.js';
 import User from './models/User.js';
+import UserPreferences from './models/UserPreferences.js';
+import UserActivity from './models/UserActivity.js';
 
 // Initialize express
 const app = express();
@@ -201,12 +205,17 @@ app.use(morgan('dev', {
 // Apply global rate limiting to all routes
 app.use(apiRateLimit);
 
+// Apply activity logging middleware
+app.use(activityLogger);
+
 // Make models available to middleware
 app.use((req, res, next) => {
   req.app.locals.models = {
     User,
     Bill,
-    Quotation
+    Quotation,
+    UserPreferences,
+    UserActivity
   };
   next();
 });
@@ -219,6 +228,7 @@ app.get('/', (req, res) => {
     endpoints: [
       '/api/health',
       '/api/auth',
+      '/api/user',
       '/api/bills',
       '/api/bike-models',
       '/api/inventory',
@@ -229,6 +239,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/bills', billRoutes);
 app.use('/api/bike-models', bikeModelsRoutes);
 app.use('/api/inventory', inventoryRoutes);

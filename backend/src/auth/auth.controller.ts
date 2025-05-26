@@ -363,12 +363,122 @@ export const getCurrentUser = async (req: AuthRequest, res: Response): Promise<v
         address: user.address,
         phoneNumber: user.phoneNumber,
         role: user.role,
-        lastLogin: user.lastLogin
+        lastLogin: user.lastLogin,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
     logger.error(`Get current user error: ${(error as Error).message}`);
     res.status(500).json({ message: 'Error fetching user information' });
+  }
+};
+
+/**
+ * Update user profile information
+ * @param req Request with user ID and profile data
+ * @param res Response
+ */
+export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { name, nic, address, phoneNumber } = req.body;
+
+    if (!userId || !Types.ObjectId.isValid(userId)) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Update only provided fields
+    if (name !== undefined) user.name = name;
+    if (nic !== undefined) user.nic = nic;
+    if (address !== undefined) user.address = address;
+    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
+
+    await user.save();
+
+    logger.info(`User profile updated: ${user._id} (${user.email})`);
+
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        nic: user.nic,
+        address: user.address,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+        lastLogin: user.lastLogin,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+    logger.error(`Update profile error: ${(error as Error).message}`);
+    res.status(500).json({ message: 'Error updating profile' });
+  }
+};
+
+/**
+ * Change user password
+ * @param req Request with user ID and password data
+ * @param res Response
+ */
+export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!userId || !Types.ObjectId.isValid(userId)) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ message: 'Current password and new password are required' });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      res.status(400).json({ message: 'New password must be at least 8 characters long' });
+      return;
+    }
+
+    const user = await User.findById(userId).select('+password');
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+    if (!isCurrentPasswordValid) {
+      res.status(400).json({ message: 'Current password is incorrect' });
+      return;
+    }
+
+    // Update password (will be hashed by pre-save middleware)
+    user.password = newPassword;
+    await user.save();
+
+    // Revoke all existing tokens to force re-login
+    await revokeTokens(userId);
+
+    logger.info(`Password changed for user: ${user._id} (${user.email})`);
+
+    res.status(200).json({
+      message: 'Password changed successfully. Please log in again.'
+    });
+  } catch (error) {
+    logger.error(`Change password error: ${(error as Error).message}`);
+    res.status(500).json({ message: 'Error changing password' });
   }
 };
 
