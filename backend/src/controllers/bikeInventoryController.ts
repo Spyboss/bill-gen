@@ -13,33 +13,33 @@ import { AuthRequest } from '../auth/auth.middleware.js';
  */
 export const getAllInventory = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { 
-      page = 1, 
-      limit = 20, 
-      status, 
-      modelId, 
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      modelId,
       search,
       sort = 'dateAdded',
       order = 'desc'
     } = req.query;
-    
+
     const pageNum = parseInt(page as string) || 1;
     const limitNum = parseInt(limit as string) || 20;
     const skip = (pageNum - 1) * limitNum;
-    
+
     // Build filter query
     const filter: any = {};
-    
+
     // Filter by status if provided
     if (status) {
       filter.status = status;
     }
-    
+
     // Filter by model if provided
     if (modelId) {
       filter.bikeModelId = modelId;
     }
-    
+
     // Search by motor or chassis number
     if (search) {
       filter.$or = [
@@ -47,14 +47,14 @@ export const getAllInventory = async (req: AuthRequest, res: Response, next: Nex
         { chassisNumber: { $regex: search, $options: 'i' } }
       ];
     }
-    
+
     // Determine sort order
     const sortOptions: any = {};
     sortOptions[sort as string] = order === 'asc' ? 1 : -1;
-    
+
     // Get total count for pagination
     const total = await BikeInventory.countDocuments(filter);
-    
+
     // Get inventory items with pagination
     const inventory = await BikeInventory.find(filter)
       .sort(sortOptions)
@@ -62,7 +62,7 @@ export const getAllInventory = async (req: AuthRequest, res: Response, next: Nex
       .limit(limitNum)
       .populate('bikeModelId', 'name price is_ebicycle is_tricycle')
       .populate('addedBy', 'name email');
-    
+
     res.status(200).json({
       items: inventory,
       pagination: {
@@ -86,20 +86,20 @@ export const getAllInventory = async (req: AuthRequest, res: Response, next: Nex
 export const getInventoryById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return next(new AppError('Invalid inventory ID', 400));
     }
-    
+
     const inventoryItem = await BikeInventory.findById(id)
       .populate('bikeModelId', 'name price is_ebicycle is_tricycle')
       .populate('addedBy', 'name email')
       .populate('billId', 'billNumber customerName');
-    
+
     if (!inventoryItem) {
       return next(new AppError('Inventory item not found', 404));
     }
-    
+
     res.status(200).json(inventoryItem);
   } catch (error) {
     logger.error(`Error getting inventory item: ${(error as Error).message}`);
@@ -115,28 +115,28 @@ export const getInventoryById = async (req: Request, res: Response, next: NextFu
 export const addToInventory = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const inventoryData = req.body;
-    
+
     // Set the added by field to the current user
     inventoryData.addedBy = req.user?.id;
-    
+
     // Validate bike model exists
     if (!mongoose.Types.ObjectId.isValid(inventoryData.bikeModelId)) {
       return next(new AppError('Invalid bike model ID', 400));
     }
-    
+
     const bikeModel = await BikeModel.findById(inventoryData.bikeModelId);
     if (!bikeModel) {
       return next(new AppError('Bike model not found', 404));
     }
-    
+
     // Create the inventory item
     const inventoryItem = await BikeInventory.create(inventoryData);
-    
+
     // Populate references for response
     const populatedItem = await BikeInventory.findById(inventoryItem._id)
       .populate('bikeModelId', 'name price is_ebicycle is_tricycle')
       .populate('addedBy', 'name email');
-    
+
     res.status(201).json(populatedItem);
   } catch (error) {
     // Check for validation errors
@@ -144,12 +144,12 @@ export const addToInventory = async (req: AuthRequest, res: Response, next: Next
       const messages = Object.values(error.errors).map(err => err.message);
       return next(new AppError(`Validation error: ${messages.join(', ')}`, 400));
     }
-    
+
     // Check for duplicate key error
     if ((error as any).code === 11000) {
       return next(new AppError('A bike with this motor number or chassis number already exists in inventory', 400));
     }
-    
+
     logger.error(`Error adding to inventory: ${(error as Error).message}`);
     next(new AppError(`Failed to add to inventory: ${(error as Error).message}`, 500));
   }
@@ -163,31 +163,31 @@ export const addToInventory = async (req: AuthRequest, res: Response, next: Next
 export const batchAddToInventory = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { items } = req.body;
-    
+
     if (!Array.isArray(items) || items.length === 0) {
       return next(new AppError('No inventory items provided', 400));
     }
-    
+
     // Set the added by field for all items
     const itemsWithUser = items.map(item => ({
       ...item,
       addedBy: req.user?.id
     }));
-    
+
     // Validate all bike models exist
     const modelIds = [...new Set(itemsWithUser.map(item => item.bikeModelId))];
-    
+
     for (const modelId of modelIds) {
       if (!mongoose.Types.ObjectId.isValid(modelId)) {
         return next(new AppError(`Invalid bike model ID: ${modelId}`, 400));
       }
-      
+
       const bikeModel = await BikeModel.findById(modelId);
       if (!bikeModel) {
         return next(new AppError(`Bike model not found: ${modelId}`, 404));
       }
     }
-    
+
     // Create all inventory items
     const result = await BikeInventory.insertMany(itemsWithUser, { ordered: false })
       .catch(error => {
@@ -197,12 +197,12 @@ export const batchAddToInventory = async (req: AuthRequest, res: Response, next:
             const item = err.err.op;
             return `Motor: ${item.motorNumber}, Chassis: ${item.chassisNumber}`;
           });
-          
+
           throw new AppError(`Duplicate entries found: ${duplicates.join('; ')}`, 400);
         }
         throw error;
       });
-    
+
     res.status(201).json({
       message: `Successfully added ${result.length} bikes to inventory`,
       count: result.length,
@@ -210,12 +210,12 @@ export const batchAddToInventory = async (req: AuthRequest, res: Response, next:
     });
   } catch (error) {
     logger.error(`Error batch adding to inventory: ${(error as Error).message}`);
-    
+
     // If it's already an AppError, pass it through
     if (error instanceof AppError) {
       return next(error);
     }
-    
+
     next(new AppError(`Failed to add bikes to inventory: ${(error as Error).message}`, 500));
   }
 };
@@ -229,26 +229,26 @@ export const updateInventory = async (req: Request, res: Response, next: NextFun
   try {
     const { id } = req.params;
     const updateData = req.body;
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return next(new AppError('Invalid inventory ID', 400));
     }
-    
+
     // Don't allow changing the addedBy field
     if (updateData.addedBy) {
       delete updateData.addedBy;
     }
-    
+
     // If changing status to sold, set the dateSold
     if (updateData.status === BikeStatus.SOLD && !updateData.dateSold) {
       updateData.dateSold = new Date();
     }
-    
+
     // If changing status from sold, clear the dateSold
     if (updateData.status && updateData.status !== BikeStatus.SOLD) {
       updateData.dateSold = null;
     }
-    
+
     const updatedItem = await BikeInventory.findByIdAndUpdate(
       id,
       updateData,
@@ -256,11 +256,11 @@ export const updateInventory = async (req: Request, res: Response, next: NextFun
     )
       .populate('bikeModelId', 'name price is_ebicycle is_tricycle')
       .populate('addedBy', 'name email');
-    
+
     if (!updatedItem) {
       return next(new AppError('Inventory item not found', 404));
     }
-    
+
     res.status(200).json(updatedItem);
   } catch (error) {
     // Check for validation errors
@@ -268,12 +268,12 @@ export const updateInventory = async (req: Request, res: Response, next: NextFun
       const messages = Object.values(error.errors).map(err => err.message);
       return next(new AppError(`Validation error: ${messages.join(', ')}`, 400));
     }
-    
+
     // Check for duplicate key error
     if ((error as any).code === 11000) {
       return next(new AppError('A bike with this motor number or chassis number already exists in inventory', 400));
     }
-    
+
     logger.error(`Error updating inventory: ${(error as Error).message}`);
     next(new AppError(`Failed to update inventory: ${(error as Error).message}`, 500));
   }
@@ -287,24 +287,24 @@ export const updateInventory = async (req: Request, res: Response, next: NextFun
 export const deleteInventory = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return next(new AppError('Invalid inventory ID', 400));
     }
-    
+
     // Check if the item is sold
     const inventoryItem = await BikeInventory.findById(id);
-    
+
     if (!inventoryItem) {
       return next(new AppError('Inventory item not found', 404));
     }
-    
+
     if (inventoryItem.status === BikeStatus.SOLD) {
       return next(new AppError('Cannot delete a sold inventory item', 400));
     }
-    
+
     await BikeInventory.findByIdAndDelete(id);
-    
+
     res.status(200).json({ message: 'Inventory item deleted successfully' });
   } catch (error) {
     logger.error(`Error deleting inventory: ${(error as Error).message}`);
@@ -377,7 +377,7 @@ export const getInventorySummary = async (req: Request, res: Response, next: Nex
         $sort: { modelName: 1 }
       }
     ]);
-    
+
     // Get total counts by status
     const statusTotals = await BikeInventory.aggregate([
       {
@@ -394,7 +394,7 @@ export const getInventorySummary = async (req: Request, res: Response, next: Nex
         }
       }
     ]);
-    
+
     // Calculate total inventory value
     const inventoryValue = await BikeInventory.aggregate([
       {
@@ -419,7 +419,7 @@ export const getInventorySummary = async (req: Request, res: Response, next: Nex
         }
       }
     ]);
-    
+
     res.status(200).json({
       summary,
       statusTotals,
@@ -432,6 +432,342 @@ export const getInventorySummary = async (req: Request, res: Response, next: Nex
 };
 
 /**
+ * Get enhanced inventory analytics for professional reporting
+ * @route GET /api/inventory/analytics
+ * @access Private
+ */
+export const getInventoryAnalytics = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    // Get current date for calculations
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+    const ninetyDaysAgo = new Date(now.getTime() - (90 * 24 * 60 * 60 * 1000));
+
+    // Enhanced model performance with revenue and aging analysis
+    const modelPerformance = await BikeInventory.aggregate([
+      {
+        $lookup: {
+          from: 'bike_models',
+          localField: 'bikeModelId',
+          foreignField: '_id',
+          as: 'model'
+        }
+      },
+      {
+        $unwind: '$model'
+      },
+      {
+        $group: {
+          _id: '$bikeModelId',
+          modelName: { $first: '$model.name' },
+          price: { $first: '$model.price' },
+          isEbicycle: { $first: '$model.is_ebicycle' },
+          isTricycle: { $first: '$model.is_tricycle' },
+          totalUnits: { $sum: 1 },
+          availableUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'available'] }, 1, 0] }
+          },
+          soldUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'sold'] }, 1, 0] }
+          },
+          reservedUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'reserved'] }, 1, 0] }
+          },
+          damagedUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'damaged'] }, 1, 0] }
+          },
+          recentSales: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'sold'] },
+                    { $gte: ['$dateSold', thirtyDaysAgo] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          oldStock: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'available'] },
+                    { $lte: ['$dateAdded', ninetyDaysAgo] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          totalValue: { $multiply: ['$totalUnits', '$price'] },
+          availableValue: { $multiply: ['$availableUnits', '$price'] },
+          soldValue: { $multiply: ['$soldUnits', '$price'] },
+          sellThroughRate: {
+            $cond: [
+              { $gt: ['$totalUnits', 0] },
+              { $multiply: [{ $divide: ['$soldUnits', '$totalUnits'] }, 100] },
+              0
+            ]
+          },
+          monthlyVelocity: '$recentSales',
+          stockHealth: {
+            $cond: [
+              { $gt: ['$oldStock', 0] }, 'Slow Moving',
+              { $cond: [
+                { $gt: ['$recentSales', 2] }, 'Fast Moving',
+                'Normal'
+              ]}
+            ]
+          }
+        }
+      },
+      {
+        $sort: { soldValue: -1 }
+      }
+    ]);
+
+    // Calculate key performance indicators
+    const kpis = await BikeInventory.aggregate([
+      {
+        $lookup: {
+          from: 'bike_models',
+          localField: 'bikeModelId',
+          foreignField: '_id',
+          as: 'model'
+        }
+      },
+      {
+        $unwind: '$model'
+      },
+      {
+        $group: {
+          _id: null,
+          totalInventoryValue: { $sum: '$model.price' },
+          availableInventoryValue: {
+            $sum: {
+              $cond: [
+                { $eq: ['$status', 'available'] },
+                '$model.price',
+                0
+              ]
+            }
+          },
+          soldInventoryValue: {
+            $sum: {
+              $cond: [
+                { $eq: ['$status', 'sold'] },
+                '$model.price',
+                0
+              ]
+            }
+          },
+          totalUnits: { $sum: 1 },
+          availableUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'available'] }, 1, 0] }
+          },
+          soldUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'sold'] }, 1, 0] }
+          },
+          reservedUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'reserved'] }, 1, 0] }
+          },
+          damagedUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'damaged'] }, 1, 0] }
+          },
+          recentSales: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'sold'] },
+                    { $gte: ['$dateSold', thirtyDaysAgo] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          oldStock: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'available'] },
+                    { $lte: ['$dateAdded', ninetyDaysAgo] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          inventoryTurnoverRate: {
+            $cond: [
+              { $gt: ['$availableInventoryValue', 0] },
+              { $divide: ['$soldInventoryValue', '$availableInventoryValue'] },
+              0
+            ]
+          },
+          stockoutRisk: {
+            $cond: [
+              { $lt: ['$availableUnits', 5] },
+              'High',
+              { $cond: [
+                { $lt: ['$availableUnits', 10] },
+                'Medium',
+                'Low'
+              ]}
+            ]
+          }
+        }
+      }
+    ]);
+
+    // Category breakdown
+    const categoryBreakdown = await BikeInventory.aggregate([
+      {
+        $lookup: {
+          from: 'bike_models',
+          localField: 'bikeModelId',
+          foreignField: '_id',
+          as: 'model'
+        }
+      },
+      {
+        $unwind: '$model'
+      },
+      {
+        $group: {
+          _id: {
+            isEbicycle: '$model.is_ebicycle',
+            isTricycle: '$model.is_tricycle'
+          },
+          count: { $sum: 1 },
+          value: { $sum: '$model.price' },
+          available: {
+            $sum: { $cond: [{ $eq: ['$status', 'available'] }, 1, 0] }
+          },
+          sold: {
+            $sum: { $cond: [{ $eq: ['$status', 'sold'] }, 1, 0] }
+          }
+        }
+      },
+      {
+        $addFields: {
+          category: {
+            $cond: [
+              '$_id.isTricycle', 'E-Tricycles',
+              { $cond: ['$_id.isEbicycle', 'E-Bicycles', 'E-Motorcycles'] }
+            ]
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          category: 1,
+          count: 1,
+          value: 1,
+          available: 1,
+          sold: 1
+        }
+      }
+    ]);
+
+    // Generate insights and recommendations
+    const insights = generateInventoryInsights(modelPerformance, kpis[0] || {});
+
+    res.status(200).json({
+      modelPerformance,
+      kpis: kpis[0] || {},
+      categoryBreakdown,
+      insights,
+      reportGenerated: now
+    });
+  } catch (error) {
+    logger.error(`Error getting inventory analytics: ${(error as Error).message}`);
+    next(new AppError(`Failed to get inventory analytics: ${(error as Error).message}`, 500));
+  }
+};
+
+/**
+ * Generate business insights from inventory data
+ */
+const generateInventoryInsights = (modelPerformance: any[], kpis: any) => {
+  const insights = [];
+
+  // Top performers
+  const topPerformer = modelPerformance[0];
+  if (topPerformer) {
+    insights.push({
+      type: 'success',
+      title: 'Top Revenue Generator',
+      message: `${topPerformer.modelName} leads with Rs. ${topPerformer.soldValue?.toLocaleString()} in sales revenue`
+    });
+  }
+
+  // Slow moving stock
+  const slowMoving = modelPerformance.filter(model => model.stockHealth === 'Slow Moving');
+  if (slowMoving.length > 0) {
+    insights.push({
+      type: 'warning',
+      title: 'Slow Moving Inventory',
+      message: `${slowMoving.length} model(s) have stock older than 90 days. Consider promotional strategies.`
+    });
+  }
+
+  // Stock level alerts
+  if (kpis.stockoutRisk === 'High') {
+    insights.push({
+      type: 'error',
+      title: 'Low Stock Alert',
+      message: 'Critical stock levels detected. Immediate restocking recommended.'
+    });
+  }
+
+  // Turnover insights
+  if (kpis.inventoryTurnoverRate > 0.5) {
+    insights.push({
+      type: 'success',
+      title: 'Healthy Turnover',
+      message: 'Good inventory turnover rate indicates efficient stock management.'
+    });
+  } else if (kpis.inventoryTurnoverRate < 0.2) {
+    insights.push({
+      type: 'warning',
+      title: 'Low Turnover',
+      message: 'Consider reviewing pricing strategy or marketing efforts to improve sales velocity.'
+    });
+  }
+
+  // Fast moving items
+  const fastMoving = modelPerformance.filter(model => model.stockHealth === 'Fast Moving');
+  if (fastMoving.length > 0) {
+    insights.push({
+      type: 'info',
+      title: 'High Demand Models',
+      message: `${fastMoving.length} model(s) showing strong sales momentum. Ensure adequate stock levels.`
+    });
+  }
+
+  return insights;
+};
+
+/**
  * Get available bikes for a specific model
  * @route GET /api/inventory/available/:modelId
  * @access Private
@@ -439,18 +775,18 @@ export const getInventorySummary = async (req: Request, res: Response, next: Nex
 export const getAvailableBikesByModel = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { modelId } = req.params;
-    
+
     if (!mongoose.Types.ObjectId.isValid(modelId)) {
       return next(new AppError('Invalid bike model ID', 400));
     }
-    
+
     const availableBikes = await BikeInventory.find({
       bikeModelId: modelId,
       status: BikeStatus.AVAILABLE
     })
       .sort({ dateAdded: 1 })
       .populate('bikeModelId', 'name price is_ebicycle is_tricycle');
-    
+
     res.status(200).json(availableBikes);
   } catch (error) {
     logger.error(`Error getting available bikes: ${(error as Error).message}`);

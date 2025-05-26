@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { 
+import {
   getAllInventory,
   getInventoryById,
   addToInventory,
@@ -7,6 +7,7 @@ import {
   updateInventory,
   deleteInventory,
   getInventorySummary,
+  getInventoryAnalytics,
   getAvailableBikesByModel
 } from '../controllers/bikeInventoryController.js';
 import { authenticate, requireAdmin } from '../auth/auth.middleware.js';
@@ -29,6 +30,13 @@ router.get('/', getAllInventory);
  * @access  Private
  */
 router.get('/summary', getInventorySummary);
+
+/**
+ * @route   GET /api/inventory/analytics
+ * @desc    Get enhanced inventory analytics for professional reporting
+ * @access  Private
+ */
+router.get('/analytics', getInventoryAnalytics);
 
 /**
  * @route   GET /api/inventory/available/:modelId
