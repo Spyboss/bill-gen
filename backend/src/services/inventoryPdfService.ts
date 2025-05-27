@@ -1,4 +1,4 @@
-const PDFDocument = require('pdfkit');
+import PDFDocument from 'pdfkit';
 
 interface BikeInventoryItem {
   _id: any;
@@ -89,7 +89,7 @@ const extractColorFromNotes = (notes?: string): string => {
 /**
  * Generate the header section of the inventory report
  */
-const generateInventoryHeader = (doc: any, reportDate: Date): void => {
+const generateInventoryHeader = (doc: PDFKit.PDFDocument, reportDate: Date): void => {
   // Company name
   doc.fontSize(18)
      .font('Helvetica-Bold')
@@ -112,7 +112,7 @@ const generateInventoryHeader = (doc: any, reportDate: Date): void => {
 /**
  * Generate the inventory table
  */
-const generateInventoryTable = (doc: any, inventoryItems: BikeInventoryItem[]): void => {
+const generateInventoryTable = (doc: PDFKit.PDFDocument, inventoryItems: BikeInventoryItem[]): void => {
   const tableTop = 120;
   const tableLeft = 40;
   const rowHeight = 18;
@@ -190,7 +190,7 @@ const generateInventoryTable = (doc: any, inventoryItems: BikeInventoryItem[]): 
 /**
  * Generate total row
  */
-const generateTotalRow = (doc: any, totalAvailable: number): void => {
+const generateTotalRow = (doc: PDFKit.PDFDocument, totalAvailable: number): void => {
   const tableLeft = 40;
   const rowHeight = 18;
   const tableWidth = 515;
@@ -232,7 +232,7 @@ const generateTotalRow = (doc: any, totalAvailable: number): void => {
 /**
  * Generate action items section
  */
-const generateActionItems = (doc: any, insights: any[]): void => {
+const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => {
   const currentY = doc.y + 20;
 
   doc.fontSize(10)
@@ -272,7 +272,7 @@ const generateActionItems = (doc: any, insights: any[]): void => {
 /**
  * Generate signature section
  */
-const generateSignatureSection = (doc: any): void => {
+const generateSignatureSection = (doc: PDFKit.PDFDocument): void => {
   const currentY = doc.y + 30;
 
   // Signature & Rubberstamp section title
