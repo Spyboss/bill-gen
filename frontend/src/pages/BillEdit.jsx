@@ -106,7 +106,8 @@ const BillEdit = () => {
   };
 
   const handleModelChange = (value) => {
-    const model = bikeModels.find(m => m.model_name === value);
+    // Look for model by name (updated field name)
+    const model = bikeModels.find(m => m.name === value);
     setSelectedModel(model);
 
     if (model && model.price) {
@@ -222,8 +223,8 @@ const BillEdit = () => {
               onChange={handleModelChange}
               placeholder="Select bike model"
               options={bikeModels.map(model => ({
-                label: `${model.model_name} - Rs. ${model.price.toLocaleString()}`,
-                value: model.model_name
+                label: `${model.name} - Rs. ${(model.price || 0).toLocaleString()}`,
+                value: model.name
               }))}
             />
           </Form.Item>

@@ -34,19 +34,19 @@ export default function BillForm() {
     const bikePrice = parseInt(formData.bike_price) || 0;
     let total = bikePrice;
     let rmvCharge = 0;
-    
+
     console.log('CALCULATE TOTAL DEBUG:');
     console.log('- Bike price:', bikePrice);
     console.log('- Current model:', currentModel ? JSON.stringify(currentModel) : 'null');
     console.log('- Model name:', formData.model_name);
     console.log('- Bill type:', formData.bill_type);
-    
+
     // Add RMV charges based on bill type and bike type
     const modelNameUpper = (formData.model_name || '').toUpperCase();
     const isCola5 = modelNameUpper.includes('COLA5');
     const isX01 = modelNameUpper.includes('X01');
     const isEBicycle = isCola5 || isX01 || (currentModel && currentModel.is_ebicycle);
-    
+
     if (!isEBicycle) {
       // Add RMV charges for non-e-bicycles
       if (formData.bill_type === 'cash') {
@@ -56,18 +56,18 @@ export default function BillForm() {
       }
       total += rmvCharge;
     }
-    
+
     console.log('- Is E-Bicycle:', isEBicycle);
     console.log('- RMV Charge:', rmvCharge);
     console.log('- Final total amount:', total);
-    
+
     // Calculate balance for advancement bills
     let balance = 0;
     if (formData.bill_type === 'advancement') {
       const downPayment = parseInt(formData.down_payment) || 0;
       balance = total - downPayment;
     }
-    
+
     setFormData(prev => ({
       ...prev,
       total_amount: total,
@@ -85,7 +85,7 @@ const fetchBikeModels = async () => {
     const url = formData.bill_type === 'leasing'
       ? `/bike-models?bill_type=${formData.bill_type}`
       : '/bike-models';
-    
+
     const response = await api.get(url)
     console.log('bikeModels state:', response)
 setBikeModels(response.data)
@@ -101,32 +101,32 @@ setBikeModels(response.data)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    
+
     // Special handling for model selection
     if (name === 'model_name') {
-      const selectedModel = bikeModels.find(model => model.model_name === value);
+      const selectedModel = bikeModels.find(model => model.name === value);
       if (selectedModel) {
         console.log('SELECTED MODEL DEBUG INFO:');
-        console.log('- Model name:', selectedModel.model_name);
+        console.log('- Model name:', selectedModel.name);
         console.log('- is_ebicycle flag value:', selectedModel.is_ebicycle);
         console.log('- is_ebicycle type:', typeof selectedModel.is_ebicycle);
         console.log('- Full model object:', JSON.stringify(selectedModel));
-        
+
         setCurrentModel(selectedModel);
-        
+
         // COLA5 DEBUG OVERRIDE - Force e-bicycle status for any COLA5 model
-        if (selectedModel.model_name.toUpperCase().includes('COLA5') && !selectedModel.is_ebicycle) {
+        if (selectedModel.name.toUpperCase().includes('COLA5') && !selectedModel.is_ebicycle) {
           console.log('⚠️ CRITICAL: COLA5 model found with is_ebicycle=false, applying EMERGENCY OVERRIDE');
           const correctedModel = {...selectedModel, is_ebicycle: true};
           setCurrentModel(correctedModel);
         }
-        
+
         setFormData(prev => ({
           ...prev,
           [name]: value,
           bike_price: selectedModel.price
         }));
-        
+
         // Force a recalculation of total amount
         setTimeout(() => {
           calculateTotalAndBalance();
@@ -147,7 +147,7 @@ setBikeModels(response.data)
 
   const handleBillTypeChange = (e) => {
     const newBillType = e.target.value;
-    
+
     // Reset model selection if switching to leasing and current model is e-bicycle
     if (newBillType === 'leasing' && currentModel?.is_ebicycle) {
       setCurrentModel(null);
@@ -168,7 +168,7 @@ setBikeModels(response.data)
   const handlePreviewPDF = async () => {
     try {
       setLoading(true);
-      
+
       // Prepare the preview data
       const previewData = {
         ...formData,
@@ -201,17 +201,17 @@ setBikeModels(response.data)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       setLoading(true);
       setSubmitting(true);
-      
+
       // Validate fields
       if (!formData.bill_type) {
         toast.error('Please select a bill type');
         return;
       }
-      
+
       // Create a copy of the form data with proper formatting
       const submitData = {
         ...formData,
@@ -230,18 +230,18 @@ setBikeModels(response.data)
         toast.error('Cash bills must have RMV charge of Rs. 13,000');
         return;
       }
-      
+
       // Validate that chassis and motor numbers are provided
       if (!submitData.chassis_number || !submitData.motor_number) {
         toast.error('Please provide both chassis and motor numbers');
         return;
       }
-      
+
       // Create the bill
       const response = await api.post('/bills', submitData);
       console.log('Bill created successfully:', response.data);
       toast.success('Bill created successfully');
-      
+
       // Navigate to the bill view page
       navigate(`/bills/${response.data.id}`);
     } catch (error) {
@@ -354,8 +354,8 @@ setBikeModels(response.data)
               >
                 <option value="">Select Bike Model</option>
                 {bikeModels.map((model) => (
-                  <option key={model.id} value={model.model_name}>
-                    {model.model_name} - Rs. {model.price.toLocaleString()}
+                  <option key={model._id} value={model.name}>
+                    {model.name} - Rs. {(model.price || 0).toLocaleString()}
                   </option>
                 ))}
               </select>
@@ -415,7 +415,7 @@ setBikeModels(response.data)
                 />
               </div>
             )}
-            
+
             {formData.bill_type === 'advancement' && (
               <>
                 <div>
@@ -441,7 +441,7 @@ setBikeModels(response.data)
                 </div>
               </>
             )}
-            
+
             <div>
               <label className="block text-gray-700 font-medium mb-2">Total Amount</label>
               <div>
@@ -453,10 +453,10 @@ setBikeModels(response.data)
                   readOnly
                 />
                 {/* Show RMV charges for non-e-bicycles and non-advancement bills */}
-                {currentModel && 
-                 !currentModel.is_ebicycle && 
-                 !(formData.model_name || '').toUpperCase().includes('COLA5') && 
-                 !(formData.model_name || '').toUpperCase().includes('X01') && 
+                {currentModel &&
+                 !currentModel.is_ebicycle &&
+                 !(formData.model_name || '').toUpperCase().includes('COLA5') &&
+                 !(formData.model_name || '').toUpperCase().includes('X01') &&
                  formData.bill_type !== 'advancement' && formData.rmv_charge > 0 && (
                   <div className="mt-2 text-sm">
                     <div className="text-gray-600">Breakdown:</div>
