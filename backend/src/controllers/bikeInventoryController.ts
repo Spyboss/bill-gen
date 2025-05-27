@@ -638,7 +638,7 @@ export const getInventoryAnalytics = async (req: Request, res: Response, next: N
       }
     ]);
 
-    // Category breakdown
+    // Enhanced Category breakdown with monthly performance
     const categoryBreakdown = await BikeInventory.aggregate([
       {
         $lookup: {
@@ -664,6 +664,46 @@ export const getInventoryAnalytics = async (req: Request, res: Response, next: N
           },
           sold: {
             $sum: { $cond: [{ $eq: ['$status', 'sold'] }, 1, 0] }
+          },
+          // Monthly arrivals (bikes added in last 30 days)
+          monthlyArrivals: {
+            $sum: {
+              $cond: [
+                { $gte: ['$dateAdded', thirtyDaysAgo] },
+                1,
+                0
+              ]
+            }
+          },
+          // Monthly sales (bikes sold in last 30 days)
+          monthlySales: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'sold'] },
+                    { $gte: ['$dateSold', thirtyDaysAgo] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          // Average days to sell (for sold items)
+          avgDaysToSell: {
+            $avg: {
+              $cond: [
+                { $eq: ['$status', 'sold'] },
+                {
+                  $divide: [
+                    { $subtract: ['$dateSold', '$dateAdded'] },
+                    86400000 // Convert milliseconds to days
+                  ]
+                },
+                null
+              ]
+            }
           }
         }
       },
@@ -673,6 +713,21 @@ export const getInventoryAnalytics = async (req: Request, res: Response, next: N
             $cond: [
               '$_id.isTricycle', 'E-Tricycles',
               { $cond: ['$_id.isEbicycle', 'E-Bicycles', 'E-Motorcycles'] }
+            ]
+          },
+          // Calculate monthly performance metrics
+          monthlyTurnoverRate: {
+            $cond: [
+              { $gt: ['$monthlyArrivals', 0] },
+              { $multiply: [{ $divide: ['$monthlySales', '$monthlyArrivals'] }, 100] },
+              0
+            ]
+          },
+          sellThroughRate: {
+            $cond: [
+              { $gt: ['$count', 0] },
+              { $multiply: [{ $divide: ['$sold', '$count'] }, 100] },
+              0
             ]
           }
         }
@@ -684,7 +739,12 @@ export const getInventoryAnalytics = async (req: Request, res: Response, next: N
           count: 1,
           value: 1,
           available: 1,
-          sold: 1
+          sold: 1,
+          monthlyArrivals: 1,
+          monthlySales: 1,
+          monthlyTurnoverRate: 1,
+          sellThroughRate: 1,
+          avgDaysToSell: { $round: ['$avgDaysToSell', 0] }
         }
       }
     ]);

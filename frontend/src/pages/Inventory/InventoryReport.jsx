@@ -561,17 +561,19 @@ const InventoryReport = () => {
           </div>
         )}
 
-        {/* Category Performance - Hidden on print to save space */}
+        {/* Enhanced Category Performance with Monthly Metrics */}
         {analytics?.categoryBreakdown && (
           <div className="category-section mb-8 print:mb-6 print:hidden">
-            <Title level={3} className="section-title !mb-4">Category Performance</Title>
+            <Title level={3} className="section-title !mb-4">Category Performance - Monthly Analysis</Title>
             <Row gutter={16}>
               {analytics.categoryBreakdown.map((category, index) => (
                 <Col xs={24} sm={8} key={index}>
                   <Card size="small" className="category-card">
                     <div className="text-center">
                       <Title level={4} className="!mb-2">{category.category}</Title>
-                      <div className="category-stats">
+
+                      {/* Stock Overview */}
+                      <div className="category-stats mb-3">
                         <div className="stat-item">
                           <Text strong>Total Units: </Text>
                           <Text>{category.count}</Text>
@@ -584,10 +586,54 @@ const InventoryReport = () => {
                           <Text strong>Sold: </Text>
                           <Text style={{ color: '#1890ff' }}>{category.sold}</Text>
                         </div>
+                      </div>
+
+                      {/* Monthly Performance */}
+                      <Divider style={{ margin: '8px 0' }} />
+                      <div className="monthly-performance">
+                        <Text strong style={{ fontSize: '12px', color: '#722ed1' }}>
+                          Monthly Performance (Last 30 Days)
+                        </Text>
                         <div className="stat-item">
-                          <Text strong>Value: </Text>
-                          <Text>Rs. {category.value?.toLocaleString()}</Text>
+                          <Text strong>Arrivals: </Text>
+                          <Text style={{ color: '#52c41a' }}>{category.monthlyArrivals || 0}</Text>
                         </div>
+                        <div className="stat-item">
+                          <Text strong>Sales: </Text>
+                          <Text style={{ color: '#1890ff' }}>{category.monthlySales || 0}</Text>
+                        </div>
+                        <div className="stat-item">
+                          <Text strong>Turnover Rate: </Text>
+                          <Text style={{
+                            color: (category.monthlyTurnoverRate || 0) > 50 ? '#52c41a' :
+                                   (category.monthlyTurnoverRate || 0) > 25 ? '#faad14' : '#ff4d4f',
+                            fontWeight: 'bold'
+                          }}>
+                            {(category.monthlyTurnoverRate || 0).toFixed(1)}%
+                          </Text>
+                        </div>
+                        <div className="stat-item">
+                          <Text strong>Avg. Days to Sell: </Text>
+                          <Text style={{
+                            color: (category.avgDaysToSell || 0) < 30 ? '#52c41a' :
+                                   (category.avgDaysToSell || 0) < 60 ? '#faad14' : '#ff4d4f'
+                          }}>
+                            {category.avgDaysToSell || 'N/A'} days
+                          </Text>
+                        </div>
+                      </div>
+
+                      {/* Performance Indicator */}
+                      <div className="performance-indicator mt-2">
+                        <Progress
+                          percent={category.sellThroughRate || 0}
+                          size="small"
+                          status={
+                            (category.sellThroughRate || 0) > 50 ? 'success' :
+                            (category.sellThroughRate || 0) > 25 ? 'normal' : 'exception'
+                          }
+                          format={() => `${(category.sellThroughRate || 0).toFixed(1)}% Overall`}
+                        />
                       </div>
                     </div>
                   </Card>
@@ -637,7 +683,7 @@ const InventoryReport = () => {
             </Text>
             <br />
             <Text type="secondary" style={{ fontSize: '12px' }}>
-              For inquiries, contact: info@gunawardhanamotors.lk | +94 11 234 5678
+              For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | +94 77 720 3202
             </Text>
             <br />
             <Text type="secondary" style={{ fontSize: '11px' }}>
