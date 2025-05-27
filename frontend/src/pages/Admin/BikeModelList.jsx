@@ -140,7 +140,7 @@ const BikeModelList = () => {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {bikeModels.map((model) => (
                 <tr key={model._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{model.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{model.name || 'N/A'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                     {editingPrice === model._id ? (
                       <div className="flex items-center space-x-2">
@@ -178,9 +178,9 @@ const BikeModelList = () => {
                       </div>
                     ) : (
                       <div className="flex items-center space-x-2">
-                        <span>Rs. {model.price.toLocaleString()}</span>
+                        <span>Rs. {(model.price || 0).toLocaleString()}</span>
                         <button
-                          onClick={() => handlePriceEdit(model._id, model.price)}
+                          onClick={() => handlePriceEdit(model._id, model.price || 0)}
                           className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs"
                           title="Edit price"
                         >
