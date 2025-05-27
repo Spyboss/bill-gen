@@ -55,7 +55,7 @@ const InventoryReport = () => {
   const handlePrint = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/inventory/report/pdf`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/inventory/report/pdf`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
