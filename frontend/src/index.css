@@ -370,83 +370,101 @@
   }
 
   @page {
-    margin: 0.4in !important;
+    margin: 0 !important;
+    padding: 0 !important;
     size: A4 portrait !important;
+    /* Kill browser headers and footers */
+    @top-left { content: none !important; }
+    @top-center { content: none !important; }
+    @top-right { content: none !important; }
+    @bottom-left { content: none !important; }
+    @bottom-center { content: none !important; }
+    @bottom-right { content: none !important; }
   }
 
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    font-size: 11px !important;
-    line-height: 1.4 !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
     margin: 0 !important;
     padding: 0 !important;
     color: #333 !important;
     background: white !important;
+    height: 100vh !important;
+    overflow: hidden !important;
   }
 
   .inventory-report-container {
-    padding: 0 !important;
+    padding: 0.3in !important;
     margin: 0 !important;
     max-width: none !important;
     width: 100% !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
   }
 
   .professional-report {
     max-width: none !important;
     width: 100% !important;
-    font-size: 11px !important;
-    line-height: 1.4 !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
     padding: 0 !important;
     margin: 0 !important;
     background: white !important;
     box-shadow: none !important;
     border-radius: 0 !important;
     page-break-inside: avoid !important;
+    height: calc(100vh - 0.6in) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
-  /* Compact Business Header */
+  /* Ultra-Compact Header */
   .report-header {
-    margin-bottom: 15px !important;
-    padding: 10px 0 !important;
+    margin-bottom: 8px !important;
+    padding: 5px 0 !important;
     background: none !important;
     border-bottom: 1px solid #1890ff !important;
     text-align: center !important;
+    flex-shrink: 0 !important;
   }
 
   .company-logo-section {
-    margin-bottom: 5px !important;
+    margin-bottom: 2px !important;
   }
 
   .company-name {
-    font-size: 18px !important;
+    font-size: 14px !important;
     font-weight: bold !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 1px !important;
     color: #1890ff !important;
-    letter-spacing: 0.3px !important;
+    letter-spacing: 0.2px !important;
   }
 
   .company-subtitle {
-    font-size: 9px !important;
+    font-size: 7px !important;
     color: #666 !important;
-    margin-bottom: 5px !important;
+    margin-bottom: 3px !important;
     font-style: italic !important;
   }
 
   .report-title-section {
-    margin-top: 5px !important;
+    margin-top: 3px !important;
   }
 
   .report-title {
-    font-size: 14px !important;
+    font-size: 11px !important;
     font-weight: bold !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 1px !important;
     color: #333 !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
+    letter-spacing: 0.3px !important;
   }
 
   .report-date {
-    font-size: 8px !important;
+    font-size: 6px !important;
     color: #666 !important;
     font-weight: normal !important;
   }
@@ -469,56 +487,57 @@
     letter-spacing: 0.5px !important;
   }
 
-  /* Compact Executive Summary */
+  /* Ultra-Compact Executive Summary */
   .executive-summary {
-    margin-bottom: 15px !important;
+    margin-bottom: 8px !important;
     page-break-inside: avoid !important;
+    flex-shrink: 0 !important;
   }
 
   .executive-summary .ant-row {
-    margin: 0 -4px !important;
+    margin: 0 -2px !important;
   }
 
   .executive-summary .ant-col {
-    padding: 0 4px !important;
-    margin-bottom: 5px !important;
+    padding: 0 2px !important;
+    margin-bottom: 3px !important;
   }
 
   .kpi-card {
     margin-bottom: 0 !important;
     border: 1px solid #e8e8e8 !important;
-    border-radius: 4px !important;
+    border-radius: 2px !important;
     box-shadow: none !important;
     background: #f8f9fa !important;
   }
 
   .kpi-card .ant-card-body {
-    padding: 8px !important;
+    padding: 4px !important;
     text-align: center !important;
   }
 
   .kpi-card .ant-statistic-title {
-    font-size: 8px !important;
+    font-size: 6px !important;
     font-weight: bold !important;
-    margin-bottom: 3px !important;
+    margin-bottom: 1px !important;
     color: #666 !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.3px !important;
+    letter-spacing: 0.2px !important;
   }
 
   .kpi-card .ant-statistic-content {
-    font-size: 12px !important;
+    font-size: 9px !important;
     font-weight: bold !important;
   }
 
   .kpi-card .ant-statistic-content-value {
-    font-size: 12px !important;
+    font-size: 9px !important;
     font-weight: bold !important;
   }
 
   .kpi-card .ant-statistic-content-suffix {
-    font-size: 10px !important;
-    margin-left: 2px !important;
+    font-size: 7px !important;
+    margin-left: 1px !important;
   }
 
   /* Compact Insights Section */
@@ -543,49 +562,54 @@
     display: none !important;
   }
 
-  /* Compact Data Table */
+  /* Ultra-Compact Data Table */
   .model-performance-section {
-    margin-bottom: 15px !important;
+    margin-bottom: 5px !important;
     page-break-inside: avoid !important;
+    flex: 1 !important;
+    overflow: hidden !important;
   }
 
   .performance-table-card {
     border: 1px solid #e8e8e8 !important;
-    border-radius: 4px !important;
+    border-radius: 2px !important;
     box-shadow: none !important;
     background: white !important;
+    height: 100% !important;
   }
 
   .performance-table-card .ant-card-body {
-    padding: 8px !important;
+    padding: 3px !important;
+    height: 100% !important;
+    overflow: hidden !important;
   }
 
   .performance-table .ant-table {
-    font-size: 9px !important;
+    font-size: 7px !important;
     margin: 0 !important;
     border-collapse: collapse !important;
   }
 
   .performance-table .ant-table-container {
     border: 1px solid #d9d9d9 !important;
-    border-radius: 3px !important;
+    border-radius: 2px !important;
   }
 
   .performance-table .ant-table-thead > tr > th {
-    font-size: 9px !important;
+    font-size: 7px !important;
     font-weight: bold !important;
-    padding: 4px 6px !important;
+    padding: 2px 3px !important;
     background: #1890ff !important;
     color: white !important;
     border: 1px solid #1890ff !important;
     text-align: center !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.3px !important;
+    letter-spacing: 0.1px !important;
   }
 
   .performance-table .ant-table-tbody > tr > td {
-    font-size: 9px !important;
-    padding: 4px 6px !important;
+    font-size: 7px !important;
+    padding: 2px 3px !important;
     border: 1px solid #e8e8e8 !important;
     text-align: center !important;
     vertical-align: middle !important;
@@ -632,19 +656,20 @@
     border-radius: 5px !important;
   }
 
-  /* Minimal Footer */
+  /* Ultra-Minimal Footer */
   .report-footer {
-    margin-top: 15px !important;
-    padding-top: 8px !important;
+    margin-top: 5px !important;
+    padding-top: 3px !important;
     border-top: 1px solid #e8e8e8 !important;
-    font-size: 7px !important;
+    font-size: 5px !important;
     color: #666 !important;
     text-align: center !important;
     page-break-inside: avoid !important;
+    flex-shrink: 0 !important;
   }
 
   .footer-content {
-    line-height: 1.2 !important;
+    line-height: 1.1 !important;
   }
 
   /* Page Break Management */
