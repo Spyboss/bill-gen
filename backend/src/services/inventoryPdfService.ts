@@ -273,15 +273,18 @@ const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => 
  * Generate signature section
  */
 const generateSignatureSection = (doc: PDFKit.PDFDocument): void => {
-  const currentY = doc.y + 30;
+  // Position signature section at the bottom of the page
+  const pageHeight = doc.page.height;
+  const bottomMargin = 60;
+  const signatureStartY = pageHeight - bottomMargin - 80; // Reserve 80 points for signature section
 
   // Signature & Rubberstamp section title
   doc.fontSize(10)
      .font('Helvetica-Bold')
      .fillColor('#000000')
-     .text('Signature & Rubberstamp:', 40, currentY);
+     .text('Signature & Rubberstamp:', 40, signatureStartY);
 
-  const signatureY = currentY + 40;
+  const signatureY = signatureStartY + 25;
 
   // Signature lines
   doc.fontSize(8)
@@ -292,9 +295,10 @@ const generateSignatureSection = (doc: PDFKit.PDFDocument): void => {
      .text('_________________________', 350, signatureY)
      .text('Territory Sales Manager Signature', 350, signatureY + 15);
 
-  // Contact info
+  // Contact info at the very bottom
+  const contactY = pageHeight - bottomMargin + 10;
   doc.fontSize(7)
-     .text('For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | 0778318061', 0, signatureY + 50, {
+     .text('For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | 0778318061', 0, contactY, {
        align: 'center'
      });
 };
