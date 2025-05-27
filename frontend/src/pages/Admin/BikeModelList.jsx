@@ -196,6 +196,7 @@ const BikeModelList = () => {
                     <Link
                       to={`/admin/bike-models/edit/${model._id}`}
                       className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-3"
+                      onClick={() => console.log('🔧 BikeModelList: Edit clicked for model:', model._id, model.name)}
                     >
                       Edit
                     </Link>

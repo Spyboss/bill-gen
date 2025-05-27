@@ -22,11 +22,13 @@ const BikeModelForm = () => {
 
   useEffect(() => {
     if (isEditing) {
+      console.log('🔧 BikeModelForm: Starting edit mode for ID:', id);
       const fetchBikeModel = async () => {
         setLoading(true);
         try {
+          console.log('🔧 BikeModelForm: Calling getBikeModelById with ID:', id);
           const modelData = await bikeModelService.getBikeModelById(id);
-          console.log('Fetched bike model data:', modelData);
+          console.log('🔧 BikeModelForm: Received model data:', modelData);
 
           // Validate that we received valid data
           if (!modelData || typeof modelData !== 'object') {
@@ -34,14 +36,18 @@ const BikeModelForm = () => {
           }
 
           // Handle the response - apiClient.get() returns data directly
-          setFormData({
+          const formDataToSet = {
             name: modelData.name || '',
             price: modelData.price ? modelData.price.toString() : '', // Ensure price is a string for input field
             is_ebicycle: Boolean(modelData.is_ebicycle),
             is_tricycle: Boolean(modelData.is_tricycle),
-          });
+          };
+
+          console.log('🔧 BikeModelForm: Setting form data:', formDataToSet);
+          setFormData(formDataToSet);
+          console.log('🔧 BikeModelForm: Form data set successfully');
         } catch (err) {
-          console.error('Error fetching bike model:', err);
+          console.error('🔧 BikeModelForm: Error fetching bike model:', err);
           const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch bike model details';
           toast.error(errorMessage);
           navigate('/admin/bike-models'); // Redirect if model not found or error
@@ -50,6 +56,8 @@ const BikeModelForm = () => {
         }
       };
       fetchBikeModel();
+    } else {
+      console.log('🔧 BikeModelForm: Running in create mode');
     }
   }, [id, isEditing, navigate]);
 
