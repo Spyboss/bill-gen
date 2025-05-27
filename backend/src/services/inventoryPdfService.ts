@@ -72,6 +72,11 @@ export const generateInventoryPDF = async (inventoryData: InventoryData): Promis
  * Generate the header section of the inventory report
  */
 const generateInventoryHeader = (doc: PDFKit.PDFDocument, reportDate: Date): void => {
+  // Logo placeholder (top-left)
+  doc.fontSize(8)
+     .font('Helvetica')
+     .text('[LOGO]', 40, 45);
+
   // Company name
   doc.fontSize(18)
      .font('Helvetica-Bold')
@@ -166,6 +171,41 @@ const generateInventoryTable = (doc: PDFKit.PDFDocument, modelPerformance: any[]
 
     currentY += rowHeight;
   });
+
+  // Add total row
+  const totalAvailable = modelPerformance.reduce((sum, item) => sum + item.availableUnits, 0);
+  const totalSold = modelPerformance.reduce((sum, item) => sum + item.soldUnits, 0);
+  const totalRevenue = modelPerformance.reduce((sum, item) => sum + item.soldValue, 0);
+
+  // Total row background
+  doc.rect(tableLeft, currentY, tableWidth, rowHeight)
+     .fillAndStroke('#e6f3ff', '#000000');
+
+  currentX = tableLeft + 2;
+
+  // Total row data
+  const totalRowData = [
+    'TOTAL',
+    `${modelPerformance.length} Models`,
+    '',
+    `Available: ${totalAvailable}, Sold: ${totalSold}`,
+    `Rs. ${totalRevenue.toLocaleString()}`,
+    '',
+    ''
+  ];
+
+  doc.fontSize(7)
+     .font('Helvetica-Bold');
+
+  totalRowData.forEach((data, colIndex) => {
+    doc.fillColor('#000000')
+       .text(data, currentX, currentY + 3, {
+         width: colWidths[colIndex] - 4,
+         align: colIndex === 0 ? 'center' : 'left',
+         height: rowHeight - 6
+       });
+    currentX += colWidths[colIndex];
+  });
 };
 
 /**
@@ -176,6 +216,7 @@ const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => 
 
   doc.fontSize(10)
      .font('Helvetica-Bold')
+     .fillColor('#000000')
      .text('Action Items:', 40, currentY);
 
   let itemY = currentY + 20;
@@ -184,9 +225,23 @@ const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => 
     const priority = insight.priority === 'high' ? 'URGENT' :
                     insight.priority === 'medium' ? 'IMPORTANT' : 'NOTE';
 
+    // Set color based on priority
+    let textColor = '#000000';
+    if (insight.priority === 'high') {
+      textColor = '#dc3545'; // Red for urgent
+    } else if (insight.priority === 'medium') {
+      textColor = '#fd7e14'; // Orange for important
+    } else {
+      textColor = '#28a745'; // Green for success/hot seller
+    }
+
     doc.fontSize(8)
+       .font('Helvetica-Bold')
+       .fillColor(textColor)
+       .text(`• ${priority}:`, 50, itemY, { continued: true })
        .font('Helvetica')
-       .text(`• ${priority}: ${insight.message}`, 50, itemY, {
+       .fillColor('#000000')
+       .text(` ${insight.message}`, {
          width: 500
        });
     itemY += 15;
@@ -202,6 +257,7 @@ const generateInventoryFooter = (doc: PDFKit.PDFDocument): void => {
   // Signature lines
   doc.fontSize(8)
      .font('Helvetica')
+     .fillColor('#000000')
      .text('_________________________', 80, footerY)
      .text('Dealer Signature & Seal', 80, footerY + 15)
      .text('_________________________', 350, footerY)
@@ -209,7 +265,7 @@ const generateInventoryFooter = (doc: PDFKit.PDFDocument): void => {
 
   // Contact info
   doc.fontSize(7)
-     .text('For inquiries, contact: info@gunawardhanamotors.lk | +94 11 224 5678', 0, footerY + 40, {
+     .text('For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | 0778318061', 0, footerY + 40, {
        align: 'center'
      });
 };

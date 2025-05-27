@@ -109,7 +109,6 @@ const UserPreferencesSchema = new Schema<IUserPreferences>({
   versionKey: false
 });
 
-// Create indexes for performance
-UserPreferencesSchema.index({ userId: 1 });
+// Note: userId already has a unique index from the unique: true constraint above
 
 export default mongoose.model<IUserPreferences>('UserPreferences', UserPreferencesSchema);
