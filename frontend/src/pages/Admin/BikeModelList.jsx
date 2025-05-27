@@ -7,6 +7,8 @@ const BikeModelList = () => {
   const [bikeModels, setBikeModels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingPrice, setEditingPrice] = useState(null);
+  const [editingValue, setEditingValue] = useState('');
 
   useEffect(() => {
     const fetchBikeModels = async () => {
@@ -36,6 +38,47 @@ const BikeModelList = () => {
         toast.error(err.message || 'Failed to delete bike model');
       }
     }
+  };
+
+  const handlePriceEdit = (modelId, currentPrice) => {
+    setEditingPrice(modelId);
+    setEditingValue(currentPrice.toString());
+  };
+
+  const handlePriceSave = async (modelId) => {
+    try {
+      const newPrice = parseFloat(editingValue);
+      if (isNaN(newPrice) || newPrice <= 0) {
+        toast.error('Please enter a valid price');
+        return;
+      }
+
+      const model = bikeModels.find(m => m._id === modelId);
+      const updatedData = {
+        name: model.name,
+        price: newPrice,
+        is_ebicycle: model.is_ebicycle,
+        is_tricycle: model.is_tricycle
+      };
+
+      await bikeModelService.updateBikeModel(modelId, updatedData);
+
+      // Update the local state
+      setBikeModels(bikeModels.map(model =>
+        model._id === modelId ? { ...model, price: newPrice } : model
+      ));
+
+      setEditingPrice(null);
+      setEditingValue('');
+      toast.success('Price updated successfully');
+    } catch (err) {
+      toast.error(err.message || 'Failed to update price');
+    }
+  };
+
+  const handlePriceCancel = () => {
+    setEditingPrice(null);
+    setEditingValue('');
   };
 
   if (loading) {
@@ -77,7 +120,47 @@ const BikeModelList = () => {
               {bikeModels.map((model) => (
                 <tr key={model._id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{model.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">Rs. {model.price.toLocaleString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    {editingPrice === model._id ? (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs">Rs.</span>
+                        <input
+                          type="number"
+                          value={editingValue}
+                          onChange={(e) => setEditingValue(e.target.value)}
+                          className="w-24 px-2 py-1 text-sm border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          min="0.01"
+                          step="0.01"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => handlePriceSave(model._id)}
+                          className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 text-xs"
+                          title="Save"
+                        >
+                          ✓
+                        </button>
+                        <button
+                          onClick={handlePriceCancel}
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-xs"
+                          title="Cancel"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <span>Rs. {model.price.toLocaleString()}</span>
+                        <button
+                          onClick={() => handlePriceEdit(model._id, model.price)}
+                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-xs"
+                          title="Edit price"
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{model.is_ebicycle ? 'Yes' : 'No'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{model.is_tricycle ? 'Yes' : 'No'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{model.can_be_leased ? 'Yes' : 'No'}</td>

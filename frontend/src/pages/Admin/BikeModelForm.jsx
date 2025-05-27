@@ -25,17 +25,18 @@ const BikeModelForm = () => {
       const fetchBikeModel = async () => {
         setLoading(true);
         try {
-          const response = await bikeModelService.getBikeModelById(id);
-          const modelData = response.data;
+          const modelData = await bikeModelService.getBikeModelById(id);
+          console.log('Fetched bike model data:', modelData);
+
+          // Handle the response - apiClient.get() returns data directly, not response.data
           setFormData({
-            name: modelData.name,
-            price: modelData.price.toString(), // Ensure price is a string for input field
-            // motor_number_prefix: modelData.motor_number_prefix, // Removed
-            // chassis_number_prefix: modelData.chassis_number_prefix, // Removed
-            is_ebicycle: modelData.is_ebicycle,
-            is_tricycle: modelData.is_tricycle,
+            name: modelData.name || '',
+            price: modelData.price ? modelData.price.toString() : '', // Ensure price is a string for input field
+            is_ebicycle: modelData.is_ebicycle || false,
+            is_tricycle: modelData.is_tricycle || false,
           });
         } catch (err) {
+          console.error('Error fetching bike model:', err);
           toast.error(err.message || 'Failed to fetch bike model details');
           navigate('/admin/bike-models'); // Redirect if model not found or error
         } finally {
@@ -151,7 +152,7 @@ const BikeModelForm = () => {
         </div>
 
         {/* Motor Number Prefix and Chassis Number Prefix fields removed */}
-        
+
         <div className="mb-6">
           <span className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Properties</span>
           <label className="inline-flex items-center mr-6">
