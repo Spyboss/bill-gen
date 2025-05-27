@@ -3,6 +3,7 @@ import { Card, Spin, Statistic, Table, Tag, Button, Row, Col, Divider, Progress,
 import { DownloadOutlined, PrinterOutlined, ReloadOutlined, ArrowUpOutlined, ArrowDownOutlined, WarningOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getInventorySummary, getInventoryAnalytics } from '../../services/inventoryService';
+import apiClient from '../../config/apiClient';
 import { format } from 'date-fns';
 
 const { Title, Text, Paragraph } = Typography;
@@ -54,21 +55,8 @@ const InventoryReport = () => {
 
   const handlePrint = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/inventory/report/pdf`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
-      // Get the PDF blob
-      const blob = await response.blob();
+      // Use apiClient which handles authentication properly
+      const blob = await apiClient.get('/inventory/report/pdf');
 
       // Create a URL for the blob
       const url = window.URL.createObjectURL(blob);
