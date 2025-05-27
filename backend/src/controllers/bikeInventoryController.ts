@@ -5,6 +5,7 @@ import BikeModel from '../models/BikeModel.js';
 import logger from '../utils/logger.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { AuthRequest } from '../auth/auth.middleware.js';
+import { generateInventoryPDF } from '../services/inventoryPdfService.js';
 
 /**
  * Get all bikes in inventory with filtering
@@ -809,5 +810,140 @@ export const getAvailableBikesByModel = async (req: Request, res: Response, next
   } catch (error) {
     logger.error(`Error getting available bikes: ${(error as Error).message}`);
     next(new AppError(`Failed to get available bikes: ${(error as Error).message}`, 500));
+  }
+};
+
+/**
+ * Generate PDF for inventory report
+ * @route GET /api/inventory/report/pdf
+ * @access Private
+ */
+export const generateInventoryReportPDF = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    // Get the same analytics data used for the web report
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+    const ninetyDaysAgo = new Date(now.getTime() - (90 * 24 * 60 * 60 * 1000));
+
+    // Enhanced model performance with revenue and aging analysis
+    const modelPerformance = await BikeInventory.aggregate([
+      {
+        $lookup: {
+          from: 'bike_models',
+          localField: 'bikeModelId',
+          foreignField: '_id',
+          as: 'model'
+        }
+      },
+      {
+        $unwind: '$model'
+      },
+      {
+        $group: {
+          _id: '$bikeModelId',
+          modelName: { $first: '$model.name' },
+          price: { $first: '$model.price' },
+          isEbicycle: { $first: '$model.is_ebicycle' },
+          isTricycle: { $first: '$model.is_tricycle' },
+          totalUnits: { $sum: 1 },
+          availableUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'available'] }, 1, 0] }
+          },
+          soldUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'sold'] }, 1, 0] }
+          },
+          reservedUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'reserved'] }, 1, 0] }
+          },
+          damagedUnits: {
+            $sum: { $cond: [{ $eq: ['$status', 'damaged'] }, 1, 0] }
+          },
+          recentSales: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'sold'] },
+                    { $gte: ['$dateSold', thirtyDaysAgo] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          },
+          oldStock: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$status', 'available'] },
+                    { $lte: ['$dateAdded', ninetyDaysAgo] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          totalValue: { $multiply: ['$totalUnits', '$price'] },
+          availableValue: { $multiply: ['$availableUnits', '$price'] },
+          soldValue: { $multiply: ['$soldUnits', '$price'] },
+          sellThroughRate: {
+            $cond: [
+              { $gt: ['$totalUnits', 0] },
+              { $multiply: [{ $divide: ['$soldUnits', '$totalUnits'] }, 100] },
+              0
+            ]
+          },
+          monthlyVelocity: '$recentSales',
+          stockHealth: {
+            $cond: [
+              { $gt: ['$oldStock', 0] }, 'Slow Moving',
+              { $cond: [
+                { $gt: ['$recentSales', 2] }, 'Fast Moving',
+                'Normal'
+              ]}
+            ]
+          }
+        }
+      },
+      {
+        $sort: { soldValue: -1 }
+      }
+    ]);
+
+    // Generate insights using the existing function
+    const insights = generateInventoryInsights(modelPerformance, {});
+
+    // Prepare data for PDF generation
+    const inventoryData = {
+      modelPerformance,
+      kpis: {
+        totalModels: modelPerformance.length,
+        totalUnits: modelPerformance.reduce((sum, item) => sum + item.totalUnits, 0),
+        totalValue: modelPerformance.reduce((sum, item) => sum + item.totalValue, 0),
+        averagePrice: modelPerformance.length > 0 ?
+          modelPerformance.reduce((sum, item) => sum + item.price, 0) / modelPerformance.length : 0
+      },
+      insights,
+      reportGenerated: now
+    };
+
+    // Generate PDF
+    const pdfBuffer = await generateInventoryPDF(inventoryData);
+
+    // Set headers and send PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=Gunawardhana_Motors_Inventory_Report_${now.toISOString().split('T')[0]}.pdf`);
+    res.send(pdfBuffer);
+
+  } catch (error) {
+    logger.error(`Error generating inventory PDF: ${(error as Error).message}`);
+    next(new AppError(`Failed to generate inventory PDF: ${(error as Error).message}`, 500));
   }
 };

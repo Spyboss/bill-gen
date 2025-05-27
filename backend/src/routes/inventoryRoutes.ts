@@ -8,7 +8,8 @@ import {
   deleteInventory,
   getInventorySummary,
   getInventoryAnalytics,
-  getAvailableBikesByModel
+  getAvailableBikesByModel,
+  generateInventoryReportPDF
 } from '../controllers/bikeInventoryController.js';
 import { authenticate, requireAdmin } from '../auth/auth.middleware.js';
 
@@ -37,6 +38,13 @@ router.get('/summary', getInventorySummary);
  * @access  Private
  */
 router.get('/analytics', getInventoryAnalytics);
+
+/**
+ * @route   GET /api/inventory/report/pdf
+ * @desc    Generate PDF report for inventory
+ * @access  Private
+ */
+router.get('/report/pdf', generateInventoryReportPDF);
 
 /**
  * @route   GET /api/inventory/available/:modelId

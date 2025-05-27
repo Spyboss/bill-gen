@@ -52,8 +52,43 @@ const InventoryReport = () => {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/inventory/report/pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob();
+
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a temporary link and click it to download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Gunawardhana_Motors_Inventory_Report_${format(reportDate, 'yyyy-MM-dd')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      // Fallback to browser print if PDF generation fails
+      window.print();
+    }
   };
 
   const handleExport = () => {
