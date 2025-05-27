@@ -14,12 +14,24 @@ const BikeModelList = () => {
     const fetchBikeModels = async () => {
       try {
         setLoading(true);
-        const response = await bikeModelService.getAllBikeModels();
-        setBikeModels(response || []); // Use the response directly
+        const data = await bikeModelService.getAllBikeModels();
+        console.log('BikeModelList - fetched data:', data);
+
+        // Validate that we received an array
+        if (Array.isArray(data)) {
+          setBikeModels(data);
+        } else {
+          console.error('Expected array but received:', typeof data, data);
+          setBikeModels([]);
+          toast.error('Invalid data format received from server');
+        }
         setError(null);
       } catch (err) {
-        setError(err.message || 'Failed to fetch bike models');
-        toast.error(err.message || 'Failed to fetch bike models');
+        console.error('Error fetching bike models:', err);
+        const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch bike models';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        setBikeModels([]);
       } finally {
         setLoading(false);
       }
@@ -54,14 +66,21 @@ const BikeModelList = () => {
       }
 
       const model = bikeModels.find(m => m._id === modelId);
+      if (!model) {
+        toast.error('Model not found');
+        return;
+      }
+
       const updatedData = {
         name: model.name,
         price: newPrice,
-        is_ebicycle: model.is_ebicycle,
-        is_tricycle: model.is_tricycle
+        is_ebicycle: Boolean(model.is_ebicycle),
+        is_tricycle: Boolean(model.is_tricycle)
       };
 
-      await bikeModelService.updateBikeModel(modelId, updatedData);
+      console.log('Updating bike model with data:', updatedData);
+      const result = await bikeModelService.updateBikeModel(modelId, updatedData);
+      console.log('Update result:', result);
 
       // Update the local state
       setBikeModels(bikeModels.map(model =>
@@ -72,7 +91,9 @@ const BikeModelList = () => {
       setEditingValue('');
       toast.success('Price updated successfully');
     } catch (err) {
-      toast.error(err.message || 'Failed to update price');
+      console.error('Error updating price:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to update price';
+      toast.error(errorMessage);
     }
   };
 

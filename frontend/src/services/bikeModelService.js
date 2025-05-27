@@ -6,8 +6,9 @@ import apiClient from './apiClient';
  */
 export const getAllBikeModels = async () => {
   try {
-    const response = await apiClient.get('/bike-models');
-    return response;
+    const data = await apiClient.get('/bike-models');
+    console.log('BikeModelService - getAllBikeModels response:', data);
+    return data; // apiClient.get() already returns data directly
   } catch (error) {
     console.error('Error fetching bike models:', error);
     throw error;
@@ -21,8 +22,9 @@ export const getAllBikeModels = async () => {
  */
 export const getBikeModelById = async (id) => {
   try {
-    const response = await apiClient.get(`/bike-models/${id}`);
-    return response;
+    const data = await apiClient.get(`/bike-models/${id}`);
+    console.log('BikeModelService - getBikeModelById response:', data);
+    return data; // apiClient.get() already returns data directly
   } catch (error) {
     console.error('Error fetching bike model:', error);
     throw error;
@@ -36,8 +38,9 @@ export const getBikeModelById = async (id) => {
  */
 export const createBikeModel = async (data) => {
   try {
-    const response = await apiClient.post('/bike-models', data);
-    return response;
+    const result = await apiClient.post('/bike-models', data);
+    console.log('BikeModelService - createBikeModel response:', result);
+    return result; // apiClient.post() already returns data directly
   } catch (error) {
     console.error('Error creating bike model:', error);
     throw error;
@@ -52,8 +55,9 @@ export const createBikeModel = async (data) => {
  */
 export const updateBikeModel = async (id, data) => {
   try {
-    const response = await apiClient.put(`/bike-models/${id}`, data);
-    return response;
+    const result = await apiClient.put(`/bike-models/${id}`, data);
+    console.log('BikeModelService - updateBikeModel response:', result);
+    return result; // apiClient.put() already returns data directly
   } catch (error) {
     console.error('Error updating bike model:', error);
     throw error;
@@ -67,8 +71,9 @@ export const updateBikeModel = async (id, data) => {
  */
 export const deleteBikeModel = async (id) => {
   try {
-    const response = await apiClient.delete(`/bike-models/${id}`);
-    return response;
+    const result = await apiClient.delete(`/bike-models/${id}`);
+    console.log('BikeModelService - deleteBikeModel response:', result);
+    return result; // apiClient.delete() already returns data directly
   } catch (error) {
     console.error('Error deleting bike model:', error);
     throw error;

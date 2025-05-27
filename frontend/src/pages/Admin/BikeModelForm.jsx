@@ -28,16 +28,22 @@ const BikeModelForm = () => {
           const modelData = await bikeModelService.getBikeModelById(id);
           console.log('Fetched bike model data:', modelData);
 
-          // Handle the response - apiClient.get() returns data directly, not response.data
+          // Validate that we received valid data
+          if (!modelData || typeof modelData !== 'object') {
+            throw new Error('Invalid bike model data received');
+          }
+
+          // Handle the response - apiClient.get() returns data directly
           setFormData({
             name: modelData.name || '',
             price: modelData.price ? modelData.price.toString() : '', // Ensure price is a string for input field
-            is_ebicycle: modelData.is_ebicycle || false,
-            is_tricycle: modelData.is_tricycle || false,
+            is_ebicycle: Boolean(modelData.is_ebicycle),
+            is_tricycle: Boolean(modelData.is_tricycle),
           });
         } catch (err) {
           console.error('Error fetching bike model:', err);
-          toast.error(err.message || 'Failed to fetch bike model details');
+          const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch bike model details';
+          toast.error(errorMessage);
           navigate('/admin/bike-models'); // Redirect if model not found or error
         } finally {
           setLoading(false);
