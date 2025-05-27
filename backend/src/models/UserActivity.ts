@@ -40,8 +40,7 @@ const UserActivitySchema = new Schema<IUserActivity>({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    index: true
+    required: true
   },
   type: {
     type: String,

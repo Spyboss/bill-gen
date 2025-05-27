@@ -31,8 +31,7 @@ const UserPreferencesSchema = new Schema<IUserPreferences>({
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-    unique: true,
-    index: true
+    unique: true
   },
   theme: {
     type: String,
