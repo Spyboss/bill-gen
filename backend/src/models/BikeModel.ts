@@ -3,14 +3,6 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IBikeModel extends Document {
   name: string;
   price: number;
-  motor_number_prefix: {
-    type: String,
-    trim: true
-  },
-  chassis_number_prefix: {
-    type: String,
-    trim: true
-  },
   is_ebicycle: boolean;
   is_tricycle: boolean;
   can_be_leased: boolean;

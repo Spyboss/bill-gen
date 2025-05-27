@@ -22,8 +22,6 @@ Each category has different business rules for billing and registration.
 |-------|------|-------------|----------|
 | name | String | Name of the bike model | Yes |
 | price | Number | Base price of the model (LKR) | Yes |
-| motor_number_prefix | String | Prefix used for motor numbers | Yes |
-| chassis_number_prefix | String | Prefix used for chassis numbers | Yes |
 | is_ebicycle | Boolean | Whether this is an e-bicycle (affects RMV charges) | No (default: false) |
 | can_be_leased | Boolean | Whether this model can be sold through leasing | No (default: true) |
 | is_tricycle | Boolean | Whether this is a tricycle model | No (default: false) |
@@ -96,4 +94,4 @@ Each category has different business rules for billing and registration.
 A new tricycle model is planned with the following characteristics:
 - Will have special pricing structure
 - Requires specific documentation
-- Will have unique chassis and motor number patterns 
+- Will have unique chassis and motor number patterns
