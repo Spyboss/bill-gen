@@ -1,24 +1,18 @@
-import PDFDocument from 'pdfkit';
+import * as PDFDocument from 'pdfkit';
+
+interface BikeInventoryItem {
+  _id: any;
+  bikeModelId: any;
+  motorNumber: string;
+  chassisNumber: string;
+  status: string;
+  notes?: string;
+  dateAdded: Date;
+}
 
 interface InventoryData {
-  modelPerformance: Array<{
-    modelName: string;
-    price: number;
-    totalUnits: number;
-    availableUnits: number;
-    soldUnits: number;
-    reservedUnits: number;
-    damagedUnits: number;
-    soldValue: number;
-    sellThroughRate: number;
-    stockHealth: string;
-  }>;
-  kpis: {
-    totalModels: number;
-    totalUnits: number;
-    totalValue: number;
-    averagePrice: number;
-  };
+  inventoryItems: BikeInventoryItem[];
+  totalAvailable: number;
   insights: Array<{
     type: string;
     message: string;
@@ -55,9 +49,10 @@ export const generateInventoryPDF = async (inventoryData: InventoryData): Promis
 
       // Start adding content to the PDF
       generateInventoryHeader(doc, inventoryData.reportGenerated);
-      generateInventoryTable(doc, inventoryData.modelPerformance);
+      generateInventoryTable(doc, inventoryData.inventoryItems);
+      generateTotalRow(doc, inventoryData.totalAvailable);
       generateActionItems(doc, inventoryData.insights);
-      generateInventoryFooter(doc);
+      generateSignatureSection(doc);
 
       // Finalize the PDF
       doc.end();
@@ -69,54 +64,67 @@ export const generateInventoryPDF = async (inventoryData: InventoryData): Promis
 };
 
 /**
+ * Extract color from notes field or return default
+ */
+const extractColorFromNotes = (notes?: string): string => {
+  if (!notes) return 'N/A';
+
+  // Common color patterns to look for in notes
+  const colorPatterns = [
+    /color[:\s]*([a-zA-Z\s]+)/i,
+    /colour[:\s]*([a-zA-Z\s]+)/i,
+    /\b(red|blue|green|black|white|yellow|orange|purple|pink|brown|gray|grey|silver|gold)\b/i
+  ];
+
+  for (const pattern of colorPatterns) {
+    const match = notes.match(pattern);
+    if (match) {
+      return match[1] || match[0];
+    }
+  }
+
+  return 'N/A';
+};
+
+/**
  * Generate the header section of the inventory report
  */
 const generateInventoryHeader = (doc: PDFKit.PDFDocument, reportDate: Date): void => {
-  // Logo placeholder (top-left)
-  doc.fontSize(8)
-     .font('Helvetica')
-     .text('[LOGO]', 40, 45);
-
   // Company name
   doc.fontSize(18)
      .font('Helvetica-Bold')
-     .text('Gunawardhana Motors', 0, 50, { align: 'center' });
+     .text('Gunawardhana Motors', 0, 40, { align: 'center' });
 
   // Report title
   doc.fontSize(14)
      .font('Helvetica-Bold')
-     .text('Inventory Report', 0, 75, { align: 'center' });
+     .text('Inventory Report', 0, 65, { align: 'center' });
 
   // Date
   doc.fontSize(10)
      .font('Helvetica')
-     .text(`Generated on: ${reportDate.toLocaleDateString('en-US', {
-       weekday: 'long',
-       year: 'numeric',
-       month: 'long',
-       day: 'numeric'
-     })}`, 0, 95, { align: 'center' });
+     .text(`Date: ${reportDate.toLocaleDateString('en-GB')}`, 0, 85, { align: 'center' });
 
   // Add some space
-  doc.moveDown(2);
+  doc.moveDown(1.5);
 };
 
 /**
  * Generate the inventory table
  */
-const generateInventoryTable = (doc: PDFKit.PDFDocument, modelPerformance: any[]): void => {
-  const tableTop = 140;
+const generateInventoryTable = (doc: PDFKit.PDFDocument, inventoryItems: BikeInventoryItem[]): void => {
+  const tableTop = 120;
   const tableLeft = 40;
-  const rowHeight = 20;
+  const rowHeight = 18;
   const tableWidth = 515;
 
-  // Column widths
-  const colWidths = [30, 80, 70, 90, 70, 70, 105];
-  const headers = ['No', 'Model', 'Price', 'Stock Status', 'Revenue', 'Performance', 'Stock Health'];
+  // Column widths for: No, Model, Color, Chassis Number, Motor Number
+  const colWidths = [40, 120, 80, 135, 140];
+  const headers = ['No', 'Model', 'Color', 'Chassis Number', 'Motor Number'];
 
   // Draw table headers
   let currentY = tableTop;
-  doc.fontSize(8)
+  doc.fontSize(9)
      .font('Helvetica-Bold');
 
   // Header background
@@ -127,7 +135,7 @@ const generateInventoryTable = (doc: PDFKit.PDFDocument, modelPerformance: any[]
   let currentX = tableLeft + 2;
   headers.forEach((header, index) => {
     doc.fillColor('#000000')
-       .text(header, currentX, currentY + 5, {
+       .text(header, currentX, currentY + 4, {
          width: colWidths[index] - 4,
          align: 'center'
        });
@@ -136,11 +144,13 @@ const generateInventoryTable = (doc: PDFKit.PDFDocument, modelPerformance: any[]
 
   currentY += rowHeight;
 
-  // Draw table rows
-  doc.fontSize(7)
+  // Draw table rows for available bikes only
+  doc.fontSize(8)
      .font('Helvetica');
 
-  modelPerformance.forEach((item, index) => {
+  const availableBikes = inventoryItems.filter(item => item.status === 'available');
+
+  availableBikes.forEach((item, index) => {
     // Alternate row colors
     const fillColor = index % 2 === 0 ? '#ffffff' : '#f9f9f9';
     doc.rect(tableLeft, currentY, tableWidth, rowHeight)
@@ -148,15 +158,16 @@ const generateInventoryTable = (doc: PDFKit.PDFDocument, modelPerformance: any[]
 
     currentX = tableLeft + 2;
 
+    // Extract color from notes
+    const color = extractColorFromNotes(item.notes);
+
     // Row data
     const rowData = [
       (index + 1).toString(),
-      item.modelName,
-      `Rs. ${item.price.toLocaleString()}`,
-      `Available: ${item.availableUnits}, Sold: ${item.soldUnits}`,
-      `Rs. ${item.soldValue.toLocaleString()}`,
-      `${item.sellThroughRate.toFixed(0)}% Sell-through`,
-      `${item.stockHealth}`
+      item.bikeModelId?.name || 'N/A',
+      color,
+      item.chassisNumber,
+      item.motorNumber
     ];
 
     rowData.forEach((data, colIndex) => {
@@ -172,29 +183,37 @@ const generateInventoryTable = (doc: PDFKit.PDFDocument, modelPerformance: any[]
     currentY += rowHeight;
   });
 
-  // Add total row
-  const totalAvailable = modelPerformance.reduce((sum, item) => sum + item.availableUnits, 0);
-  const totalSold = modelPerformance.reduce((sum, item) => sum + item.soldUnits, 0);
-  const totalRevenue = modelPerformance.reduce((sum, item) => sum + item.soldValue, 0);
+  // Store the current Y position for the total row
+  doc.y = currentY;
+};
+
+/**
+ * Generate total row
+ */
+const generateTotalRow = (doc: PDFKit.PDFDocument, totalAvailable: number): void => {
+  const tableLeft = 40;
+  const rowHeight = 18;
+  const tableWidth = 515;
+  const colWidths = [40, 120, 80, 135, 140];
+
+  let currentY = doc.y;
 
   // Total row background
   doc.rect(tableLeft, currentY, tableWidth, rowHeight)
      .fillAndStroke('#e6f3ff', '#000000');
 
-  currentX = tableLeft + 2;
+  let currentX = tableLeft + 2;
 
   // Total row data
   const totalRowData = [
     'TOTAL',
-    `${modelPerformance.length} Models`,
+    `${totalAvailable} Available`,
     '',
-    `Available: ${totalAvailable}, Sold: ${totalSold}`,
-    `Rs. ${totalRevenue.toLocaleString()}`,
     '',
     ''
   ];
 
-  doc.fontSize(7)
+  doc.fontSize(8)
      .font('Helvetica-Bold');
 
   totalRowData.forEach((data, colIndex) => {
@@ -206,6 +225,8 @@ const generateInventoryTable = (doc: PDFKit.PDFDocument, modelPerformance: any[]
        });
     currentX += colWidths[colIndex];
   });
+
+  doc.y = currentY + rowHeight + 10;
 };
 
 /**
@@ -249,23 +270,31 @@ const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => 
 };
 
 /**
- * Generate footer section
+ * Generate signature section
  */
-const generateInventoryFooter = (doc: PDFKit.PDFDocument): void => {
-  const footerY = 720;
+const generateSignatureSection = (doc: PDFKit.PDFDocument): void => {
+  const currentY = doc.y + 30;
+
+  // Signature & Rubberstamp section title
+  doc.fontSize(10)
+     .font('Helvetica-Bold')
+     .fillColor('#000000')
+     .text('Signature & Rubberstamp:', 40, currentY);
+
+  const signatureY = currentY + 40;
 
   // Signature lines
   doc.fontSize(8)
      .font('Helvetica')
      .fillColor('#000000')
-     .text('_________________________', 80, footerY)
-     .text('Dealer Signature & Seal', 80, footerY + 15)
-     .text('_________________________', 350, footerY)
-     .text('Territory Sales Manager Signature', 350, footerY + 15);
+     .text('_________________________', 80, signatureY)
+     .text('Dealer Signature & Seal', 80, signatureY + 15)
+     .text('_________________________', 350, signatureY)
+     .text('Territory Sales Manager Signature', 350, signatureY + 15);
 
   // Contact info
   doc.fontSize(7)
-     .text('For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | 0778318061', 0, footerY + 40, {
+     .text('For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | 0778318061', 0, signatureY + 50, {
        align: 'center'
      });
 };
