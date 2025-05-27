@@ -482,28 +482,58 @@ const InventoryReport = () => {
           </Row>
         </div>
 
-        {/* Actionable Insights - Compact for print */}
+        {/* Actionable Insights - Dark mode compatible */}
         {analytics?.insights && analytics.insights.length > 0 && (
           <div className="insights-section mb-4 print:mb-3">
             <Title level={4} className="section-title !mb-2" style={{ fontSize: '12px', marginBottom: '8px' }}>
               📊 Action Items
             </Title>
             <div className="insights-compact">
-              {analytics.insights.slice(0, 3).map((insight, index) => (
-                <div key={index} className="insight-item" style={{
-                  fontSize: '9px',
-                  marginBottom: '4px',
-                  padding: '4px 8px',
-                  backgroundColor: insight.type === 'success' ? '#f6ffed' : insight.type === 'warning' ? '#fffbe6' : '#fff2f0',
-                  border: `1px solid ${insight.type === 'success' ? '#b7eb8f' : insight.type === 'warning' ? '#ffe58f' : '#ffccc7'}`,
-                  borderRadius: '3px'
-                }}>
-                  <Text strong style={{ fontSize: '9px' }}>
-                    {insight.type === 'success' ? '✅' : insight.type === 'warning' ? '⚠️' : '🚨'} {insight.title}:
-                  </Text>
-                  <Text style={{ fontSize: '8px', marginLeft: '4px' }}>{insight.message}</Text>
-                </div>
-              ))}
+              {analytics.insights.slice(0, 3).map((insight, index) => {
+                // Dark mode compatible colors
+                const getInsightColors = (type) => {
+                  const isDark = document.documentElement.classList.contains('dark');
+
+                  if (type === 'success') {
+                    return {
+                      bg: isDark ? '#1f4e1f' : '#f6ffed',
+                      border: isDark ? '#52c41a' : '#b7eb8f',
+                      text: isDark ? '#ffffff' : '#000000'
+                    };
+                  } else if (type === 'warning') {
+                    return {
+                      bg: isDark ? '#4d3800' : '#fffbe6',
+                      border: isDark ? '#faad14' : '#ffe58f',
+                      text: isDark ? '#ffffff' : '#000000'
+                    };
+                  } else {
+                    return {
+                      bg: isDark ? '#4d1f1f' : '#fff2f0',
+                      border: isDark ? '#ff4d4f' : '#ffccc7',
+                      text: isDark ? '#ffffff' : '#000000'
+                    };
+                  }
+                };
+
+                const colors = getInsightColors(insight.type);
+
+                return (
+                  <div key={index} className="insight-item dark-mode-insight" style={{
+                    fontSize: '9px',
+                    marginBottom: '4px',
+                    padding: '4px 8px',
+                    backgroundColor: colors.bg,
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: '3px',
+                    color: colors.text
+                  }}>
+                    <Text strong style={{ fontSize: '9px', color: colors.text }}>
+                      {insight.type === 'success' ? '✅' : insight.type === 'warning' ? '⚠️' : '🚨'} {insight.title}:
+                    </Text>
+                    <Text style={{ fontSize: '8px', marginLeft: '4px', color: colors.text }}>{insight.message}</Text>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

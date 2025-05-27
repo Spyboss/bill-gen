@@ -796,10 +796,97 @@
   @apply text-blue-400;
 }
 
+.dark .company-subtitle {
+  @apply text-gray-100;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
 .dark .section-title {
   @apply text-gray-200 border-gray-600;
 }
 
 .dark .report-footer {
   @apply bg-gray-700;
+}
+
+/* Dark mode insights and cards */
+.dark .kpi-card {
+  @apply bg-gray-700 border-gray-600;
+}
+
+.dark .kpi-card .ant-statistic-title {
+  @apply text-gray-300;
+}
+
+.dark .kpi-card .ant-statistic-content {
+  @apply text-gray-100;
+}
+
+.dark .performance-table-card {
+  @apply bg-gray-700 border-gray-600;
+}
+
+.dark .performance-table .ant-table {
+  @apply bg-gray-700;
+}
+
+.dark .performance-table .ant-table-thead > tr > th {
+  @apply bg-blue-600 text-white;
+}
+
+.dark .performance-table .ant-table-tbody > tr > td {
+  @apply bg-gray-700 text-gray-100 border-gray-600;
+}
+
+.dark .performance-table .ant-table-tbody > tr:nth-child(even) > td {
+  @apply bg-gray-600;
+}
+
+.dark .dark-mode-insight {
+  /* Handled by inline styles for dynamic color calculation */
+}
+
+/* Dark mode print styles */
+@media print {
+  .dark .company-subtitle {
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 11px !important;
+    text-shadow: none !important;
+  }
+
+  .dark .kpi-card {
+    background: #f8f9fa !important;
+    border-color: #e8e8e8 !important;
+  }
+
+  .dark .kpi-card .ant-statistic-title {
+    color: #666 !important;
+  }
+
+  .dark .kpi-card .ant-statistic-content {
+    color: #333 !important;
+  }
+
+  .dark .performance-table-card {
+    background: white !important;
+    border-color: #e8e8e8 !important;
+  }
+
+  .dark .performance-table .ant-table-thead > tr > th {
+    background: #1890ff !important;
+    color: white !important;
+  }
+
+  .dark .performance-table .ant-table-tbody > tr > td {
+    background: white !important;
+    color: #333 !important;
+    border-color: #e8e8e8 !important;
+  }
+
+  .dark .performance-table .ant-table-tbody > tr:nth-child(even) > td {
+    background: #f8f9fa !important;
+  }
 }
