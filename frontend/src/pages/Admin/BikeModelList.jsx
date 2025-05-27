@@ -128,6 +128,13 @@ const BikeModelList = () => {
                           type="number"
                           value={editingValue}
                           onChange={(e) => setEditingValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              handlePriceSave(model._id);
+                            } else if (e.key === 'Escape') {
+                              handlePriceCancel();
+                            }
+                          }}
                           className="w-24 px-2 py-1 text-sm border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           min="0.01"
                           step="0.01"
