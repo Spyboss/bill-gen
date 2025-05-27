@@ -1,4 +1,4 @@
-import * as PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit';
 
 interface InventoryData {
   modelPerformance: Array<{
@@ -36,7 +36,7 @@ export const generateInventoryPDF = async (inventoryData: InventoryData): Promis
   return new Promise((resolve, reject) => {
     try {
       // Create a document with single page layout
-      const doc = new (PDFDocument as any)({
+      const doc = new PDFDocument({
         margin: 40,
         size: 'A4',
         layout: 'portrait'
