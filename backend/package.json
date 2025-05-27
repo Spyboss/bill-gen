@@ -1,7 +1,7 @@
 {
-  "name": "tmr-bill-generator-api",
-  "version": "1.0.0",
-  "description": "TMR Motorcycle Bill Generator API",
+  "name": "gunawardhana-motors-api",
+  "version": "2.0.0",
+  "description": "Enterprise-grade backend API for Gunawardhana Motors Business Management System",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
@@ -21,14 +21,17 @@
     "test:watch": "vitest"
   },
   "keywords": [
-    "bill",
-    "invoice",
-    "generator",
-    "motorcycle",
-    "api"
+    "business-management",
+    "motorcycle-dealership",
+    "inventory-management",
+    "sales-management",
+    "quotation-system",
+    "enterprise-api",
+    "typescript",
+    "mongodb"
   ],
-  "author": "TMR",
-  "license": "ISC",
+  "author": "Uminda Herath <contact@uhadev.com> (https://uhadev.com)",
+  "license": "MIT",
   "dependencies": {
     "@fastify/helmet": "^13.0.1",
     "@types/archiver": "^6.0.3",

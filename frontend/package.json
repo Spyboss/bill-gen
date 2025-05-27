@@ -1,7 +1,18 @@
 {
-  "name": "scooter-bill-generator",
+  "name": "gunawardhana-motors-frontend",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "description": "Modern React frontend for Gunawardhana Motors Business Management System",
+  "author": "Uminda Herath <contact@uhadev.com> (https://uhadev.com)",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "vite",
+    "tailwindcss",
+    "antd",
+    "business-management",
+    "motorcycle-dealership"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",

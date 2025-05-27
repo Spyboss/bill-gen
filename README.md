@@ -1,111 +1,197 @@
-# Bill Generator SaaS
+# 🏍️ Gunawardhana Motors Business Management System
 
-A full-stack application for generating and managing bills and inventory for Gunawardhana Motors.
+<div align="center">
 
-## Project Structure
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
+![React](https://img.shields.io/badge/react-18.2.0-blue.svg)
 
-- **Frontend**: React application with Vite
-  - Located in `/frontend`
-  - Uses React, TailwindCSS, and Ant Design components
+**A comprehensive business management solution for motorcycle dealerships**
 
-- **Backend**: Node.js API with Express and MongoDB
-  - Located in `/backend`
-  - Uses Node.js, Express, and MongoDB
+[🚀 Live Demo](https://gunawardanamotors.pages.dev) • [📖 Documentation](./docs) • [🐛 Report Bug](https://github.com/your-repo/issues)
 
-## Features
+</div>
 
-### Bill Generation
-- Create and manage bills for motorcycle sales
-- Support for different payment methods:
-  - Cash sales with RMV charges (13,000 Rs)
-  - Leasing with CPZ charges (13,500 Rs)
-- Special handling for different vehicle types:
-  - E-Motorcycles
-  - E-Bicycles (COLA5, X01 models)
-  - E-Tricycles
-- PDF generation for bills with professional formatting
-- Advance payment support with balance tracking
-- Bill status management (pending, completed, cancelled)
+---
 
-### Inventory Management
-- Complete bike inventory tracking system
-- Add bikes to inventory individually or in batch mode
-- Track bike status throughout lifecycle:
-  - Available - Ready for sale
-  - Reserved - Temporarily held for a customer
-  - Sold - Linked to a completed bill
-  - Damaged - Not available for sale
-- Automatic inventory updates when bills are created/cancelled
-- Comprehensive inventory reporting:
-  - Current stock levels by model
-  - Total inventory value
-  - Status distribution statistics
-- Integration with bill generation process
-- Motor number and chassis number tracking
+## 🌟 Overview
 
-## Deployment Information
+What started as a simple bill generator has evolved into a **full-featured business management system** specifically designed for motorcycle dealerships. This enterprise-grade solution handles everything from sales and inventory to quotations and comprehensive reporting.
 
-### Frontend
-- Deployed on Cloudflare Pages
-- URL: https://gunawardanamotors.pages.dev
-- Build command: `npm run build`
-- Build directory: `dist`
+## 🏗️ Architecture
 
-### Backend
-- Deployed on Railway
-- URL: https://bill-gen-production.up.railway.app
-- Environment variables set in Railway dashboard
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Frontend      │    │    Backend      │    │    Database     │
+│   React + Vite  │◄──►│  Node.js + TS   │◄──►│  MongoDB Atlas  │
+│   Cloudflare    │    │    Railway      │    │   + Encryption  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-### Database
-- MongoDB Atlas
-- Connection string managed via environment variables
+- **Frontend**: Modern React SPA with TypeScript, TailwindCSS, and Ant Design
+- **Backend**: Scalable Node.js API with TypeScript, Express, and comprehensive security
+- **Database**: MongoDB Atlas with field-level encryption for sensitive data
+- **Deployment**: Cloudflare Pages (Frontend) + Railway (Backend)
 
-## Development Setup
+## ✨ Core Features
+
+### 🧾 **Sales Management**
+- **Smart Bill Generation** - Automated calculations for different vehicle types
+- **Payment Processing** - Support for cash, leasing, and advance payments
+- **Status Tracking** - Real-time bill status management (pending, completed, cancelled)
+- **PDF Generation** - Professional, branded invoices and receipts
+- **Customer Management** - Secure customer data with encryption
+
+### 📦 **Inventory Management**
+- **Real-time Tracking** - Live inventory status across all locations
+- **Batch Operations** - Efficient bulk inventory additions and updates
+- **Lifecycle Management** - Track bikes from arrival to sale
+- **Smart Analytics** - Inventory insights, stock alerts, and trend analysis
+- **Integration** - Seamless connection with sales processes
+
+### 💼 **Quotation System**
+- **Insurance Claims** - Specialized quotations for insurance work
+- **Estimate Management** - Professional estimates with conversion to invoices
+- **Template System** - Standardized quotation formats
+- **Client Communication** - Streamlined quotation approval workflow
+
+### 👥 **User Management**
+- **Role-based Access** - Admin, Manager, and User permission levels
+- **Activity Tracking** - Comprehensive audit logs for all user actions
+- **Profile Management** - User preferences and account settings
+- **Security Features** - Multi-factor authentication and session management
+
+### 📊 **Advanced Reporting**
+- **Professional PDFs** - LaTeX-quality reports with company branding
+- **Business Intelligence** - KPI dashboards and performance metrics
+- **Inventory Reports** - Stock analysis with actionable insights
+- **Financial Summaries** - Revenue tracking and payment analysis
+
+### 🔒 **Enterprise Security**
+- **Data Encryption** - Field-level encryption for sensitive information
+- **GDPR Compliance** - Complete data protection and user rights
+- **Rate Limiting** - API protection against abuse
+- **Audit Trails** - Comprehensive activity logging
+
+### 🎨 **Modern UI/UX**
+- **Dark/Light Themes** - Consistent theming across all components
+- **Responsive Design** - Optimized for desktop, tablet, and mobile
+- **Accessibility** - WCAG compliant interface design
+- **Real-time Updates** - Live data synchronization
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js (v16+)
-- npm or yarn
-- MongoDB (local instance or Atlas connection)
+- **Node.js** 18+
+- **npm** or **yarn**
+- **MongoDB** (Atlas recommended)
 
-### Running Locally
+### Installation
 
-#### Backend
-```bash
-cd backend
-npm install
-npm run dev
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/gunawardhana-motors.git
+   cd gunawardhana-motors
+   ```
+
+2. **Backend Setup**
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env  # Configure your environment variables
+   npm run dev
+   ```
+
+3. **Frontend Setup**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+4. **Access the application**
+   - Frontend: `http://localhost:5173`
+   - Backend API: `http://localhost:8080`
+
+## 🌐 Production Deployment
+
+### Current Infrastructure
+- **Frontend**: [Cloudflare Pages](https://gunawardanamotors.pages.dev)
+- **Backend**: [Railway](https://bill-gen-production.up.railway.app)
+- **Database**: MongoDB Atlas with global clusters
+- **CDN**: Cloudflare for optimal performance
+
+### Environment Configuration
+
+<details>
+<summary><strong>Backend Environment Variables</strong></summary>
+
+```env
+# Database
+MONGODB_URI=mongodb+srv://...
+REDIS_URL=redis://...
+
+# Authentication
+JWT_SECRET=your-super-secret-key
+JWT_REFRESH_SECRET=your-refresh-secret
+
+# Security
+ENCRYPTION_KEY=your-encryption-key
+CORS_ORIGINS=https://gunawardanamotors.pages.dev
+
+# Application
+NODE_ENV=production
+PORT=8080
 ```
+</details>
 
-#### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
+<details>
+<summary><strong>Frontend Environment Variables</strong></summary>
+
+```env
+VITE_API_URL=https://bill-gen-production.up.railway.app
+VITE_APP_NAME=Gunawardhana Motors
 ```
+</details>
 
-## Environment Variables
+## 📚 Documentation
 
-### Backend
-- `MONGODB_URI`: MongoDB connection string
-- `PORT`: Port for the server (default: 8080)
-- `NODE_ENV`: Environment (development, production)
-- `JWT_SECRET`: Secret for JWT tokens
-- `CORS_ORIGINS`: Allowed origins for CORS
-- `REDIS_URL`: Redis connection string (optional, for caching)
+| Section | Description |
+|---------|-------------|
+| [📋 API Reference](./docs/api) | Complete API documentation |
+| [🗄️ Database Schema](./docs/models) | Data models and relationships |
+| [🔄 Workflows](./docs/workflow) | Business process documentation |
+| [🛠️ Development](./docs/development) | Setup and contribution guide |
 
-### Frontend
-- `VITE_API_URL`: URL of the backend API
+## 🤝 Contributing
 
-## Documentation
+We welcome contributions! Please see our [Contributing Guide](./docs/development/README.md) for details.
 
-Detailed documentation is available in the `/docs` directory:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-- `/docs/models` - Database schema documentation
-- `/docs/workflow` - Business process workflows
-- `/docs/api` - API endpoint documentation
+## 👨‍💻 Author
 
-## Contributors
-- Uminda H. (Spyboss)
+**Uminda H. Aberathne** ([@Spyboss](https://github.com/Spyboss))
+- 🌐 Website: [uhadev.com](https://uhadev.com)
+- 📧 Email: contact@uhadev.com
 
-## License
-MIT
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with ❤️ for Gunawardhana Motors
+- Special thanks to the open-source community
+- Powered by modern web technologies
+
+---
+
+<div align="center">
+<strong>Made with ❤️ by <a href="https://github.com/Spyboss">@uhadev</a></strong>
+</div>
