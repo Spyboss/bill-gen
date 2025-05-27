@@ -177,7 +177,7 @@ We welcome contributions! Please see our [Contributing Guide](./docs/development
 ## 👨‍💻 Author
 
 **Uminda H. Aberathne** ([@Spyboss](https://github.com/Spyboss))
-- 🌐 Website: [uhadev.com](https://uhadev.com)
+- 🌐 Website: [uminda.dev](https://uminda-portfolio.pages.dev)
 - 📧 Email: contact@uhadev.com
 
 ## 📄 License
