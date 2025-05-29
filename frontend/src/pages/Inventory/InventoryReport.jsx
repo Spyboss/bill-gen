@@ -683,7 +683,7 @@ const InventoryReport = () => {
             </Text>
             <br />
             <Text type="secondary" style={{ fontSize: '12px' }}>
-              For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | +94 77 720 3202
+              For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | +94 77 8318 061
             </Text>
             <br />
             <Text type="secondary" style={{ fontSize: '11px' }}>

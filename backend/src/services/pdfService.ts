@@ -449,7 +449,7 @@ const generateFooter = (doc: PDFKit.PDFDocument): void => {
   doc
     .fontSize(9)
     .text(
-      'Contact: +94 77 831 8061 | Email: gunawardhanamotors@gmail.com',
+      'Contact: +94 77 8318 061 | Email: gunawardhanamotorsembilipitiya@gmail.com',
       50,
       725,
       { align: 'center', width: 500 }

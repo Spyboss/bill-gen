@@ -298,7 +298,7 @@ const generateSignatureSection = (doc: PDFKit.PDFDocument): void => {
   // Contact info at the very bottom
   const contactY = pageHeight - bottomMargin + 10;
   doc.fontSize(7)
-     .text('For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | 0778318061', 0, contactY, {
+     .text('For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | +94 77 8318 061', 0, contactY, {
        align: 'center'
      });
 };

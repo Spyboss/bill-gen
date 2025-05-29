@@ -33,7 +33,7 @@ export const generateQuotationPDF = async (quotation: IQuotation): Promise<Buffe
       doc.fontSize(12)
          .font('Helvetica')
          .text('Dealer: Gunawardana Motors - Embilipitiya', 50, 75)
-         .text('Phone: +94 47 2230 123 | Email: info@gunawardanamotors.lk', 50, 90);
+         .text('Phone: +94 77 8318 061 | Email: gunawardhanamotorsembilipitiya@gmail.com', 50, 90);
 
       // Document title
       const title = quotation.type === 'invoice' ? 'INVOICE' : 'QUOTATION';
