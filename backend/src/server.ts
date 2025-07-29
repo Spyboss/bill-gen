@@ -93,10 +93,11 @@ dotenv.config({
   path: path.resolve(__dirname, '../.env')
 });
 
-// Force set critical environment variables if they're missing
+// Validate critical environment variables
 if (!process.env.ENCRYPTION_KEY || process.env.ENCRYPTION_KEY.length < 32) {
-  process.env.ENCRYPTION_KEY = 'a5f3d8c1b4e2a9f7d6c3b5a2e4f8c9d6';
-  console.log('Set ENCRYPTION_KEY directly in code');
+  console.error('ENCRYPTION_KEY environment variable is required and must be at least 32 characters long');
+  console.error('Please set ENCRYPTION_KEY in your .env file. See .env.example for guidance.');
+  process.exit(1);
 }
 
 import express, { Request, Response, NextFunction } from 'express';

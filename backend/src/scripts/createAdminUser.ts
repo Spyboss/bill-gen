@@ -13,13 +13,21 @@ const __dirname = path.dirname(__filename);
 
 console.log('Starting admin user creation script...');
 
-// Default admin credentials - override with environment variables
-const DEFAULT_ADMIN_EMAIL = 'admin@billgen.com';
-const DEFAULT_ADMIN_PASSWORD = 'Admin@12345';
+// Admin credentials from environment variables
+const adminEmail = process.env.ADMIN_EMAIL;
+const adminPassword = process.env.ADMIN_PASSWORD;
 
-// Use environment variables if available, otherwise use defaults
-const adminEmail = process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL;
-const adminPassword = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
+// Validate required environment variables
+if (!adminEmail || !adminPassword) {
+  console.error('Error: ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required');
+  console.error('Please set these in your .env file. See .env.example for guidance.');
+  process.exit(1);
+}
+
+if (adminPassword.length < 8) {
+  console.error('Error: ADMIN_PASSWORD must be at least 8 characters long');
+  process.exit(1);
+}
 
 // Connect to MongoDB
 const connectDB = async () => {
@@ -82,4 +90,4 @@ const main = async () => {
 };
 
 // Run the script
-main(); 
+main();

@@ -509,8 +509,12 @@ export const createAdmin = async (req: Request, res: Response): Promise<void> =>
     const { email, password, name, setupKey } = req.body;
 
     // Verify setup key (this should be a strong, unique key known only to administrators)
-    // For development purposes, we're using a simple check
-    const expectedSetupKey = process.env.ADMIN_SETUP_KEY || 'admin-setup-secret-key';
+    const expectedSetupKey = process.env.ADMIN_SETUP_KEY;
+    
+    if (!expectedSetupKey) {
+      res.status(500).json({ message: 'Admin setup is not properly configured. ADMIN_SETUP_KEY environment variable is required.' });
+      return;
+    }
 
     if (setupKey !== expectedSetupKey) {
       res.status(403).json({ message: 'Invalid setup key' });

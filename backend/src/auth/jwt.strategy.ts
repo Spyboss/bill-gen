@@ -29,17 +29,14 @@ console.log('typeof crypto at top of jwt.strategy:', typeof crypto);
 
 // 256-bit secret (32 chars) from env
 const getSecret = () => {
-  let secret = process.env.JWT_SECRET || '';
+  const secret = process.env.JWT_SECRET;
 
-  // In development mode, if the secret is less than 32 characters,
-  // pad it to 32 characters to meet the requirement
-  if (process.env.NODE_ENV === 'development' && secret.length < 32) {
-    // Pad the secret to 32 characters
-    secret = secret.padEnd(32, 'x');
-    logger.warn('JWT_SECRET was padded to 32 characters for development mode');
-  } else if (secret.length < 32) {
-    // In production, throw error if not secure
-    throw new Error('JWT_SECRET must be at least 32 characters');
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+
+  if (secret.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters long');
   }
 
   return new TextEncoder().encode(secret);

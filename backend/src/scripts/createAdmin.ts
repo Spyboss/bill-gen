@@ -10,10 +10,22 @@ import User, { UserRole } from '../models/User.js';
 // Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-// Admin user details - CHANGE THESE
-const ADMIN_EMAIL = 'admin@example.com';
-const ADMIN_PASSWORD = 'AdminPass123!';
-const ADMIN_NAME = 'System Admin';
+// Admin user details from environment variables
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_NAME = process.env.ADMIN_NAME || 'System Admin';
+
+// Validate required environment variables
+if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.error('Error: ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required');
+  console.error('Please set these in your .env file.');
+  process.exit(1);
+}
+
+if (ADMIN_PASSWORD.length < 8) {
+  console.error('Error: ADMIN_PASSWORD must be at least 8 characters long');
+  process.exit(1);
+}
 
 async function createAdminUser() {
   try {
@@ -54,4 +66,4 @@ async function createAdminUser() {
 }
 
 // Run the function
-createAdminUser(); 
+createAdminUser();
