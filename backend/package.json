@@ -54,7 +54,7 @@
     "mongodb-client-encryption": "^6.0.1",
     "mongoose": "^8.1.1",
     "morgan": "^1.10.1",
-    "multer": "^1.4.5-lts.1",
+
     "pdfkit": "^0.14.0",
     "rate-limiter-flexible": "^7.0.0",
     "rimraf": "^4.4.1",
@@ -66,7 +66,7 @@
     "@types/crypto-js": "^4.2.2",
     "@types/express": "^4.17.21",
     "@types/morgan": "^1.9.9",
-    "@types/multer": "^1.4.11",
+
     "@types/node": "^20.11.5",
     "@types/pdfkit": "^0.13.3",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
