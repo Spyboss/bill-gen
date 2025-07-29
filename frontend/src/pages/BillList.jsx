@@ -292,7 +292,11 @@ const BillList = () => {
       title: 'Date',
       dataIndex: 'billDate',
       key: 'billDate',
-      render: (date) => formatDate(date),
+      render: (date, record) => {
+        // Use billDate if available, otherwise fall back to createdAt
+        const dateToFormat = date || record.createdAt;
+        return formatDate(dateToFormat);
+      },
     },
     {
       title: 'Actions',

@@ -306,7 +306,7 @@ const BillView = () => {
         <Card title="Bill Details" className="mb-6">
           <Descriptions bordered column={1}>
             <Descriptions.Item label="Bill Number">{bill.billNumber || bill.bill_number || bill._id || bill.id}</Descriptions.Item>
-            <Descriptions.Item label="Bill Date">{formatDate(bill.billDate || bill.bill_date)}</Descriptions.Item>
+            <Descriptions.Item label="Bill Date">{formatDate(bill.billDate || bill.bill_date || bill.createdAt)}</Descriptions.Item>
             <Descriptions.Item label="Bill Type">{getBillTypeTag(bill.billType || bill.bill_type)}</Descriptions.Item>
             <Descriptions.Item label="Status">
               <Badge 
