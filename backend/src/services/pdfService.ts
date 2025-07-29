@@ -483,14 +483,14 @@ const formatDate = (date: string | Date): string => {
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
     
-    // Format as DD/MM/YYYY
-    const day = d.getDate().toString().padStart(2, '0');
-    const month = (d.getMonth() + 1).toString().padStart(2, '0');
-    const year = d.getFullYear();
+    // Use UTC methods to avoid timezone conversion issues
+    const day = d.getUTCDate().toString().padStart(2, '0');
+    const month = (d.getUTCMonth() + 1).toString().padStart(2, '0');
+    const year = d.getUTCFullYear();
     
     return `${day}/${month}/${year}`;
   } catch (error) {
     console.error('Error formatting date:', error);
     return '';
   }
-}; 
+};
