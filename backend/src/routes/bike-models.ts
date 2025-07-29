@@ -6,6 +6,7 @@ import {
   updateBikeModel,
   deleteBikeModel
 } from '../controllers/bikeModelController.js';
+import { authenticate, requireAdmin } from '../auth/auth.middleware.js';
 
 const router = Router();
 
@@ -26,22 +27,22 @@ router.get('/:id', getBikeModelById);
 /**
  * @route   POST /api/bike-models
  * @desc    Create a new bike model
- * @access  Private
+ * @access  Private (Admin only)
  */
-router.post('/', createBikeModel);
+router.post('/', authenticate, requireAdmin, createBikeModel);
 
 /**
  * @route   PUT /api/bike-models/:id
  * @desc    Update a bike model
- * @access  Private
+ * @access  Private (Admin only)
  */
-router.put('/:id', updateBikeModel);
+router.put('/:id', authenticate, requireAdmin, updateBikeModel);
 
 /**
  * @route   DELETE /api/bike-models/:id
  * @desc    Delete a bike model
- * @access  Private
+ * @access  Private (Admin only)
  */
-router.delete('/:id', deleteBikeModel);
+router.delete('/:id', authenticate, requireAdmin, deleteBikeModel);
 
-export default router; 
+export default router;

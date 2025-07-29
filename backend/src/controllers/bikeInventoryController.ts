@@ -31,6 +31,15 @@ export const getAllInventory = async (req: AuthRequest, res: Response, next: Nex
     // Build filter query
     const filter: any = {};
 
+    // Filter by owner if not admin
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+
+    if (!isAdmin && req.user?.id) {
+      // Regular users can only see inventory items they added
+      filter.addedBy = req.user.id;
+    }
+
     // Filter by status if provided
     if (status) {
       filter.status = status;
@@ -318,10 +327,29 @@ export const deleteInventory = async (req: Request, res: Response, next: NextFun
  * @route GET /api/inventory/summary
  * @access Private
  */
-export const getInventorySummary = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getInventorySummary = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // Get summary by bike model
-    const summary = await BikeInventory.aggregate([
+    // Build filter for ownership
+    const matchStage: any = {};
+    
+    // Filter by owner if not admin
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+
+    if (!isAdmin && req.user?.id) {
+      matchStage.addedBy = new mongoose.Types.ObjectId(req.user.id);
+    }
+
+    // Build aggregation pipeline
+    const pipeline: any[] = [];
+    
+    // Add match stage if we have filters
+    if (Object.keys(matchStage).length > 0) {
+      pipeline.push({ $match: matchStage });
+    }
+
+    // Add the rest of the aggregation stages
+    pipeline.push(
       {
         $lookup: {
           from: 'bike_models',
@@ -361,7 +389,11 @@ export const getInventorySummary = async (req: Request, res: Response, next: Nex
           },
           totalCount: { $sum: '$count' }
         }
-      },
+      }
+    );
+
+    // Add final stages to pipeline
+    pipeline.push(
       {
         $project: {
           _id: 0,
@@ -377,7 +409,10 @@ export const getInventorySummary = async (req: Request, res: Response, next: Nex
       {
         $sort: { modelName: 1 }
       }
-    ]);
+    );
+
+    // Get summary by bike model
+    const summary = await BikeInventory.aggregate(pipeline);
 
     // Get total counts by status
     const statusTotals = await BikeInventory.aggregate([
@@ -437,15 +472,34 @@ export const getInventorySummary = async (req: Request, res: Response, next: Nex
  * @route GET /api/inventory/analytics
  * @access Private
  */
-export const getInventoryAnalytics = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getInventoryAnalytics = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     // Get current date for calculations
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
     const ninetyDaysAgo = new Date(now.getTime() - (90 * 24 * 60 * 60 * 1000));
 
-    // Enhanced model performance with revenue and aging analysis
-    const modelPerformance = await BikeInventory.aggregate([
+    // Build filter for ownership
+    const matchStage: any = {};
+    
+    // Filter by owner if not admin
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+
+    if (!isAdmin && req.user?.id) {
+      matchStage.addedBy = new mongoose.Types.ObjectId(req.user.id);
+    }
+
+    // Build aggregation pipeline for model performance
+    const modelPipeline: any[] = [];
+    
+    // Add match stage if we have filters
+    if (Object.keys(matchStage).length > 0) {
+      modelPipeline.push({ $match: matchStage });
+    }
+
+    // Add the rest of the aggregation stages
+    modelPipeline.push(
       {
         $lookup: {
           from: 'bike_models',
@@ -456,7 +510,11 @@ export const getInventoryAnalytics = async (req: Request, res: Response, next: N
       },
       {
         $unwind: '$model'
-      },
+      }
+    );
+
+    // Enhanced model performance with revenue and aging analysis
+    const modelPerformance = await BikeInventory.aggregate(modelPipeline.concat([
       {
         $group: {
           _id: '$bikeModelId',
@@ -851,7 +909,7 @@ const generateInventoryInsights = (modelPerformance: any[], kpis: any) => {
  * @route GET /api/inventory/available/:modelId
  * @access Private
  */
-export const getAvailableBikesByModel = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const getAvailableBikesByModel = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { modelId } = req.params;
 
@@ -859,10 +917,21 @@ export const getAvailableBikesByModel = async (req: Request, res: Response, next
       return next(new AppError('Invalid bike model ID', 400));
     }
 
-    const availableBikes = await BikeInventory.find({
+    // Build filter query
+    const filter: any = {
       bikeModelId: modelId,
       status: BikeStatus.AVAILABLE
-    })
+    };
+
+    // Filter by owner if not admin
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+
+    if (!isAdmin && req.user?.id) {
+      filter.addedBy = req.user.id;
+    }
+
+    const availableBikes = await BikeInventory.find(filter)
       .sort({ dateAdded: 1 })
       .populate('bikeModelId', 'name price is_ebicycle is_tricycle');
 
@@ -878,12 +947,23 @@ export const getAvailableBikesByModel = async (req: Request, res: Response, next
  * @route GET /api/inventory/report/pdf
  * @access Private
  */
-export const generateInventoryReportPDF = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export const generateInventoryReportPDF = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const now = new Date();
 
+    // Build filter query
+    const filter: any = {};
+
+    // Filter by owner if not admin
+    const user = await req.app.locals.models?.User.findById(req.user?.id);
+    const isAdmin = user?.role === 'admin';
+
+    if (!isAdmin && req.user?.id) {
+      filter.addedBy = req.user.id;
+    }
+
     // Get all inventory items with bike model details
-    const inventoryItems = await BikeInventory.find({})
+    const inventoryItems = await BikeInventory.find(filter)
       .populate('bikeModelId', 'name price is_ebicycle is_tricycle')
       .sort({ 'bikeModelId.name': 1, dateAdded: 1 });
 
