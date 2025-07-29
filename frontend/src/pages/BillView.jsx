@@ -45,7 +45,15 @@ const BillView = () => {
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
-      return new Date(dateString).toLocaleDateString();
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return 'N/A';
+      
+      // Format as DD/MM/YYYY to avoid timezone issues
+      const day = d.getDate().toString().padStart(2, '0');
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');
+      const year = d.getFullYear();
+      
+      return `${day}/${month}/${year}`;
     } catch (error) {
       console.error('Error formatting date:', error);
       return 'N/A';
@@ -434,4 +442,4 @@ const BillView = () => {
   );
 };
 
-export default BillView; 
+export default BillView;
