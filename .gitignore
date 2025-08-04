@@ -23,6 +23,8 @@ out/
 *.swp
 *.swo
 .DS_Store
+CLAUDE.md
+.mcp.json 
 
 # Logs
 logs/

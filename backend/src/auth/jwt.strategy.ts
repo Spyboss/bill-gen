@@ -43,7 +43,7 @@ const getSecret = () => {
 };
 
 // Environment-specific token settings
-const ACCESS_TOKEN_EXPIRY = process.env.NODE_ENV === 'production' ? '15m' : '60m';
+const ACCESS_TOKEN_EXPIRY = process.env.NODE_ENV === 'production' ? '60m' : '60m';
 const REFRESH_TOKEN_EXPIRY_SECONDS = process.env.NODE_ENV === 'production' ? 7 * 24 * 60 * 60 : 30 * 24 * 60 * 60; // 7 days in production, 30 days in development
 
 /**
