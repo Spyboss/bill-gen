@@ -244,7 +244,7 @@ export const generateQuotationPDF = async (quotation: IQuotation): Promise<Buffe
       yPos += (sectionSpacing * 3);
       doc.fontSize(12)
          .font('Helvetica-Bold')
-         .text(`Total Amount: LKR ${quotation.totalAmount.toFixed(2)}`, 400, yPos, { align: 'right', width: 150 });
+         .text(`Total Amount: LKR ${quotation.totalAmount.toFixed(2)}`, 350, yPos, { align: 'right', width: 200 });
 
       // Remarks with text wrapping
       if (quotation.remarks) {
