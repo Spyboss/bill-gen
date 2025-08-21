@@ -355,8 +355,7 @@ const generateInvoiceTable = (doc: PDFKit.PDFDocument, bill: any): void => {
     doc
       .fontSize(10)
       .font('Helvetica-Bold')
-      .text('Total Amount', columns.description.x + 10, y + 8)
-      .text(formatAmount(bill.totalAmount || bill.total_amount), columns.amount.x + 10, y + 8, { 
+      .text('Total Amount: LKR ' + formatAmount(bill.totalAmount || bill.total_amount), columns.amount.x + 10, y + 8, { 
         align: 'right', 
         width: columns.amount.width - 20 
       });
