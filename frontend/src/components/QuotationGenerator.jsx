@@ -154,15 +154,16 @@ const QuotationGenerator = () => {
   const itemColumns = [
     {
       title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      render: (text, record, index) => (
-        <Input
-          value={text}
-          onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-          placeholder="Item description"
-        />
-      ),
+        dataIndex: 'description',
+        key: 'description',
+        render: (text, record, index) => (
+          <TextArea
+            value={text}
+            onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+            placeholder="Enter description (Shift+Enter for new line)"
+            autoSize={{ minRows: 1, maxRows: 4 }}
+          />
+        ),
     },
     {
       title: 'Quantity',
