@@ -90,8 +90,6 @@ const extractColorFromNotes = (notes?: string): string => {
  * Generate the header section of the inventory report
  */
 const generateInventoryHeader = (doc: PDFKit.PDFDocument, reportDate: Date): void => {
-  const sectionSpacing = 5; // Consistent spacing value
-  
   // Company name
   doc.fontSize(18)
      .font('Helvetica-Bold')
@@ -100,12 +98,12 @@ const generateInventoryHeader = (doc: PDFKit.PDFDocument, reportDate: Date): voi
   // Report title
   doc.fontSize(14)
      .font('Helvetica-Bold')
-     .text('Inventory Report', 0, 40 + (sectionSpacing * 5), { align: 'center' });
+     .text('Inventory Report', 0, 65, { align: 'center' });
 
   // Date
   doc.fontSize(10)
      .font('Helvetica')
-     .text(`Date: ${reportDate.toLocaleDateString('en-GB')}`, 0, 40 + (sectionSpacing * 9), { align: 'center' });
+     .text(`Date: ${reportDate.toLocaleDateString('en-GB')}`, 0, 85, { align: 'center' });
 
   // Add some space
   doc.moveDown(1.5);
@@ -115,7 +113,6 @@ const generateInventoryHeader = (doc: PDFKit.PDFDocument, reportDate: Date): voi
  * Generate the inventory table
  */
 const generateInventoryTable = (doc: PDFKit.PDFDocument, inventoryItems: BikeInventoryItem[]): void => {
-  const sectionSpacing = 5; // Consistent spacing value
   const tableTop = 120;
   const tableLeft = 40;
   const rowHeight = 18;
@@ -229,22 +226,21 @@ const generateTotalRow = (doc: PDFKit.PDFDocument, totalAvailable: number): void
     currentX += colWidths[colIndex];
   });
 
-  doc.y = currentY + rowHeight + (sectionSpacing * 2);
+  doc.y = currentY + rowHeight + 10;
 };
 
 /**
  * Generate action items section
  */
 const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => {
-  const sectionSpacing = 5; // Consistent spacing value
-  const currentY = doc.y + (sectionSpacing * 4);
+  const currentY = doc.y + 20;
 
   doc.fontSize(10)
      .font('Helvetica-Bold')
      .fillColor('#000000')
      .text('Action Items:', 40, currentY);
 
-  let itemY = currentY + (sectionSpacing * 4);
+  let itemY = currentY + 20;
 
   insights.slice(0, 3).forEach((insight) => {
     const priority = insight.priority === 'high' ? 'URGENT' :
@@ -269,7 +265,7 @@ const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => 
        .text(` ${insight.message}`, {
          width: 500
        });
-    itemY += (sectionSpacing * 3);
+    itemY += 15;
   });
 };
 
@@ -277,7 +273,6 @@ const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => 
  * Generate signature section
  */
 const generateSignatureSection = (doc: PDFKit.PDFDocument): void => {
-  const sectionSpacing = 5; // Consistent spacing value
   // Position signature section at the bottom of the page
   const pageHeight = doc.page.height;
   const bottomMargin = 60;
@@ -289,19 +284,19 @@ const generateSignatureSection = (doc: PDFKit.PDFDocument): void => {
      .fillColor('#000000')
      .text('Signature & Rubberstamp:', 40, signatureStartY);
 
-  const signatureY = signatureStartY + (sectionSpacing * 5);
+  const signatureY = signatureStartY + 25;
 
   // Signature lines
   doc.fontSize(8)
      .font('Helvetica')
      .fillColor('#000000')
      .text('_________________________', 80, signatureY)
-     .text('Dealer Signature & Seal', 80, signatureY + (sectionSpacing * 3))
+     .text('Dealer Signature & Seal', 80, signatureY + 15)
      .text('_________________________', 350, signatureY)
-     .text('Territory Sales Manager Signature', 350, signatureY + (sectionSpacing * 3));
+     .text('Territory Sales Manager Signature', 350, signatureY + 15);
 
   // Contact info at the very bottom
-  const contactY = pageHeight - bottomMargin + (sectionSpacing * 2);
+  const contactY = pageHeight - bottomMargin + 10;
   doc.fontSize(7)
      .text('For inquiries, contact: gunawardhanamotorsembilipitiya@gmail.com | +94 77 8318 061', 0, contactY, {
        align: 'center'
