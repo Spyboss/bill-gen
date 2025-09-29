@@ -85,49 +85,6 @@ const generateHeader = (doc: PDFKit.PDFDocument): void => {
 };
 
 /**
- * Utility function to wrap text properly within specified width
- */
-const wrapText = (text: string, maxWidth: number, fontSize: number = 10): string[] => {
-  if (!text) return [''];
-  
-  // Handle manual line breaks (\n) first
-  const manualLines = text.split('\n');
-  const wrappedLines: string[] = [];
-  
-  manualLines.forEach(line => {
-    if (!line.trim()) {
-      wrappedLines.push('');
-      return;
-    }
-    
-    const words = line.split(' ');
-    let currentLine = '';
-    
-    // Approximate character limit based on font size and width
-    const charLimit = Math.floor(maxWidth / (fontSize * 0.6));
-    
-    words.forEach(word => {
-      const testLine = currentLine ? `${currentLine} ${word}` : word;
-      
-      if (testLine.length <= charLimit) {
-        currentLine = testLine;
-      } else {
-        if (currentLine) {
-          wrappedLines.push(currentLine);
-        }
-        currentLine = word;
-      }
-    });
-    
-    if (currentLine) {
-      wrappedLines.push(currentLine);
-    }
-  });
-  
-  return wrappedLines.length > 0 ? wrappedLines : [''];
-};
-
-/**
  * Generate customer information section
  */
 const generateCustomerInformation = (doc: PDFKit.PDFDocument, bill: any): void => {
@@ -151,67 +108,89 @@ const generateCustomerInformation = (doc: PDFKit.PDFDocument, bill: any): void =
     .fontSize(14)
     .text('Customer Details:', 50, 140);
   
+  // For the customer name, explicitly handle long names by manually breaking them into multiple lines
+  const nameText = bill.customerName || bill.customer_name || '';
+  
   // Set starting Y position for customer details
   let currentY = 160;
-  const lineHeight = 15;
-  const labelWidth = 100;
-  const contentWidth = 200;
-  const sectionSpacing = 5; // Consistent spacing between fields
   
-  // Customer Name with proper text wrapping
-  const nameText = bill.customerName || bill.customer_name || '';
-  doc.fontSize(10).text('Name:', 50, currentY);
+  // Draw the "Name:" label
+  doc
+    .fontSize(10)
+    .text('Name:', 50, currentY);
   
-  const nameLines = wrapText(nameText, contentWidth, 10);
+  // Handle the customer name with explicit line breaking
   doc.font('Helvetica-Bold');
-  nameLines.forEach((line, index) => {
-    doc.text(line, 150, currentY + (index * lineHeight));
-  });
+  if (nameText.length > 20) {
+    // Split long names into chunks of roughly 20 characters
+    // This ensures even very long names display correctly
+    const chunks = [];
+    let currentChunk = '';
+    const words = nameText.split(' ');
+    
+    words.forEach(word => {
+      if ((currentChunk + ' ' + word).length <= 20) {
+        currentChunk += (currentChunk ? ' ' : '') + word;
+      } else {
+        if (currentChunk) chunks.push(currentChunk);
+        currentChunk = word;
+      }
+    });
+    
+    if (currentChunk) chunks.push(currentChunk);
+    
+    // Render the first chunk at the initial position
+    doc.text(chunks[0], 150, currentY);
+    currentY += 15;
+    
+    // Render any additional chunks on new lines
+    for (let i = 1; i < chunks.length; i++) {
+      doc.text(chunks[i], 150, currentY);
+      currentY += 15;
+    }
+  } else {
+    // For short names, render in a single line
+    doc.text(nameText, 150, currentY);
+    currentY += 15;
+  }
+  
+  // Switch back to normal font
   doc.font('Helvetica');
   
-  currentY += Math.max(nameLines.length * lineHeight, lineHeight) + sectionSpacing;
+  // Add padding between name and NIC
+  currentY += 5;
   
-  // NIC
-  doc.text('NIC:', 50, currentY)
-     .text(bill.customerNIC || bill.customer_nic || '', 150, currentY, { width: contentWidth });
+  // Draw NIC and address with calculated positions
+  doc
+    .text('NIC:', 50, currentY)
+    .text(bill.customerNIC || bill.customer_nic || '', 150, currentY, { width: 200 });
   
-  currentY += lineHeight + sectionSpacing;
+  currentY += 15;
   
-  // Address with proper text wrapping
-  const addressText = bill.customerAddress || bill.customer_address || '';
-  doc.text('Address:', 50, currentY);
+  doc
+    .text('Address:', 50, currentY)
+    .text(bill.customerAddress || bill.customer_address || '', 150, currentY, { width: 200 });
   
-  const addressLines = wrapText(addressText, contentWidth, 10);
-  addressLines.forEach((line, index) => {
-    doc.text(line, 150, currentY + (index * lineHeight));
-  });
+  // Add spacing before vehicle details
+  currentY += 30;
   
-  currentY += Math.max(addressLines.length * lineHeight, lineHeight) + (sectionSpacing * 2); // Double spacing before vehicle section
-  
-  // Vehicle Details section
   doc
     .fontSize(14)
     .text('Vehicle Details:', 50, currentY);
   
-  currentY += 20;
-  
-  // Vehicle details with consistent spacing
-  const vehicleFields = [
-    { label: 'Model:', value: bill.bikeModel || bill.model_name || '' },
-    { label: 'Type:', value: bill.vehicleType || bill.vehicle_type || 'E-MOTORCYCLE' },
-    { label: 'Motor Number:', value: bill.motorNumber || bill.motor_number || '' },
-    { label: 'Chassis Number:', value: bill.chassisNumber || bill.chassis_number || '' }
-  ];
-  
-  doc.fontSize(10);
-  vehicleFields.forEach(field => {
-    doc.text(field.label, 50, currentY)
-       .text(field.value, 150, currentY, { width: contentWidth });
-    currentY += lineHeight;
-  });
+  doc
+    .fontSize(10)
+    .text('Model:', 50, currentY + 20)
+    .text(bill.bikeModel || bill.model_name || '', 150, currentY + 20, { width: 300 })
+    .text('Type:', 50, currentY + 35)
+    .text(bill.vehicleType || bill.vehicle_type || 'E-MOTORCYCLE', 150, currentY + 35, { width: 300 })
+    .text('Motor Number:', 50, currentY + 50)
+    .text(bill.motorNumber || bill.motor_number || '', 150, currentY + 50, { width: 300 })
+    .text('Chassis Number:', 50, currentY + 65)
+    .text(bill.chassisNumber || bill.chassis_number || '', 150, currentY + 65, { width: 300 });
     
   // Store the final Y position as a property on the doc object for the invoice table to use
-  (doc as any)._lastDetailY = currentY + (sectionSpacing * 2);
+  (doc as any)._lastDetailY = currentY + 85;
 };
 
 /**
@@ -221,242 +200,224 @@ const generateInvoiceTable = (doc: PDFKit.PDFDocument, bill: any): void => {
   // Get the Y position after customer and vehicle details
   let y = (doc as any)._lastDetailY || 320;
   
-  const sectionSpacing = 5; // Consistent spacing value
-  
   doc
     .fontSize(14)
-    .font('Helvetica-Bold')
     .text('Payment Details:', 50, y);
   
-  y += (sectionSpacing * 5);
+  y += 25;
   
-  // Define table structure with proper alignment
+  // Draw table with borders
   const tableTop = y;
   const itemRowHeight = 25;
   const tableWidth = 500;
   
-  // Define column positions and widths for better alignment
-  const columns = {
-    description: { x: 50, width: 350 },
-    amount: { x: 400, width: 150 }
-  };
+  // Set column widths
+  const col1Width = 350; // Description column
+  const col2Width = 150; // Amount column
   
   // Table headers with borders and background
-  doc.fontSize(12).font('Helvetica-Bold');
+  doc
+    .fontSize(10)
+    .font('Helvetica-Bold');
   
   // Draw table header row with background
   doc
     .fillColor('#e0e0e0') // Light gray background
-    .rect(columns.description.x, tableTop, columns.description.width, itemRowHeight)
+    .rect(50, tableTop, col1Width, itemRowHeight)
     .fill() // Fill with background color
     .fillColor('#000000') // Reset to black for text
-    .rect(columns.description.x, tableTop, columns.description.width, itemRowHeight)
+    .rect(50, tableTop, col1Width, itemRowHeight)
     .stroke(); // Add stroke
     
   doc
     .fillColor('#e0e0e0') // Light gray background
-    .rect(columns.amount.x, tableTop, columns.amount.width, itemRowHeight)
+    .rect(50 + col1Width, tableTop, col2Width, itemRowHeight)
     .fill() // Fill with background color
     .fillColor('#000000') // Reset to black for text
-    .rect(columns.amount.x, tableTop, columns.amount.width, itemRowHeight)
+    .rect(50 + col1Width, tableTop, col2Width, itemRowHeight)
     .stroke(); // Add stroke
   
-  // Header text with proper alignment
+  // Header text
   doc
-    .text('Description', columns.description.x + 10, tableTop + 8)
-    .text('Amount (Rs.)', columns.amount.x + 10, tableTop + 8, { 
-      align: 'center', 
-      width: columns.amount.width - 20 
-    });
+    .text('Description', 60, tableTop + 7)
+    .text('Amount (Rs.)', 60 + col1Width + 20, tableTop + 7);
   
   doc.font('Helvetica');
   
   y = tableTop + itemRowHeight;
   
-  // Helper function to draw a table row with text wrapping support
-  const drawTableRow = (description: string, amount: string, isHighlighted: boolean = false) => {
-    const bgColor = isHighlighted ? '#f8f4e8' : '#ffffff';
-    
-    // Wrap description text to fit within column width
-    const wrappedDescription = wrapText(description, columns.description.width - 20, 10);
-    const rowHeight = Math.max(itemRowHeight, wrappedDescription.length * 12 + 6);
-    
-    // Draw row background
-    doc
-      .fillColor(bgColor)
-      .rect(columns.description.x, y, columns.description.width, rowHeight)
-      .fill()
-      .fillColor('#000000')
-      .rect(columns.description.x, y, columns.description.width, rowHeight)
-      .stroke();
-    
-    doc
-      .fillColor(bgColor)
-      .rect(columns.amount.x, y, columns.amount.width, rowHeight)
-      .fill()
-      .fillColor('#000000')
-      .rect(columns.amount.x, y, columns.amount.width, rowHeight)
-      .stroke();
-    
-    // Draw description text with proper wrapping
-    doc.fontSize(10);
-    let textY = y + 8;
-    wrappedDescription.forEach(line => {
-      doc.text(line, columns.description.x + 10, textY);
-      textY += 12;
-    });
-    
-    // Draw amount text (centered vertically in the row)
-    const amountY = y + (rowHeight / 2) - 5;
-    doc.text(amount, columns.amount.x + 10, amountY, { 
-      align: 'right', 
-      width: columns.amount.width - 20 
-    });
-    
-    y += rowHeight;
-  };
-  
   // Add bike price row
-  drawTableRow('Bike Price', formatAmount(bill.bikePrice || bill.bike_price));
+  // Draw row background
+  doc
+    .rect(50, y, col1Width, itemRowHeight)
+    .stroke()
+    .rect(50 + col1Width, y, col2Width, itemRowHeight)
+    .stroke();
+  
+  // Row content
+  doc
+    .text('Bike Price', 60, y + 7)
+    .text(formatAmount(bill.bikePrice || bill.bike_price), 60 + col1Width + 20, y + 7);
+  
+  y += itemRowHeight;
   
   // Add RMV charge if applicable
   if ((bill.rmvCharge > 0 || bill.rmv_charge > 0) && (bill.billType === 'cash' || bill.bill_type === 'cash')) {
-    drawTableRow('RMV Charge', formatAmount(bill.rmvCharge || bill.rmv_charge || 13000));
+    // Draw row background
+    doc
+      .rect(50, y, col1Width, itemRowHeight)
+      .stroke()
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
+      .stroke();
+    
+    // Row content
+    doc
+      .text('RMV Charge', 60, y + 7)
+      .text(formatAmount(bill.rmvCharge || bill.rmv_charge || 13000), 60 + col1Width + 20, y + 7);
+    
+    y += itemRowHeight;
   } else if ((bill.billType === 'leasing' || bill.bill_type === 'leasing')) {
-    drawTableRow('RMV Charge - CPZ', formatAmount(bill.rmvCharge || bill.rmv_charge || 13500));
+    // Draw row background
+    doc
+      .rect(50, y, col1Width, itemRowHeight)
+      .stroke()
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
+      .stroke();
+    
+    // Row content
+    doc
+      .text('RMV Charge - CPZ', 60, y + 7)
+      .text(formatAmount(bill.rmvCharge || bill.rmv_charge || 13500), 60 + col1Width + 20, y + 7);
+    
+    y += itemRowHeight;
   }
   
   // Add down payment if leasing
   if ((bill.billType === 'leasing' || bill.bill_type === 'leasing') && (bill.downPayment || bill.down_payment)) {
-    drawTableRow('Down Payment', formatAmount(bill.downPayment || bill.down_payment));
+    // Draw row background
+    doc
+      .rect(50, y, col1Width, itemRowHeight)
+      .stroke()
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
+      .stroke();
+    
+    // Row content
+    doc
+      .text('Down Payment', 60, y + 7)
+      .text(formatAmount(bill.downPayment || bill.down_payment), 60 + col1Width + 20, y + 7);
+    
+    y += itemRowHeight;
   }
   
   // If advance payment, show advance amount and balance
   if ((bill.isAdvancePayment || bill.is_advance_payment) && (bill.advanceAmount || bill.advance_amount)) {
-    // Draw total row with bold text
-    const totalBgColor = '#e0e0e0';
-    
+    // Draw total row
     doc
-      .fillColor(totalBgColor)
-      .rect(columns.description.x, y, columns.description.width, itemRowHeight)
-      .fill()
-      .fillColor('#000000')
-      .rect(columns.description.x, y, columns.description.width, itemRowHeight)
+      .rect(50, y, col1Width, itemRowHeight)
+      .stroke()
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
       .stroke();
     
     doc
-      .fillColor(totalBgColor)
-      .rect(columns.amount.x, y, columns.amount.width, itemRowHeight)
-      .fill()
-      .fillColor('#000000')
-      .rect(columns.amount.x, y, columns.amount.width, itemRowHeight)
-      .stroke();
-    
-    doc
-      .fontSize(10)
       .font('Helvetica-Bold')
-      .text('Total Amount: LKR ' + formatAmount(bill.totalAmount || bill.total_amount), columns.amount.x + 10, y + 8, { 
-        align: 'right', 
-        width: columns.amount.width - 20 
-      });
+      .text('Total Amount', 60, y + 7)
+      .text(formatAmount(bill.totalAmount || bill.total_amount), 60 + col1Width + 20, y + 7);
     
     doc.font('Helvetica');
+    
     y += itemRowHeight;
     
     // Draw advance row
-    drawTableRow('Advance Amount', formatAmount(bill.advanceAmount || bill.advance_amount));
-    
-    // Draw balance row with highlighting and bold text
-    const balanceBgColor = '#f8f4e8';
-    
     doc
-      .fillColor(balanceBgColor)
-      .rect(columns.description.x, y, columns.description.width, itemRowHeight)
-      .fill()
-      .fillColor('#000000')
-      .rect(columns.description.x, y, columns.description.width, itemRowHeight)
+      .rect(50, y, col1Width, itemRowHeight)
+      .stroke()
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
       .stroke();
     
     doc
-      .fillColor(balanceBgColor)
-      .rect(columns.amount.x, y, columns.amount.width, itemRowHeight)
-      .fill()
-      .fillColor('#000000')
-      .rect(columns.amount.x, y, columns.amount.width, itemRowHeight)
-      .stroke();
+      .text('Advance Amount', 60, y + 7)
+      .text(formatAmount(bill.advanceAmount || bill.advance_amount), 60 + col1Width + 20, y + 7);
     
-    doc
-      .fontSize(10)
-      .font('Helvetica-Bold')
-      .text('Balance', columns.description.x + 10, y + 8)
-      .text(formatAmount(bill.balanceAmount || bill.balance_amount || 0), columns.amount.x + 10, y + 8, { 
-        align: 'right', 
-        width: columns.amount.width - 20 
-      });
-    
-    doc.font('Helvetica');
     y += itemRowHeight;
+    
+    // Draw balance row
+    doc
+      .fillColor('#f8f4e8') // Light cream background for balance
+      .rect(50, y, col1Width, itemRowHeight)
+      .fill() // Fill with background color
+      .fillColor('#000000') // Reset to black for text
+      .rect(50, y, col1Width, itemRowHeight)
+      .stroke();
+    
+    doc
+      .fillColor('#f8f4e8') // Light cream background for balance
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
+      .fill() // Fill with background color
+      .fillColor('#000000') // Reset to black for text
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
+      .stroke();
+    
+    doc
+      .font('Helvetica-Bold') // Make the balance bold
+      .text('Balance', 60, y + 7)
+      .text(formatAmount(bill.balanceAmount || bill.balance_amount || 0), 60 + col1Width + 20, y + 7)
+      .font('Helvetica'); // Reset font
   } else {
-    // Draw the total row with gray background and bold text
-    const totalBgColor = '#e0e0e0';
-    
+    // Draw the total row with gray background
     doc
-      .fillColor(totalBgColor)
-      .rect(columns.description.x, y, columns.description.width, itemRowHeight)
-      .fill()
-      .fillColor('#000000')
-      .rect(columns.description.x, y, columns.description.width, itemRowHeight)
+      .fillColor('#e0e0e0') // Light gray background
+      .rect(50, y, col1Width, itemRowHeight)
+      .fill() // Fill with background color
+      .fillColor('#000000') // Reset to black for text
+      .rect(50, y, col1Width, itemRowHeight)
       .stroke();
     
     doc
-      .fillColor(totalBgColor)
-      .rect(columns.amount.x, y, columns.amount.width, itemRowHeight)
-      .fill()
-      .fillColor('#000000')
-      .rect(columns.amount.x, y, columns.amount.width, itemRowHeight)
+      .fillColor('#e0e0e0') // Light gray background
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
+      .fill() // Fill with background color
+      .fillColor('#000000') // Reset to black for text
+      .rect(50 + col1Width, y, col2Width, itemRowHeight)
       .stroke();
     
     doc
       .fontSize(10)
       .font('Helvetica-Bold')
-      .text(`Total Amount: ${formatAmount(bill.totalAmount || bill.total_amount)}`, columns.description.x + 10, y + 8, {
-        align: 'left',
-        width: columns.description.width + columns.amount.width - 20
-      });
+      .text('Total Amount', 60, y + 7)
+      .text(formatAmount(bill.totalAmount || bill.total_amount), 60 + col1Width + 20, y + 7);
     
     doc.font('Helvetica');
-    y += itemRowHeight;
   }
   
   // Terms and Conditions
-  y += (sectionSpacing * 10);
+  y += 50;
   doc
     .fillColor('#444444')  // Explicitly set color to match other sections
     .fontSize(12)
     .font('Helvetica-Bold')  // Make the header bold
     .text('Terms and Conditions:', 50, y);
   
-  y += (sectionSpacing * 4);
+  y += 20;
   doc
     .font('Helvetica')  // Reset to regular font
     .fontSize(10);
   
   doc.text('1. All prices are inclusive of taxes.', 50, y);
-  y += (sectionSpacing * 3);
+  y += 15;
   doc.text('2. Warranty is subject to terms and conditions.', 50, y);
-  y += (sectionSpacing * 3);
+  y += 15;
   doc.text('3. This is a computer-generated bill.', 50, y);
   
   // Add additional condition for RMV if applicable
   if ((bill.billType === 'cash' || bill.bill_type === 'cash') && 
       !(bill.isEbicycle || bill.is_ebicycle) && 
       !(bill.isAdvancePayment || bill.is_advance_payment)) {
-    y += (sectionSpacing * 3);
+    y += 15;
     doc.text('4. RMV registration will be completed within 30 days.', 50, y);
   }
   
   // Signature areas
-  y += (sectionSpacing * 14);
+  y += 70;
   doc
     .moveTo(50, y)
     .lineTo(200, y)
@@ -468,8 +429,8 @@ const generateInvoiceTable = (doc: PDFKit.PDFDocument, bill: any): void => {
     .stroke();
   
   doc
-    .text('Dealer Signature', 70, y + (sectionSpacing * 2))
-    .text('Rubber Stamp', 390, y + (sectionSpacing * 2));
+    .text('Dealer Signature', 70, y + 10)
+    .text('Rubber Stamp', 390, y + 10);
 };
 
 /**
