@@ -123,7 +123,6 @@ import { applySecurityMiddleware } from './middleware/security-middleware.js';
 import { activityLogger } from './middleware/activityLogger.middleware.js';
 import Bill from './models/Bill.js';
 import Quotation from './models/Quotation.js';
-import User from './models/User.js';
 import UserPreferences from './models/UserPreferences.js';
 import UserActivity from './models/UserActivity.js';
 
