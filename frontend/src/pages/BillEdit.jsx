@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form, Input, Select, Button, DatePicker, InputNumber, Switch, message, Spin, Card } from 'antd';
 import moment from 'moment';
+import { DateTime } from 'luxon';
 import apiClient from '../config/apiClient';
 import toast from 'react-hot-toast';
+import { serializeDateToUtc } from '../utils/dateSerializer';
 
 const { Option } = Select;
 
@@ -137,6 +139,9 @@ const BillEdit = () => {
       // Normalize bill type
       const normalizedBillType = billType === 'advancement' ? 'advance' : billType;
 
+      const normalizedBillDate = serializeDateToUtc(values.bill_date || values.billDate) ?? DateTime.utc().startOf('day').toISO();
+      const normalizedEstimatedDate = serializeDateToUtc(values.estimated_delivery_date || values.estimatedDeliveryDate);
+
       // Prepare data for update
       const updateData = {
         ...values,
@@ -144,8 +149,10 @@ const BillEdit = () => {
         bill_type: normalizedBillType,
         is_ebicycle: isEbicycle,
         vehicle_type: isEbicycle ? 'E-Bicycle' : 'Bicycle',
-        bill_date: values.bill_date ? values.bill_date.toISOString() : new Date().toISOString(),
-        estimated_delivery_date: values.estimated_delivery_date ? values.estimated_delivery_date.toISOString() : null
+        bill_date: normalizedBillDate,
+        billDate: normalizedBillDate,
+        estimated_delivery_date: normalizedEstimatedDate,
+        estimatedDeliveryDate: normalizedEstimatedDate
       };
 
       // Calculate total amount based on bill type and model

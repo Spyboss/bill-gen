@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, Button, DatePicker, InputNumber, Switch, message, Modal, Table, Spin, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import apiClient from '../config/apiClient';
 import { getAvailableBikesByModel } from '../services/inventoryService';
 import toast from 'react-hot-toast';
+import { serializeDateToUtc } from '../utils/dateSerializer';
 
 const { Option } = Select;
 
@@ -119,6 +121,9 @@ const BillGeneratorWithInventory = () => {
       // Calculate total amount
       const totalAmount = calculateTotalAmount(values);
 
+      const previewBillDateIso = serializeDateToUtc(values.bill_date) ?? DateTime.utc().startOf('day').toISO();
+      const previewEstimatedDateIso = serializeDateToUtc(values.estimated_delivery_date);
+
       // Prepare bill data for preview
       const billData = {
         customerName: values.customer_name,
@@ -132,7 +137,7 @@ const BillGeneratorWithInventory = () => {
         isEbicycle: selectedModel.is_ebicycle || false,
         isTricycle: selectedModel.is_tricycle || false,
         totalAmount: totalAmount,
-        billDate: values.bill_date ? values.bill_date.format('YYYY-MM-DD') : new Date().toISOString().split('T')[0]
+        billDate: previewBillDateIso
       };
 
       // Add leasing details if applicable
@@ -154,9 +159,7 @@ const BillGeneratorWithInventory = () => {
         billData.advanceAmount = values.advance_amount;
         billData.balanceAmount = totalAmount - values.advance_amount;
 
-        if (values.estimated_delivery_date) {
-          billData.estimatedDeliveryDate = values.estimated_delivery_date.format('YYYY-MM-DD');
-        }
+        billData.estimatedDeliveryDate = previewEstimatedDateIso;
       }
 
       // Add inventory item ID if selected
@@ -205,6 +208,9 @@ const BillGeneratorWithInventory = () => {
     try {
       setLoading(true);
 
+      const normalizedBillDate = serializeDateToUtc(values.bill_date) ?? DateTime.utc().startOf('day').toISO();
+      const normalizedEstimatedDate = serializeDateToUtc(values.estimated_delivery_date);
+
       // Create the bill data
       const billData = {
         // Customer details
@@ -226,7 +232,8 @@ const BillGeneratorWithInventory = () => {
         billType: billType,
 
         // Dates
-        billDate: values.bill_date ? values.bill_date.toISOString() : new Date().toISOString(),
+        billDate: normalizedBillDate,
+        bill_date: normalizedBillDate,
 
         // Advance payment
         isAdvancePayment: isAdvancePayment,
@@ -246,9 +253,11 @@ const BillGeneratorWithInventory = () => {
       if (isAdvancePayment) {
         billData.advanceAmount = parseFloat(values.advance_amount || 0);
 
-        if (values.estimated_delivery_date) {
-          billData.estimatedDeliveryDate = values.estimated_delivery_date.toISOString();
-        }
+        billData.estimatedDeliveryDate = normalizedEstimatedDate;
+        billData.estimated_delivery_date = normalizedEstimatedDate;
+      } else {
+        billData.estimatedDeliveryDate = null;
+        billData.estimated_delivery_date = null;
       }
 
       console.log('Submitting bill data:', billData);

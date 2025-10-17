@@ -5,6 +5,7 @@ import { connectToDatabase } from '../config/database.js';
 import { generatePDF } from '../services/pdfService.js';
 import { authenticate, requireAdmin, requireOwnership, AuthRequest } from '../auth/auth.middleware.js';
 import { createBill, updateBillStatus } from '../controllers/billController.js';
+import { parseUtcDate } from '../utils/dateUtils.js';
 
 const router = express.Router();
 
@@ -112,9 +113,33 @@ router.put('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       delete req.body.owner;
     }
 
+    const updatePayload = { ...req.body } as any;
+
+    if (Object.prototype.hasOwnProperty.call(updatePayload, 'bill_date')) {
+      updatePayload.billDate = parseUtcDate(updatePayload.bill_date, 'billDate');
+      delete updatePayload.bill_date;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updatePayload, 'billDate')) {
+      updatePayload.billDate = parseUtcDate(updatePayload.billDate, 'billDate');
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updatePayload, 'estimated_delivery_date')) {
+      updatePayload.estimatedDeliveryDate = updatePayload.estimated_delivery_date
+        ? parseUtcDate(updatePayload.estimated_delivery_date, 'estimatedDeliveryDate')
+        : null;
+      delete updatePayload.estimated_delivery_date;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(updatePayload, 'estimatedDeliveryDate')) {
+      updatePayload.estimatedDeliveryDate = updatePayload.estimatedDeliveryDate
+        ? parseUtcDate(updatePayload.estimatedDeliveryDate, 'estimatedDeliveryDate')
+        : null;
+    }
+
     const updatedBill = await Bill.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updatePayload,
       { new: true, runValidators: true }
     );
 
