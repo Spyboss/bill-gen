@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
+import { DateTime } from 'luxon';
 import BikeInventory, { BikeStatus } from '../models/BikeInventory.js';
 import BikeModel from '../models/BikeModel.js';
 import logger from '../utils/logger.js';
@@ -251,7 +252,7 @@ export const updateInventory = async (req: Request, res: Response, next: NextFun
 
     // If changing status to sold, set the dateSold
     if (updateData.status === BikeStatus.SOLD && !updateData.dateSold) {
-      updateData.dateSold = new Date();
+      updateData.dateSold = DateTime.utc().toJSDate();
     }
 
     // If changing status from sold, clear the dateSold
@@ -581,10 +582,12 @@ export const getInventoryAnalytics = async (req: AuthRequest, res: Response, nex
           stockHealth: {
             $cond: [
               { $gt: ['$oldStock', 0] }, 'Slow Moving',
-              { $cond: [
-                { $gt: ['$recentSales', 2] }, 'Fast Moving',
-                'Normal'
-              ]}
+              {
+                $cond: [
+                  { $gt: ['$recentSales', 2] }, 'Fast Moving',
+                  'Normal'
+                ]
+              }
             ]
           }
         }
@@ -592,7 +595,7 @@ export const getInventoryAnalytics = async (req: AuthRequest, res: Response, nex
       {
         $sort: { soldValue: -1 }
       }
-    ]);
+    ]));
 
     // Calculate key performance indicators
     const kpis = await BikeInventory.aggregate([
