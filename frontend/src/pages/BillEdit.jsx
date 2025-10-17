@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Form, Input, Select, Button, DatePicker, InputNumber, Switch, message, Spin, Card } from 'antd';
-import moment from 'moment';
+import { Form, Input, Select, Button, DatePicker, InputNumber, Spin, Card } from 'antd';
+import dayjs from 'dayjs';
 import { DateTime } from 'luxon';
 import apiClient from '../config/apiClient';
 import toast from 'react-hot-toast';
 import { serializeDateToUtc } from '../utils/dateSerializer';
-
-const { Option } = Select;
 
 const BillEdit = () => {
   const { id } = useParams();
@@ -80,8 +78,10 @@ const BillEdit = () => {
         balance_amount: data.balance_amount || data.balanceAmount,
 
         // Format dates properly
-        bill_date: data.bill_date || data.billDate ? moment(data.bill_date || data.billDate) : null,
-        estimated_delivery_date: data.estimated_delivery_date || data.estimatedDeliveryDate ? moment(data.estimated_delivery_date || data.estimatedDeliveryDate) : null,
+        billDate: data.bill_date || data.billDate ? dayjs(data.bill_date || data.billDate) : null,
+        estimatedDeliveryDate: data.estimated_delivery_date || data.estimatedDeliveryDate
+          ? dayjs(data.estimated_delivery_date || data.estimatedDeliveryDate)
+          : null,
       };
 
       console.log('Setting form values:', formValues);
@@ -119,16 +119,53 @@ const BillEdit = () => {
     }
   };
 
+  const normalizeDateField = (value, fallback) => {
+    const coerceToIso = (input) => {
+      if (!input) {
+        return null;
+      }
+
+      if (dayjs.isDayjs(input)) {
+        return serializeDateToUtc(input.toDate());
+      }
+
+      if (typeof input === 'string' || input instanceof Date) {
+        return serializeDateToUtc(input);
+      }
+
+      if (typeof input.toDate === 'function') {
+        try {
+          return serializeDateToUtc(input.toDate());
+        } catch (error) {
+          console.warn('Failed to normalize date field value:', error);
+          return null;
+        }
+      }
+
+      return null;
+    };
+
+    return coerceToIso(value) ?? coerceToIso(fallback);
+  };
+
   const handleSubmit = async (values) => {
     try {
       setSubmitting(true);
       console.log('Submitting bill update with values:', values);
 
       // Get the selected model's price if bike_price is missing
-      const bikePrice = values.bike_price || (selectedModel ? selectedModel.price : 0);
+      const {
+        billDate,
+        bill_date,
+        estimatedDeliveryDate,
+        estimated_delivery_date,
+        ...formValues
+      } = values;
+
+      const bikePrice = formValues.bike_price || (selectedModel ? selectedModel.price : 0);
 
       // Is this an e-bicycle?
-      const modelString = String(values.model_name || '').trim();
+      const modelString = String(formValues.model_name || '').trim();
       const isEbicycle =
         selectedModel?.is_ebicycle ||
         modelString.toUpperCase().includes('COLA5') ||
@@ -139,12 +176,17 @@ const BillEdit = () => {
       // Normalize bill type
       const normalizedBillType = billType === 'advancement' ? 'advance' : billType;
 
-      const normalizedBillDate = serializeDateToUtc(values.bill_date || values.billDate) ?? DateTime.utc().startOf('day').toISO();
-      const normalizedEstimatedDate = serializeDateToUtc(values.estimated_delivery_date || values.estimatedDeliveryDate);
+      const billDateInput = billDate ?? bill_date;
+      const estimatedDeliveryInput = estimatedDeliveryDate ?? estimated_delivery_date;
+
+      const normalizedBillDate =
+        normalizeDateField(billDateInput, bill?.bill_date ?? bill?.billDate ?? DateTime.utc().startOf('day').toISO());
+      const normalizedEstimatedDate =
+        normalizeDateField(estimatedDeliveryInput, bill?.estimated_delivery_date ?? bill?.estimatedDeliveryDate ?? null);
 
       // Prepare data for update
       const updateData = {
-        ...values,
+        ...formValues,
         bike_price: bikePrice,
         bill_type: normalizedBillType,
         is_ebicycle: isEbicycle,
@@ -162,13 +204,13 @@ const BillEdit = () => {
           : parseFloat(bikePrice) + 13000;
       } else if (normalizedBillType === 'leasing') {
         // For leasing, ensure down_payment is properly set
-        const downPayment = parseFloat(values.down_payment || 0);
+        const downPayment = parseFloat(formValues.down_payment || 0);
         updateData.total_amount = downPayment;
         updateData.down_payment = downPayment;
       } else if (normalizedBillType === 'advance') {
         // For advance payments
         updateData.total_amount = parseFloat(bikePrice);
-        const downPayment = parseFloat(values.down_payment || 0);
+        const downPayment = parseFloat(formValues.down_payment || 0);
         updateData.down_payment = downPayment;
         updateData.balance_amount = updateData.total_amount - downPayment;
       }
@@ -294,11 +336,11 @@ const BillEdit = () => {
               </Form.Item>
 
               <Form.Item
-                name="estimated_delivery_date"
+                name="estimatedDeliveryDate"
                 label="Estimated Delivery Date"
                 rules={[{ required: true, message: 'Please enter the estimated delivery date' }]}
               >
-                <DatePicker className="w-full" />
+                <DatePicker className="w-full" format="YYYY-MM-DD" />
               </Form.Item>
             </>
           )}
@@ -344,10 +386,10 @@ const BillEdit = () => {
           </Form.Item>
 
           <Form.Item
-            name="bill_date"
+            name="billDate"
             label="Bill Date"
           >
-            <DatePicker className="w-full" />
+            <DatePicker className="w-full" format="YYYY-MM-DD" />
           </Form.Item>
 
           <Form.Item className="flex justify-end">
