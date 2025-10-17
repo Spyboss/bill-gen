@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
+import { DateTime } from 'luxon';
 import Bill from '../models/Bill.js';
 import BikeInventory, { BikeStatus } from '../models/BikeInventory.js';
 import { generatePDF } from '../services/pdfService.js';
 import { AuthRequest } from '../auth/auth.middleware.js';
 import { AppError } from '../middleware/errorHandler.js';
 import logger from '../utils/logger.js';
+import { parseUtcDate } from '../utils/dateUtils.js';
 
 /**
  * Create a new bill with inventory integration
@@ -19,7 +21,20 @@ export const createBill = async (req: AuthRequest, res: Response, next: NextFunc
   try {
     logger.info('Received bill data:', req.body);
     
-    const billData = req.body;
+    const payload = req.body;
+
+    const billData = {
+      ...payload,
+      billDate: parseUtcDate(payload.billDate ?? payload.bill_date, 'billDate'),
+      estimatedDeliveryDate: payload.estimatedDeliveryDate
+        ? parseUtcDate(payload.estimatedDeliveryDate, 'estimatedDeliveryDate')
+        : payload.estimated_delivery_date
+          ? parseUtcDate(payload.estimated_delivery_date, 'estimatedDeliveryDate')
+          : null
+    };
+
+    delete (billData as Record<string, unknown>).bill_date;
+    delete (billData as Record<string, unknown>).estimated_delivery_date;
     
     // Set the owner as the current authenticated user
     billData.owner = req.user?.id;
@@ -120,7 +135,7 @@ export const createBill = async (req: AuthRequest, res: Response, next: NextFunc
         billData.inventoryItemId,
         {
           status: BikeStatus.SOLD,
-          dateSold: new Date(),
+          dateSold: DateTime.utc().toJSDate(),
           billId: savedBill._id
         },
         { session }
@@ -194,7 +209,7 @@ export const updateBillStatus = async (req: AuthRequest, res: Response, next: Ne
           bill.inventoryItemId,
           {
             status: BikeStatus.SOLD,
-            dateSold: new Date(),
+            dateSold: DateTime.utc().toJSDate(),
             billId: bill._id
           },
           { session }

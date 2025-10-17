@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, Button, DatePicker, InputNumber, Switch, message, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { DateTime } from 'luxon';
 import apiClient from '../config/apiClient';
 import toast from 'react-hot-toast';
+import { serializeDateToUtc } from '../utils/dateSerializer';
 
 const { Option } = Select;
 
@@ -94,14 +96,25 @@ const BillGenerator = () => {
       setPreviewLoading(true);
       const values = await form.validateFields();
 
+      const normalizedBillDate =
+        serializeDateToUtc(values.bill_date) ?? DateTime.utc().startOf('day').toISO();
+      const normalizedEstimatedDate = serializeDateToUtc(values.estimated_delivery_date);
+
       // Prepare bill data for preview
       const billData = {
         ...values,
         bill_type: billType.toUpperCase(),
         is_ebicycle: selectedModel?.is_ebicycle || false,
         is_tricycle: selectedModel?.is_tricycle || false,
-        can_be_leased: selectedModel?.can_be_leased || true
+        can_be_leased: selectedModel?.can_be_leased || true,
+        bill_date: normalizedBillDate,
+        billDate: normalizedBillDate
       };
+
+      if (normalizedEstimatedDate) {
+        billData.estimated_delivery_date = normalizedEstimatedDate;
+        billData.estimatedDeliveryDate = normalizedEstimatedDate;
+      }
 
       const bikePrice = values.bike_price || 0;
 
@@ -166,6 +179,10 @@ const BillGenerator = () => {
         return;
       }
 
+      const normalizedBillDate =
+        serializeDateToUtc(values.bill_date) ?? DateTime.utc().startOf('day').toISO();
+      const normalizedEstimatedDate = serializeDateToUtc(values.estimated_delivery_date);
+
       // Create the bill data
       const billData = {
         // Customer details
@@ -187,7 +204,8 @@ const BillGenerator = () => {
         billType: billType,
 
         // Dates
-        billDate: values.bill_date ? values.bill_date.toISOString() : new Date().toISOString(),
+        billDate: normalizedBillDate,
+        bill_date: normalizedBillDate,
 
         // Advance payment
         isAdvancePayment: isAdvancePayment,
@@ -227,9 +245,8 @@ const BillGenerator = () => {
           billData.advanceAmount = advanceAmount;
           billData.balanceAmount = downPayment - advanceAmount;
 
-          if (values.estimated_delivery_date) {
-            billData.estimatedDeliveryDate = values.estimated_delivery_date.toISOString();
-          }
+          billData.estimatedDeliveryDate = normalizedEstimatedDate;
+          billData.estimated_delivery_date = normalizedEstimatedDate;
         }
       } else {
         // For cash bill
@@ -246,9 +263,8 @@ const BillGenerator = () => {
           billData.advanceAmount = advanceAmount;
           billData.balanceAmount = billData.totalAmount - advanceAmount;
 
-          if (values.estimated_delivery_date) {
-            billData.estimatedDeliveryDate = values.estimated_delivery_date.toISOString();
-          }
+          billData.estimatedDeliveryDate = normalizedEstimatedDate;
+          billData.estimated_delivery_date = normalizedEstimatedDate;
         }
       }
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { DateTime } from 'luxon'
+import { serializeDateToUtc } from '../utils/dateSerializer'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import api from '../config/api'
@@ -174,7 +176,7 @@ setBikeModels(response.data)
         ...formData,
         bill_type: formData.bill_type.toUpperCase(),
         id: 'PREVIEW',
-        bill_date: new Date().toISOString(),
+        bill_date: DateTime.utc().startOf('day').toISO(),
         is_ebicycle: currentModel?.is_ebicycle || false,
         can_be_leased: currentModel?.can_be_leased || true,
         rmv_charge: formData.rmv_charge || 0,
@@ -212,6 +214,9 @@ setBikeModels(response.data)
         return;
       }
 
+      const normalizedBillDate = DateTime.utc().startOf('day').toISO();
+      const normalizedEstimatedDate = serializeDateToUtc(formData.estimated_delivery_date);
+
       // Create a copy of the form data with proper formatting
       const submitData = {
         ...formData,
@@ -222,7 +227,11 @@ setBikeModels(response.data)
         balance_amount: parseFloat(formData.balance_amount) || 0,
         rmv_charge: formData.bill_type === 'cash' ? 13000 : 0, // Ensure cash bills have 13000 RMV charge
         is_ebicycle: currentModel?.is_ebicycle || false,
-        can_be_leased: currentModel?.can_be_leased || true
+        can_be_leased: currentModel?.can_be_leased || true,
+        bill_date: normalizedBillDate,
+        billDate: normalizedBillDate,
+        estimated_delivery_date: normalizedEstimatedDate,
+        estimatedDeliveryDate: normalizedEstimatedDate
       };
 
       // Additional validation for RMV charges
