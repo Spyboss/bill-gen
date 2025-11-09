@@ -145,10 +145,15 @@ This starts both the API and MongoDB services in containers.
    ```env
    MONGODB_URI=mongodb+srv://...
    JWT_SECRET=your-jwt-secret
-   JWT_REFRESH_SECRET=your-refresh-secret
    ENCRYPTION_KEY=your-encryption-key
+   REDIS_URL=redis://<user>:<password>@<host>:<port>
    NODE_ENV=production
    ```
+
+   Notes:
+   - Access tokens are signed JWTs using `JWT_SECRET`.
+   - Refresh tokens are random opaque strings stored in Redis and do not use `JWT_REFRESH_SECRET`.
+   - Ensure `REDIS_URL` is set for refresh token storage and rate limiting.
 
 3. **Build Configuration**
    - Railway automatically detects the Node.js app

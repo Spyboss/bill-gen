@@ -7,7 +7,7 @@
   "scripts": {
     "preinstall": "echo 'Applying package overrides...'",
     "start": "node -r dotenv/config dist/server.js",
-    "dev": "tsx watch src/server.ts",
+    "dev": "node --watch -r dotenv/config --import tsx src/server.ts",
     "build": "tsc && npm run copy-assets",
     "build:prod": "NODE_ENV=production npm ls inflight rimraf @humanwhocodes/object-schema @humanwhocodes/config-array are-we-there-yet gauge || true && tsc --skipLibCheck || npm run build:fallback",
     "build:fallback": "echo 'TypeScript compilation failed, using fallback build' && npm run manual-copy-src && npm run manual-copy-assets",

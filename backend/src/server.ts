@@ -131,11 +131,18 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 // CORS Configuration
-const allowedOrigins = [
+// Default hard-coded origins kept as safe fallback
+const defaultAllowedOrigins = [
   'https://bill-gen-production.up.railway.app',
   'https://gunawardanamotors.pages.dev',
   'http://localhost:5173' // For local development
 ];
+
+// Allow overriding via env variable CORS_ORIGINS (comma-separated)
+const envCorsOrigins = process.env.CORS_ORIGINS;
+const allowedOrigins = envCorsOrigins
+  ? envCorsOrigins.split(',').map(o => o.trim()).filter(Boolean)
+  : defaultAllowedOrigins;
 
 // Log CORS settings for debugging
 logger.info(`CORS Origins set to: ${allowedOrigins.join(', ')}`);

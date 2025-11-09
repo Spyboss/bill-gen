@@ -592,7 +592,7 @@ export const getInventoryAnalytics = async (req: AuthRequest, res: Response, nex
       {
         $sort: { soldValue: -1 }
       }
-    ]);
+    ]));
 
     // Calculate key performance indicators
     const kpis = await BikeInventory.aggregate([
