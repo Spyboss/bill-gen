@@ -71,11 +71,35 @@ This is the backend API that powers the Gunawardhana Motors Business Management 
    ```
 
 4. **Start development server**
-   ```bash
-   npm run dev
-   ```
+  ```bash
+  npm run dev
+  ```
 
 The API will be available at `http://localhost:8080`
+
+## 🔧 Environment Variables
+
+The backend requires the following environment variables. Copy `backend/.env.example` to `.env` and fill in values.
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `NODE_ENV` | Yes | Set to `development` locally and `production` in Railway/Cloud. |
+| `PORT` | No | API port, defaults to `8080`. |
+| `MONGODB_URI` | Yes | MongoDB connection string. Backend fails fast in production if missing. |
+| `MONGODB_DB_NAME` | No | Database name. Defaults to `bill-gen` if unset. |
+| `JWT_SECRET` | Yes | At least 32 characters. Backend warns in dev and fails fast in prod if shorter. |
+| `ENCRYPTION_KEY` | Yes | At least 32 characters. Backend fails fast if shorter. |
+| `REDIS_URL` | Yes (prod) | Redis connection string for token revocation and rate limiting. Optional in dev (uses mock). |
+| `CORS_ORIGINS` | No | Comma-separated allowed origins. Defaults to safe list if unset. |
+| `COOKIE_SECRET` | No | Secret for signing cookies where applicable. |
+| `LOG_LEVEL` | No | `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`. Defaults to `info`. |
+
+### Quick Start Recap
+
+1. `cp .env.example .env`
+2. Edit `.env` with your values (ensure `MONGODB_URI`, `JWT_SECRET`, `ENCRYPTION_KEY` are set)
+3. `npm install`
+4. `npm run dev`
 
 ### Docker Development
 

@@ -5,8 +5,8 @@ import logger from '../utils/logger.js';
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
 
-// Define the MongoDB URI - use the Atlas URI directly if env variable isn't loaded
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gunawardhanamotorsembilipitiya:0Mu8lMAFac5hMdcP@bill-gen-cluster.riyvl.mongodb.net/bill-gen?retryWrites=true&w=majority&appName=bill-gen-cluster';
+// Define the MongoDB URI strictly from environment
+const MONGODB_URI = process.env.MONGODB_URI as string;
 const DB_NAME = process.env.MONGODB_DB_NAME || 'bill-gen';
 
 // Connect to MongoDB directly using MongoDB client
@@ -16,6 +16,11 @@ export const connectToDatabase = async (): Promise<Db> => {
   }
 
   try {
+    if (!MONGODB_URI) {
+      const msg = 'MONGODB_URI environment variable is required. Set it in your environment (.env for development).';
+      logger.error(msg);
+      throw new Error(msg);
+    }
     const client = await MongoClient.connect(MONGODB_URI);
     const db = client.db(DB_NAME);
 
@@ -44,6 +49,15 @@ const mongooseOptions: mongoose.ConnectOptions = {
 export const connectToMongoose = async (): Promise<typeof mongoose> => {
   try {
     logger.info('Connecting to MongoDB with Mongoose...');
+    if (!MONGODB_URI) {
+      const msg = 'MONGODB_URI environment variable is required. Set it in your environment (.env for development).';
+      logger.error(msg);
+      // In production, we might want to exit the process
+      if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+      }
+      throw new Error(msg);
+    }
     await mongoose.connect(MONGODB_URI, mongooseOptions);
 
     // Log connection events in development
@@ -111,4 +125,4 @@ export const closeMongooseConnection = async (): Promise<void> => {
   } catch (error) {
     logger.error(`Error closing Mongoose connection: ${(error as Error).message}`);
   }
-}; 
+};

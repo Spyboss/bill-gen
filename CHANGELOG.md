@@ -61,7 +61,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Notes
 - Runtime behavior unchanged; fix targets TypeScript type resolution in monorepo workspaces.
-- Consider running `npm dedupe` at the repo root to reduce duplicate packages.
+    - Consider running `npm dedupe` at the repo root to reduce duplicate packages.
+
+## [x.x.x] - 2025-11-10 - 🔒 **Env validation + remove hardcoded URI (no behavior change)**
+
+### Changed
+- Removed hardcoded MongoDB Atlas URI fallback from `backend/src/config/database.ts`. The backend now requires `MONGODB_URI` to be provided via environment.
+- Added startup environment validation in `backend/src/server.ts` for:
+  - `NODE_ENV` presence
+  - `MONGODB_URI` presence
+  - `JWT_SECRET` length (>= 32 chars)
+  - `ENCRYPTION_KEY` length (>= 32 chars)
+  - `REDIS_URL` presence (required in production, optional in development)
+- Updated `backend/.env.example` with clarifying comments for each key.
+- Updated `backend/README.md` with an environment variables table and Quick Start recap.
+
+### Notes
+- No changes to routes, auth logic, schemas, or token behavior.
+- Production is safe: if Railway already has envs set, runtime behavior is unchanged.
+- Rollback: revert this commit; do not reintroduce any hardcoded Atlas URI fallback.
 
 ## [2.0.1] - 2025-11-09 - 🔧 **Env & Docs Cleanup**
 
