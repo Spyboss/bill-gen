@@ -209,3 +209,9 @@ For assistance with upgrades or migration:
 - **Developer**: [Uminda Herath](https://github.com/Spyboss)
 - **Email**: contact@uhadev.com
 - **Documentation**: [System Docs](./docs/README.md)
+## [2.0.7] - 2025-11-10 - 🔐 **Environment Secrets Cleanup**
+- Scrubbed real credentials from `backend/.env.production`, replacing with safe placeholders and clear instructions.
+- Strengthened `.gitignore` in root and backend to ignore `.env` and `.env.*` globally, while keeping example files tracked.
+- Updated `backend/.env.example` with guidance and generic domains; noted dev proxy behavior for CORS.
+- Updated `frontend/.env.example` to recommend using `VITE_API_URL=/api` for dev with Vite proxy and set local direct URL to `http://localhost:8080/api`.
+- Non-destructive: no production routes or database schema changes.
