@@ -17,7 +17,7 @@ export const createBill = async (req: AuthRequest, res: Response, next: NextFunc
   session.startTransaction();
   
   try {
-    logger.info('Received bill data:', req.body);
+    logger.info(`Received bill data`);
     
     const billData = req.body;
     
@@ -131,14 +131,14 @@ export const createBill = async (req: AuthRequest, res: Response, next: NextFunc
     await session.commitTransaction();
     session.endSession();
     
-    logger.info('Bill saved successfully:', savedBill);
+    logger.info('Bill saved successfully');
     res.status(201).json(savedBill);
   } catch (error) {
     // Abort transaction on error
     await session.abortTransaction();
     session.endSession();
     
-    logger.error('Error creating bill:', error);
+    logger.error(`Error creating bill: ${error instanceof Error ? error.message : String(error)}`);
     
     if (error instanceof mongoose.Error.ValidationError) {
       const messages = Object.values(error.errors).map(err => err.message);
@@ -223,7 +223,7 @@ export const updateBillStatus = async (req: AuthRequest, res: Response, next: Ne
     await session.abortTransaction();
     session.endSession();
     
-    logger.error('Error updating bill status:', error);
+    logger.error(`Error updating bill status: ${error instanceof Error ? error.message : String(error)}`);
     next(new AppError(`Failed to update bill status: ${(error as Error).message}`, 500));
   }
 };

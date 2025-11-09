@@ -142,9 +142,10 @@ export const generateQuotationPDF = async (quotation: IQuotation): Promise<Buffe
       }
 
       // Insurance details (if available)
-      if (quotation.insuranceDetails) {
+      const insurance = (quotation as any).insuranceDetails?.companyName ?? (quotation as any).insuranceDetails;
+      if (insurance) {
         doc.text('Insurance:', 50, yPos)
-           .text(quotation.insuranceDetails, 150, yPos);
+           .text(String(insurance), 150, yPos);
         yPos += lineHeight + (sectionSpacing * 2); // Double spacing before items section
       }
 

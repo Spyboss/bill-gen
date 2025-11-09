@@ -20,6 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sessions created pre-patch continue to refresh; on first refresh they migrate seamlessly to the new format.
 - Redis will show the old key revoked and the new key present with the correct TTL.
 
+## [x.x.x] - 2025-11-10 - 🧹 **TypeScript & Lint Hygiene**
+
+### Changed
+- Normalized logger call signatures to single-argument strings to satisfy TypeScript.
+- Cleaned up WebCrypto usage in `backend/src/server.ts` to use `node:crypto` `webcrypto`.
+- Fixed minor TypeScript typing in controllers and services (`Partial<IUserPreferences>`, PDFKit options).
+
+### Notes
+- No logic changes, routes, or data flow modifications.
+- No new dependencies; runtime behavior remains unchanged.
+
 ## [2.0.2] - 2025-11-09 - 🔧 **Env-Driven CORS & .env Consolidation**
 
 ### Changed

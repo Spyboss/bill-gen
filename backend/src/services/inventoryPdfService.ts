@@ -106,7 +106,7 @@ const generateInventoryHeader = (doc: PDFKit.PDFDocument, reportDate: Date): voi
      .text(`Date: ${reportDate.toLocaleDateString('en-GB')}`, 0, 85, { align: 'center' });
 
   // Add some space
-  doc.moveDown(1.5);
+  doc.moveDown();
 };
 
 /**
@@ -262,7 +262,7 @@ const generateActionItems = (doc: PDFKit.PDFDocument, insights: any[]): void => 
        .text(`• ${priority}:`, 50, itemY, { continued: true })
        .font('Helvetica')
        .fillColor('#000000')
-       .text(` ${insight.message}`, {
+       .text(` ${insight.message}`, undefined, undefined, {
          width: 500
        });
     itemY += 15;

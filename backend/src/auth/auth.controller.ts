@@ -173,7 +173,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (error && error.stack) {
       console.error('Stack trace:', error.stack);
     }
-    logger.error('Login error:', error);
+    logger.error(`Login error: ${error instanceof Error ? error.message : String(error)}`);
     res.status(500).json({ message: 'Error during login' });
   }
 };

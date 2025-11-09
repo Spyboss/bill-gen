@@ -1,75 +1,10 @@
-// Set up minimal crypto polyfill directly
+import { webcrypto as crypto } from 'node:crypto';
+// Ensure global WebCrypto is available using Node's built-in implementation
 if (typeof globalThis.crypto === 'undefined') {
-  console.log('Setting up minimal crypto polyfill');
-  globalThis.crypto = {
-    subtle: {
-      // Simple HMAC implementation
-      async importKey(format, keyData, algorithm, extractable, keyUsages) {
-        return { type: algorithm.name, key: keyData };
-      },
-
-      async sign(algorithm, key, data) {
-        console.log('Using minimal crypto.subtle.sign implementation');
-        // This is a very basic implementation and should be replaced with a proper one
-        return new Uint8Array(32); // Return a dummy signature
-      },
-
-      async verify(algorithm, key, signature, data) {
-        console.log('Using minimal crypto.subtle.verify implementation');
-        return true; // Always verify in this minimal implementation
-      }
-    },
-    getRandomValues: (array) => {
-      console.log('Using minimal crypto.getRandomValues implementation');
-      for (let i = 0; i < array.length; i++) {
-        array[i] = Math.floor(Math.random() * 256);
-      }
-      return array;
-    },
-    randomBytes: (size) => {
-      console.log('Using minimal crypto.randomBytes implementation');
-      const array = new Uint8Array(size);
-      for (let i = 0; i < size; i++) {
-        array[i] = Math.floor(Math.random() * 256);
-      }
-      return {
-        toString: (encoding) => {
-          if (encoding === 'hex') {
-            return Array.from(array)
-              .map(b => b.toString(16).padStart(2, '0'))
-              .join('');
-          }
-          return array.toString();
-        }
-      };
-    },
-    createHash: (algorithm) => {
-      console.log(`Using minimal crypto.createHash implementation with algorithm: ${algorithm}`);
-      let data = '';
-
-      return {
-        update: function(text) {
-          data += text;
-          return this;
-        },
-        digest: (encoding) => {
-          console.log(`Digesting with encoding: ${encoding}`);
-          // Simple hash function for fallback
-          let hash = 0;
-          for (let i = 0; i < data.length; i++) {
-            const char = data.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32bit integer
-          }
-
-          // Convert to hex string
-          const hashHex = (hash >>> 0).toString(16).padStart(8, '0');
-          // Pad to look like SHA-256
-          return hashHex.repeat(8).substring(0, 64);
-        }
-      };
-    }
-  };
+  // Assign Node.js WebCrypto when not present
+  // Cast to satisfy TypeScript in Node environment without changing runtime behavior
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).crypto = crypto;
 }
 
 // Try to import the crypto polyfill for additional functionality

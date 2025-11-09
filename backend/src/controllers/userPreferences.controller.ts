@@ -86,7 +86,7 @@ export const updateUserPreferences = async (req: AuthRequest, res: Response): Pr
 
     for (const field of allowedFields) {
       if (updates[field] !== undefined) {
-        updateFields[field as keyof IUserPreferences] = updates[field];
+        (updateFields as any)[field] = updates[field];
       }
     }
 
