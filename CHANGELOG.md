@@ -31,6 +31,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No logic changes, routes, or data flow modifications.
 - No new dependencies; runtime behavior remains unchanged.
 
+## [x.x.x] - 2025-11-10 - 🛡️ **Cross-Origin Cookie Policy & CSRF Checks (safe fallback)**
+
+### Changed
+- Cookies: In production, `refreshToken` is set with `SameSite=None; Secure; HttpOnly; Path=/` to support cross-origin auth from Cloudflare Pages.
+- CSRF: Added Origin/Referer validation for `/api/auth/refresh` and `/api/auth/logout` in production. Requests without a matching `Origin` or `Referer` return `403 Forbidden` and are logged via `logger.warn`.
+- CORS: Introduced `ALLOW_NO_ORIGIN` to control whether requests without an `Origin` header are permitted. When `false`, such requests are blocked; when unset or `true`, legacy behavior is preserved.
+- Allowlist reuse: Expose resolved `allowedOrigins` via `app.locals` for use in controllers.
+
+### Notes
+- No schema changes or API signature changes.
+- No new dependencies; existing behavior is preserved if `CORS_ORIGINS`/`ALLOW_NO_ORIGIN` are unset.
+- Safe fallback: If `CORS_ORIGINS` is not provided, the previous hardcoded allowlist remains in effect.
+
 ## [2.0.2] - 2025-11-09 - 🔧 **Env-Driven CORS & .env Consolidation**
 
 ### Changed

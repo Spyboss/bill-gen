@@ -22,12 +22,55 @@ interface AuthRequest extends Request {
 }
 
 // Cookie options for secure token storage
+const isProd = process.env.NODE_ENV === 'production';
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  secure: isProd,
+  // Ticket C: In production, set SameSite=None for cross-site refresh cookie
+  sameSite: (isProd ? 'none' : 'strict') as 'none' | 'strict',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: '/'
+};
+
+// Helper: derive allowed origins (reuse server allowlist when available)
+const getAllowedOrigins = (req: Request): string[] => {
+  const fromApp = (req.app?.locals?.allowedOrigins as string[] | undefined);
+  if (fromApp && Array.isArray(fromApp) && fromApp.length) return fromApp;
+
+  const defaultAllowedOrigins = [
+    'https://bill-gen-production.up.railway.app',
+    'https://gunawardanamotors.pages.dev',
+    'http://localhost:5173'
+  ];
+  const envCorsOrigins = process.env.CORS_ORIGINS;
+  return envCorsOrigins
+    ? envCorsOrigins.split(',').map(o => o.trim()).filter(Boolean)
+    : defaultAllowedOrigins;
+};
+
+// Helper: parse origin from header value (Origin or Referer)
+const parseOriginFromHeader = (value?: string): string | null => {
+  if (!value) return null;
+  try {
+    // Origin is already an origin; Referer may be a full URL
+    if (/^https?:\/\//i.test(value)) {
+      return new URL(value).origin;
+    }
+    return value;
+  } catch {
+    return null;
+  }
+};
+
+// CSRF check based on Origin/Referer for sensitive auth endpoints
+const passesCsrfCheck = (req: Request): boolean => {
+  if (process.env.NODE_ENV !== 'production') return true; // unchanged behavior in development
+  const allowed = getAllowedOrigins(req);
+  const originHeader = req.headers.origin as string | undefined;
+  const refererHeader = req.headers.referer as string | undefined;
+  const candidate = parseOriginFromHeader(originHeader) || parseOriginFromHeader(refererHeader);
+  if (!candidate) return false;
+  return allowed.includes(candidate);
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -180,6 +223,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 export const refreshAccessToken = async (req: Request, res: Response): Promise<void> => {
   try {
+    // Ticket C: CSRF mitigation using Origin/Referer allowlist in production
+    if (!passesCsrfCheck(req)) {
+      const attempted = (req.headers.origin || req.headers.referer || 'unknown') as string;
+      logger.warn(`Blocked CSRF attempt on /api/auth/refresh from ${attempted}`);
+      res.status(403).json({ message: 'Forbidden' });
+      return;
+    }
+
     // Get refresh token from cookies
     const refreshToken = req.cookies.refreshToken;
     const clientIp = req.ip || 'unknown';
@@ -243,6 +294,14 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
 
 export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    // Ticket C: CSRF mitigation using Origin/Referer allowlist in production
+    if (!passesCsrfCheck(req)) {
+      const attempted = (req.headers.origin || req.headers.referer || 'unknown') as string;
+      logger.warn(`Blocked CSRF attempt on /api/auth/logout from ${attempted}`);
+      res.status(403).json({ message: 'Forbidden' });
+      return;
+    }
+
     // Get refresh token from cookies
     const refreshToken = req.cookies.refreshToken;
     const clientIp = req.ip || 'unknown';

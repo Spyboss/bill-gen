@@ -164,6 +164,13 @@ VITE_APP_NAME=Gunawardhana Motors
 | [🔄 Workflows](./docs/workflow) | Business process documentation |
 | [🛠️ Development](./docs/development) | Setup and contribution guide |
 
+## 🔐 Cross-Origin Auth & CSRF Protection
+- Cookies: In production, the `refreshToken` cookie uses `SameSite=None; Secure; HttpOnly; Path=/` to support cross-origin auth from Cloudflare Pages.
+- CORS allowlist: Set `CORS_ORIGINS` (comma-separated) to control allowed origins. If unset, the backend falls back to a safe default allowlist.
+- CSRF checks: The `/api/auth/refresh` and `/api/auth/logout` endpoints require an `Origin` or `Referer` header that matches the allowlist in production. Mismatches or missing headers return `403 Forbidden` and are logged with `warn`.
+- No-Origin requests: Controlled by `ALLOW_NO_ORIGIN`. When `false`, requests without an `Origin` header are rejected. When unset or `true`, legacy behavior is preserved (allowed for CLI/internal tools).
+- Safe fallbacks: Development behavior remains unchanged; if `CORS_ORIGINS` is not set, the existing hardcoded allowlist is used.
+
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](./docs/development/README.md) for details.

@@ -128,6 +128,9 @@ const allowedOrigins = envCorsOrigins
 // Log CORS settings for debugging
 logger.info(`CORS Origins set to: ${allowedOrigins.join(', ')}`);
 
+// Expose allowed origins to the app for reuse (e.g., CSRF checks in controllers)
+app.locals.allowedOrigins = allowedOrigins;
+
 // Apply middlewares
 app.use(helmet({
   contentSecurityPolicy: {
@@ -158,20 +161,25 @@ applySecurityMiddleware(app);
 // Standard CORS middleware configuration
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests) for specific scenarios if needed,
-    // or enforce origin check strictly. For now, let's be strict.
-    if (!origin && process.env.NODE_ENV !== 'development') { // Allow no origin in dev for tools like Postman
-        // In production, you might want to block requests with no origin or handle them differently.
-        // For now, if there's no origin and it's not dev, let's assume it's not allowed for safety.
-        // return callback(new Error('Not allowed by CORS (no origin)'), false);
-        // Allowing no-origin for now, but this can be tightened.
-         return callback(null, true);
+    const allowNoOrigin = (process.env.ALLOW_NO_ORIGIN ?? 'true').toLowerCase() !== 'false';
+
+    // Handle requests with no Origin header (CLI/internal tools)
+    if (!origin) {
+      if (!allowNoOrigin) {
+        const msg = 'Not allowed by CORS (no Origin header)';
+        logger.warn(msg);
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
     }
-    if (origin && allowedOrigins.indexOf(origin) === -1) {
+
+    // Validate provided Origin against allowlist
+    if (allowedOrigins.indexOf(origin) === -1) {
       const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      logger.warn(msg); // Log denied origins
+      logger.warn(msg);
       return callback(new Error(msg), false);
     }
+
     return callback(null, true);
   },
   credentials: true, // Important for cookies, authorization headers with HTTPS
