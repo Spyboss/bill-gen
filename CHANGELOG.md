@@ -5,6 +5,21 @@ All notable changes to the Gunawardhana Motors Business Management System will b
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [x.x.x] - 2025-11-10 - 🔐 **Crypto correctness with compatibility window**
+
+### Changed
+- Replaced all insecure RNG/hash fallbacks in auth with `node:crypto`.
+- Token IDs and random values use `crypto.randomBytes(32).toString('hex')`.
+- Refresh token hashing uses `crypto.createHash('sha256').update(JWT_SECRET + value).digest('hex')`.
+- Added `LEGACY_REFRESH_ACCEPT=true` (default) to accept legacy refresh-token keys in Redis during verification.
+- On successful legacy refresh, the server rotates to a new refresh token (salted SHA-256 key) and revokes the old one.
+
+### Notes
+- No schema changes or route signature changes.
+- No new dependencies; runtime behavior remains stable (cookie options unchanged).
+- Sessions created pre-patch continue to refresh; on first refresh they migrate seamlessly to the new format.
+- Redis will show the old key revoked and the new key present with the correct TTL.
+
 ## [2.0.2] - 2025-11-09 - 🔧 **Env-Driven CORS & .env Consolidation**
 
 ### Changed

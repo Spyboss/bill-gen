@@ -1,23 +1,4 @@
-// Ensure we have a crypto object
-const crypto = globalThis.crypto || {
-  randomBytes: (size) => {
-    console.log('Using fallback randomBytes in jwt.strategy');
-    const array = new Uint8Array(size);
-    for (let i = 0; i < size; i++) {
-      array[i] = Math.floor(Math.random() * 256);
-    }
-    return {
-      toString: (encoding) => {
-        if (encoding === 'hex') {
-          return Array.from(array)
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
-        }
-        return array.toString();
-      }
-    };
-  }
-};
+import * as crypto from 'node:crypto';
 
 // Import jose
 import { SignJWT, jwtVerify } from 'jose';
@@ -25,22 +6,29 @@ import { getRedisClient } from '../config/redis.js';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
 
-console.log('typeof crypto at top of jwt.strategy:', typeof crypto);
-
-// 256-bit secret (32 chars) from env
-const getSecret = () => {
+// Helper to retrieve JWT secret as string and as Uint8Array
+const getJWTSecretString = (): string => {
   const secret = process.env.JWT_SECRET;
-
   if (!secret) {
     throw new Error('JWT_SECRET environment variable is required');
   }
-
   if (secret.length < 32) {
     throw new Error('JWT_SECRET must be at least 32 characters long');
   }
-
-  return new TextEncoder().encode(secret);
+  return secret;
 };
+
+// 256-bit secret (32 chars) from env
+const getSecret = () => new TextEncoder().encode(getJWTSecretString());
+
+// Salted SHA-256 hash helper (prefix salt)
+const saltedHash = (value: string): string => {
+  const secret = getJWTSecretString();
+  return crypto.createHash('sha256').update(secret + value).digest('hex');
+};
+
+// Feature flag to accept legacy refresh token keys (raw token stored in Redis)
+const LEGACY_REFRESH_ACCEPT = (process.env.LEGACY_REFRESH_ACCEPT ?? 'true').toLowerCase() !== 'false';
 
 // Environment-specific token settings
 const ACCESS_TOKEN_EXPIRY = process.env.NODE_ENV === 'production' ? '60m' : '60m';
@@ -52,8 +40,7 @@ const REFRESH_TOKEN_EXPIRY_SECONDS = process.env.NODE_ENV === 'production' ? 7 *
  * @returns Signed JWT token
  */
 export const createToken = async (userId: string): Promise<string> => {
-  console.log('typeof crypto in createToken:', typeof crypto);
-  const tokenId = crypto.randomBytes(16).toString('hex'); // Unique token ID for revocation
+  const tokenId = crypto.randomBytes(32).toString('hex'); // 256-bit ID for revocation
 
   return await new SignJWT({
     sub: userId,
@@ -74,17 +61,13 @@ export const createToken = async (userId: string): Promise<string> => {
  * @returns Secure random refresh token
  */
 export const createRefreshToken = (userId: string): string => {
-  const refreshToken = crypto.randomBytes(40).toString('hex');
+  const refreshToken = crypto.randomBytes(32).toString('hex');
 
   // Store refresh token in Redis with expiration
   try {
     const redis = getRedisClient();
-    redis.set(
-      `refresh:${refreshToken}`,
-      userId,
-      'EX',
-      REFRESH_TOKEN_EXPIRY_SECONDS
-    ).catch(error => {
+    const tokenKey = `refresh:${saltedHash(refreshToken)}`;
+    redis.set(tokenKey, userId, 'EX', REFRESH_TOKEN_EXPIRY_SECONDS).catch(error => {
       logger.error(`Failed to store refresh token: ${(error as Error).message}`);
     });
   } catch (error) {
@@ -183,7 +166,14 @@ export const revokeTokens = async (userId: string, expirySeconds = 86400): Promi
 export const verifyRefreshToken = async (refreshToken: string): Promise<string | null> => {
   try {
     const redis = getRedisClient();
-    const userId = await redis.get(`refresh:${refreshToken}`);
+    // Check new hashed key first
+    const hashedKey = `refresh:${saltedHash(refreshToken)}`;
+    let userId = await redis.get(hashedKey);
+
+    // Fallback to legacy raw token key if enabled
+    if (!userId && LEGACY_REFRESH_ACCEPT) {
+      userId = await redis.get(`refresh:${refreshToken}`);
+    }
 
     // If no user ID found, token is invalid or expired
     if (!userId) {
@@ -204,6 +194,9 @@ export const verifyRefreshToken = async (refreshToken: string): Promise<string |
 export const revokeRefreshToken = async (refreshToken: string): Promise<void> => {
   try {
     const redis = getRedisClient();
+    // Attempt to delete both new hashed and legacy raw keys
+    const hashedKey = `refresh:${saltedHash(refreshToken)}`;
+    await redis.del(hashedKey);
     await redis.del(`refresh:${refreshToken}`);
   } catch (error) {
     logger.error(`Refresh token revocation error: ${(error as Error).message}`);

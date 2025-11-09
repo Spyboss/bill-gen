@@ -1,58 +1,4 @@
-// Ensure we have a crypto object with all required functions
-const crypto = globalThis.crypto || {};
-
-// Add createHash if it doesn't exist
-if (!crypto.createHash) {
-  console.log('Adding createHash implementation to crypto in auth.controller');
-  crypto.createHash = (algorithm) => {
-    console.log(`Using fallback createHash with algorithm: ${algorithm}`);
-    let data = '';
-
-    return {
-      update: function(text) {
-        data += text;
-        return this;
-      },
-      digest: (encoding) => {
-        console.log(`Digesting with encoding: ${encoding}`);
-        // Simple hash function for fallback
-        let hash = 0;
-        for (let i = 0; i < data.length; i++) {
-          const char = data.charCodeAt(i);
-          hash = ((hash << 5) - hash) + char;
-          hash = hash & hash; // Convert to 32bit integer
-        }
-
-        // Convert to hex string
-        const hashHex = (hash >>> 0).toString(16).padStart(8, '0');
-        // Pad to look like SHA-256
-        return hashHex.repeat(8).substring(0, 64);
-      }
-    };
-  };
-}
-
-// Add randomBytes if it doesn't exist
-if (!crypto.randomBytes) {
-  console.log('Adding randomBytes implementation to crypto in auth.controller');
-  crypto.randomBytes = (size) => {
-    console.log(`Using fallback randomBytes with size: ${size}`);
-    const array = new Uint8Array(size);
-    for (let i = 0; i < size; i++) {
-      array[i] = Math.floor(Math.random() * 256);
-    }
-    return {
-      toString: (encoding) => {
-        if (encoding === 'hex') {
-          return Array.from(array)
-            .map(b => b.toString(16).padStart(2, '0'))
-            .join('');
-        }
-        return array.toString();
-      }
-    };
-  };
-}
+import * as crypto from 'node:crypto';
 
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User.js';
@@ -67,7 +13,6 @@ import {
 import { Types } from 'mongoose';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
-console.log('typeof crypto at top of auth.controller:', typeof crypto);
 
 // Define the extended Request type with user property
 interface AuthRequest extends Request {
@@ -258,7 +203,11 @@ export const refreshAccessToken = async (req: Request, res: Response): Promise<v
     // Find the user to validate token
     const user = await User.findById(userId).select('+refreshTokenHash');
 
-    if (!user || !user.refreshTokenHash || user.refreshTokenHash !== hashToken(refreshToken)) {
+    const acceptLegacy = (process.env.LEGACY_REFRESH_ACCEPT ?? 'true').toLowerCase() !== 'false';
+    const matchesNew = user && user.refreshTokenHash === hashToken(refreshToken);
+    const matchesLegacy = user && acceptLegacy && user.refreshTokenHash === hashTokenLegacy(refreshToken);
+
+    if (!user || !user.refreshTokenHash || (!matchesNew && !matchesLegacy)) {
       // Track suspicious refresh token activity
       securityMonitor.trackApiAnomaly(userId, clientIp, 'REFRESH:TOKEN_MISMATCH');
 
@@ -495,9 +444,13 @@ const securityDelay = async (): Promise<void> => {
  * This prevents an attacker who gains access to the database from being able to use the tokens
  */
 const hashToken = (token: string): string => {
-  return crypto.createHash('sha256')
-    .update(token + process.env.JWT_SECRET)
-    .digest('hex');
+  const secret = process.env.JWT_SECRET || '';
+  return crypto.createHash('sha256').update(secret + token).digest('hex');
+};
+
+const hashTokenLegacy = (token: string): string => {
+  const secret = process.env.JWT_SECRET || '';
+  return crypto.createHash('sha256').update(token + secret).digest('hex');
 };
 
 /**

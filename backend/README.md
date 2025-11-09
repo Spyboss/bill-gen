@@ -93,6 +93,7 @@ The backend requires the following environment variables. Copy `backend/.env.exa
 | `CORS_ORIGINS` | No | Comma-separated allowed origins. Defaults to safe list if unset. |
 | `COOKIE_SECRET` | No | Secret for signing cookies where applicable. |
 | `LOG_LEVEL` | No | `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`. Defaults to `info`. |
+| `LEGACY_REFRESH_ACCEPT` | No | `true`/`false`. Default `true`. Accept legacy refresh tokens stored as raw keys in Redis; sessions migrate on first use. |
 
 ### Quick Start Recap
 
@@ -206,3 +207,10 @@ npm run test:coverage
 ## 📄 License
 
 MIT - see [LICENSE](../LICENSE) for details.
+## 🔐 Crypto & Tokens
+
+- Access tokens: signed JWT (`HS256`) using `JWT_SECRET`.
+- Token IDs and random values: `node:crypto` `randomBytes(32)` hex.
+- Refresh tokens: opaque strings, rotated on refresh; stored in Redis.
+- Hashing: `sha256(secret + value)` where `secret = JWT_SECRET`.
+- Compatibility: When `LEGACY_REFRESH_ACCEPT=true` (default), refresh verification accepts either the new salted-hash key or the legacy raw token key in Redis. If a legacy token is used, the API revokes the old key, issues a new refresh token hashed the new way, and sets it in the cookie.
