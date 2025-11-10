@@ -22,17 +22,30 @@ What started as a simple bill generator has evolved into a **full-featured busin
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │    Backend      │    │    Database     │
-│   React + Vite  │◄──►│  Node.js + TS   │◄──►│  MongoDB Atlas  │
-│   Cloudflare    │    │    Railway      │    │   + Encryption  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                           Cloudflare Pages                             │
+│ React + Vite SPA │ Build hooks from main │ Edge caching + image proxy │
+└────────────▲───────────────────────────────────────────────────────────┘
+             │ HTTPS (public)
+             │
+┌────────────┴─────────────┐      ┌──────────────────────────────────────┐
+│  Cloudflare Zero Trust   │─────►│   Railway (Node.js + Express API)    │
+│  Origin rules + WAF      │      │   Horizontal scaling via autoscaler  │
+└────────────▲─────────────┘      │   Background jobs (bullmq + Redis)   │
+             │                    └────────────▲─────────────────────────┘
+             │ HTTPS (private)
+             │
+┌────────────┴─────────────┐      ┌──────────────────────────────────────┐
+│      MongoDB Atlas       │◄────►│    Redis Cloud (session cache)       │
+│  Global cluster (M10)    │      │  Ephemeral queues + rate limiting    │
+└──────────────────────────┘      └──────────────────────────────────────┘
 ```
 
-- **Frontend**: Modern React SPA with TypeScript, TailwindCSS, and Ant Design
-- **Backend**: Scalable Node.js API with TypeScript, Express, and comprehensive security
-- **Database**: MongoDB Atlas with field-level encryption for sensitive data
-- **Deployment**: Cloudflare Pages (Frontend) + Railway (Backend)
+- **Frontend**: Modern React SPA with TypeScript, TailwindCSS, and Ant Design. Built on every merge to `main` and pushed to Cloudflare Pages, which serves static assets through its global CDN while enforcing Zero-Trust access for preview environments.
+- **Backend**: Node.js + TypeScript API deployed to Railway using rolling deployments. Railway manages container restarts on crash and auto-scales between 0–3 instances based on CPU and memory. Express routes use layered middleware for auth, rate limiting, and validation.
+- **Data Layer**: MongoDB Atlas hosts the operational database with regional failover; encryption-at-rest and field-level encryption protect customer identity numbers and payment metadata. Redis Cloud provides ephemeral storage for sessions, job queues, and throttle counters; it is treated as a disposable cache with automatic rehydration logic in the API.
+- **Deployment Flow**: GitHub Actions packages the backend and frontend. Successful test runs trigger Railway/Cloudflare deploy hooks; production promotes only after smoke checks succeed on staging URLs.
+- **Operational Guardrails**: All services emit structured logs to Railway's log drains; Cloudflare analytics provide edge performance metrics. A status dashboard (Better Stack) monitors HTTP 5xx rates, queue depth, and MongoDB primary health.
 
 ## ✨ Core Features
 
@@ -122,6 +135,11 @@ What started as a simple bill generator has evolved into a **full-featured busin
 - **Database**: MongoDB Atlas with global clusters
 - **CDN**: Cloudflare for optimal performance
 
+### Runtime Topology & Data Flow
+- **Request path**: The SPA calls the Railway API over HTTPS. Requests first pass through Cloudflare's WAF/Zero-Trust rules, then reach the active Railway instance. Authenticated calls validate the JWT against Redis, query MongoDB for the primary document, and publish events back to Redis queues for downstream jobs (PDF generation, email notifications).
+- **Asynchronous jobs**: Long-running tasks (PDF rendering, stock reconciliation) run as BullMQ workers within the same Railway project. They consume queue messages from Redis and write results (signed URLs, inventory deltas) back into MongoDB. Failures retry with exponential backoff up to 5 attempts before surfacing alerts.
+- **File storage**: Generated PDFs are persisted to Cloudflare R2 via signed upload URLs, with references stored in MongoDB. Expired artifacts are purged nightly by a scheduled worker.
+
 ### Environment Configuration
 
 <details>
@@ -145,6 +163,18 @@ NODE_ENV=production
 PORT=8080
 ```
 </details>
+
+### Scalability & Resilience
+- **Horizontal scaling**: Railway's autoscaler spins up additional API containers when CPU exceeds 70% for 3 minutes. The application is stateless; session data and cache layers live in Redis, so new instances can join immediately.
+- **Cold starts**: Idle scaling may pause all instances overnight. Cloudflare health checks send synthetic traffic every 5 minutes to keep the API warm during business hours.
+- **Failure modes**: Redis outages degrade to read-only operations—billing actions requiring queues are blocked, and the frontend surfaces maintenance banners. MongoDB failover typically completes within 30s; the API retries connections with jittered backoff.
+- **Disaster recovery**: Nightly backups from MongoDB Atlas and weekly configuration exports from Cloudflare/Railway are stored in S3 with 30-day retention. Runbooks in `docs/workflow/` describe manual recovery.
+
+### Observability & Operations
+- **Logging**: Application logs use pino JSON format and ship to Railway's log drains; Cloudflare produces edge logs for cache misses. Critical actions include correlation IDs propagated via the `x-request-id` header.
+- **Metrics**: Prometheus-compatible metrics are exposed at `/api/metrics` (auth-protected) and scraped by Better Stack every 60s. Key indicators include bill creation latency (p95 < 1.2s) and queue delay (< 15s).
+- **Alerts**: PagerDuty incidents trigger when HTTP 5xx > 3% for 5 minutes or queue depth exceeds 200 jobs. MongoDB sends emails for replica set elections or storage pressure.
+- **Debugging**: For production issues, tail logs via Railway CLI, inspect queue states with `bull-board` (behind VPN), and replay failed jobs by re-enqueueing documents via the admin console.
 
 <details>
 <summary><strong>Frontend Environment Variables</strong></summary>
