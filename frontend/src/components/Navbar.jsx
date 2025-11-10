@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext'; // Import useTheme
+import VerificationBadge from './VerificationBadge';
 
 export default function Navbar() {
   const location = useLocation();
@@ -127,6 +128,11 @@ export default function Navbar() {
               )}
             </button>
 
+            {/* Verification Badge shown when logged in */}
+            {isAuthenticated && (
+              <VerificationBadge className="mr-4 cursor-pointer" hideWhenDisabled={false} />
+            )}
+
             {isAuthenticated ? (
               <div className="ml-3 relative">
                 <div>
@@ -168,6 +174,11 @@ export default function Navbar() {
                       Signed in as <span className="font-semibold">{user?.email}</span>
                     </div>
 
+                    {/* Inline verification status badge */}
+                    <div className="px-4 py-2">
+                      <VerificationBadge className="cursor-pointer" hideWhenDisabled={false} />
+                    </div>
+
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
@@ -182,6 +193,15 @@ export default function Navbar() {
                       onClick={() => setUserMenuOpen(false)}
                     >
                       Settings
+                    </Link>
+
+                    {/* Prominent Verify Email link */}
+                    <Link
+                      to="/verify"
+                      className="block px-4 py-2 text-sm text-yellow-800 hover:bg-yellow-50 dark:text-yellow-300 dark:hover:bg-yellow-700"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      Verify Email
                     </Link>
 
                     <button
@@ -298,6 +318,10 @@ export default function Navbar() {
               <div className="text-sm font-medium text-gray-500 dark:text-gray-400">{user?.role}</div>
             </div>
           </div>
+          <div className="px-4 py-2">
+            {/* Mobile verification badge */}
+            <VerificationBadge className="cursor-pointer" hideWhenDisabled={false} />
+          </div>
           <div className="mt-3 space-y-1">
             <Link
               to="/"
@@ -356,6 +380,15 @@ export default function Navbar() {
               onClick={() => setUserMenuOpen(false)}
             >
               Settings
+            </Link>
+
+            {/* Mobile Verify Email entry */}
+            <Link
+              to="/verify"
+              className="block px-4 py-2 text-base font-medium text-yellow-800 hover:text-yellow-900 hover:bg-yellow-50 dark:text-yellow-300 dark:hover:text-yellow-200 dark:hover:bg-yellow-700"
+              onClick={() => setUserMenuOpen(false)}
+            >
+              Verify Email
             </Link>
             <button
               className="w-full text-left block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700"

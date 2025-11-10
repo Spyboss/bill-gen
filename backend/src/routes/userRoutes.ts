@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../auth/auth.middleware.js';
+import { enforceVerification } from '../auth/verification-enforce.middleware.js';
 import * as userPreferencesController from '../controllers/userPreferences.controller.js';
 import * as userActivityController from '../controllers/userActivity.controller.js';
 import {
@@ -11,6 +12,8 @@ const router = Router();
 
 // All routes require authentication
 router.use(authenticate);
+// Enforce verification on private user routes (flag-gated, admin/legacy bypass)
+router.use(enforceVerification);
 
 /**
  * User Preferences Routes

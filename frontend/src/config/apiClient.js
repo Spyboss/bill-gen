@@ -23,6 +23,28 @@ class ApiClient {
         'Content-Type': 'application/json'
       }
     });
+
+    // Friendly 403 interceptor: redirect users to verification flow when required
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        try {
+          const status = error?.response?.status;
+          const data = error?.response?.data;
+          if (
+            status === 403 &&
+            data && data.code === 'EMAIL_NOT_VERIFIED' && data.friendly === true
+          ) {
+            const verifyUrl = typeof data.verifyUrl === 'string' ? data.verifyUrl : '/verify';
+            // Dispatch a global event for the app to handle navigation/UX
+            window.dispatchEvent(new CustomEvent('email-verification-required', { detail: { url: verifyUrl } }));
+          }
+        } catch (_) {
+          // no-op
+        }
+        return Promise.reject(error);
+      }
+    );
   }
   
   getFullUrl(url) {
@@ -194,4 +216,4 @@ class ApiClient {
 
 const apiClient = new ApiClient();
 
-export default apiClient; 
+export default apiClient;

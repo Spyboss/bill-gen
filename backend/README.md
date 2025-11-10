@@ -94,6 +94,12 @@ The backend requires the following environment variables. Copy `backend/.env.exa
 | `COOKIE_SECRET` | No | Secret for signing cookies where applicable. |
 | `LOG_LEVEL` | No | `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`. Defaults to `info`. |
 | `LEGACY_REFRESH_ACCEPT` | No | `true`/`false`. Default `true`. Accept legacy refresh tokens stored as raw keys in Redis; sessions migrate on first use. |
+| `EMAIL_VERIFICATION_ENABLED` | No | Feature flag. Default `false`. When `true`, enables email verification endpoints. |
+| `VERIFICATION_TOKEN_TTL_MINUTES` | No | Token expiration in minutes. Default `30`. |
+| `PUBLIC_BASE_URL` | No | Frontend base URL used to build verification links. Default `https://gunawardanamotors.pages.dev`. |
+| `EMAIL_PROVIDER` | No | Mailer provider: `resend` or `console`. Default `console`. |
+| `EMAIL_FROM` | No | From address for emails. Default `Gunawardhana Motors <no-reply@gunawardanamotors.lk>`. |
+| `RESEND_API_KEY` | No | API key for Resend provider. |
 
 ### Quick Start Recap
 
@@ -119,6 +125,8 @@ This starts both the API and MongoDB services in containers.
 | POST | `/api/auth/register` | User registration |
 | POST | `/api/auth/refresh` | Refresh access token |
 | POST | `/api/auth/logout` | User logout |
+| POST | `/api/auth/verify/request` | Request email verification (no-op if disabled) |
+| POST | `/api/auth/verify/confirm` | Confirm email verification (no-op if disabled) |
 
 ### Bills Management
 | Method | Endpoint | Description |

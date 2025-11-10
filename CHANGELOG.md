@@ -5,6 +5,68 @@ All notable changes to the Gunawardhana Motors Business Management System will b
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.7] - 2025-11-10 - 🚀 Production Readiness & Deployment Checklist
+
+### Added
+- Documented production environment configuration for Railway (backend) and Cloudflare Pages (frontend).
+- Clarified required env keys and safe defaults across both apps:
+  - Backend: `NODE_ENV`, `MONGODB_URI`, `JWT_SECRET`, `ENCRYPTION_KEY`, `REDIS_URL`, `CORS_ORIGINS`.
+  - Frontend: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_APP_DESCRIPTION`.
+- Captured operational steps for admin bootstrap using `POST /api/auth/create-admin` gated by `ADMIN_SETUP_KEY` (no code change).
+
+### Changed
+- Updated docs to reflect cross-origin cookie policy (SameSite=None; Secure) and CORS allowlist behavior already present in code.
+- Ensured example `.env` files contain placeholders only; no real secrets are tracked.
+
+### Notes
+- No schema changes, route removals, or new dependencies.
+- Compatible with existing MongoDB data; environment-only configuration drives behavior.
+- This entry documents production readiness and deployment steps performed prior to push.
+
+## [x.x.x] - 2025-11-10 - ✉️ Email Verification Integration (non-breaking)
+
+### Added
+- Optional email verification flow behind feature flag (no enforcement).
+- Registration now triggers a verification email when enabled (fail-open).
+- New endpoints under `/api/auth/verify`:
+  - `POST /api/auth/verify/request` – issues a verification email if enabled.
+  - `POST /api/auth/verify/confirm` – confirms verification if enabled.
+  - `GET /api/auth/verify/status` – authenticated status query for the current user.
+- Redis-backed verification token service with salted SHA-256 keys.
+- `EmailVerificationStatus` model to track verification without altering `User` schema.
+- Verification rate limiter (soft enforcement) for request/confirm endpoints.
+- Mailer provider switch: `resend` primary, `console` fallback in development.
+
+### Configuration
+- `EMAIL_VERIFICATION_ENABLED` (default `false`) to gate entire feature.
+- `VERIFICATION_TOKEN_TTL_MINUTES` (default `30`).
+- `PUBLIC_BASE_URL` used to construct verification links.
+- `EMAIL_PROVIDER` (`resend` or `console`), `EMAIL_FROM`, `RESEND_API_KEY`.
+
+### Notes
+- No changes to existing login/refresh/logout/admin behavior.
+- Verification is optional and does not restrict users.
+
+## [x.x.x] - 2025-11-10 - 🚦 Email Verification Enforcement (flag-gated)
+
+### Added
+- Enforcement middleware `enforceVerification` (flag-gated) returning friendly `403` for non-verified users on private routes.
+- Admin bypass: `UserRole.ADMIN` is always exempt.
+- Legacy bypass: accounts created before `EMAIL_VERIFICATION_ENFORCE_CUTOFF_ISO` are exempt (no schema change).
+
+### Configuration
+- `EMAIL_VERIFICATION_ENFORCE` (default `false`) — enables friendly `403` enforcement.
+- `EMAIL_VERIFICATION_ENFORCE_CUTOFF_ISO` — ISO 8601 date; users created before this are treated as legacy and bypass enforcement.
+
+### Routing
+- Applied to private auth routes: `/api/auth/me`, `/api/auth/profile`, `/api/auth/password`.
+- Applied to user routes under `/api/user/*` after authentication.
+- Not applied to `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout`, or `/api/auth/verify/*`.
+
+### Notes
+- Non-breaking when flag is `false` (default). Login/refresh/admin remain unchanged.
+- Fail-open on errors; enforcement never blocks due to internal failures or provider outages.
+
 ## [x.x.x] - 2025-11-10 - 🔐 **Crypto correctness with compatibility window**
 
 ### Changed
@@ -154,6 +216,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Rate Limiting**: API abuse prevention with configurable limits
 - **Security Monitoring**: Real-time threat detection and logging
 
+## [2.0.7] - 2025-11-10 - 🎯 **Frontend Email Verification UI & Interceptors**
+
+### Added
+- Public route `/verify` with Confirm and Request modes.
+- `VerificationBadge` component that queries `GET /api/auth/verify/status` and indicates verified/unverified state.
+- Typed verification service (`frontend/src/services/verification.ts`) exposing `requestVerification`, `confirmVerification`, and `getVerificationStatus` matching backend payloads.
+- Friendly 403 handler in `frontend/src/config/apiClient.js`: detects `403` with `error.code = 'EMAIL_NOT_VERIFIED'` and dispatches a global `email-verification-required` event with `verifyUrl`.
+
+### Changed
+- `frontend/src/App.jsx`: registers a global listener for `email-verification-required` to show a toast and navigate to `/verify`; adds `/verify` as a public route.
+
+### Notes
+- Non-breaking UI change; existing login/refresh/logout flows remain unchanged.
+- Backend enforcement remains gated by `EMAIL_VERIFICATION_ENFORCE` and respects legacy/admin bypass.
+- Frontend expects friendly 403 payload shape `{ error: { code, message, verifyUrl } }` and status payload `{ report: { isVerified } }`.
+
 #### 🎨 **User Experience**
 - **Dark/Light Themes**: Consistent theming across all components
 - **Responsive Design**: Optimized for desktop, tablet, and mobile devices
@@ -188,6 +266,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Railway Backend**: Scalable backend hosting with automatic deployments
 - **MongoDB Atlas**: Cloud database with global clusters and encryption
 - **Docker Support**: Containerized development and deployment
+
+## [2.0.8] - 2025-11-10 - 🧩 **Verification UI Wiring & Styling Consistency**
+
+### Added
+- Integrated `VerificationBadge` into the Navbar header (desktop) and user dropdown (desktop/mobile) for immediate visibility of verification status.
+- Added a dedicated "Verification" tab on the Profile page with:
+  - Status badge sourced from `GET /api/auth/verify/status`.
+  - Clear CTA linking to the public `/verify` page.
+
+### Changed
+- Unified `/verify` page layout and form styling to match `/login` and `/register` (containers, inputs, buttons, message components).
+- Added toast notifications to `/login` and `/register` for validation, success, and error feedback, aligning with the `/verify` page’s `react-hot-toast` usage.
+
+### Notes
+- No backend logic changes; respects existing feature flags and enforcement rules.
+- Public/private route gating left intact via `ProtectedRoute` and friendly `403` interception.
 
 ### 🔄 **Migration & Compatibility**
 - **Data Migration**: Automatic migration scripts for existing data
@@ -272,3 +366,24 @@ For assistance with upgrades or migration:
 - Updated `backend/.env.example` with guidance and generic domains; noted dev proxy behavior for CORS.
 - Updated `frontend/.env.example` to recommend using `VITE_API_URL=/api` for dev with Vite proxy and set local direct URL to `http://localhost:8080/api`.
 - Non-destructive: no production routes or database schema changes.
+## [x.x.x] - 2025-11-10 - ✉️ Email Verification Scaffolding (feature-gated)
+
+### Added
+- New optional endpoints under `/api/auth/verify`:
+  - `POST /api/auth/verify/request` – issues a verification email if enabled.
+  - `POST /api/auth/verify/confirm` – confirms verification if enabled.
+- Redis-backed verification token service with salted SHA-256 keys (`verify:<hash>`).
+- Non-invasive `EmailVerificationStatus` model to track verification without altering `User` schema.
+- Dedicated verification rate limiter (soft enforcement) to avoid blocking legitimate users.
+- Mailer service with provider switch: `resend` via dynamic import or `console` fallback.
+
+### Configuration
+- Feature flag: `EMAIL_VERIFICATION_ENABLED=false` by default (no-op behavior).
+- `VERIFICATION_TOKEN_TTL_MINUTES=30` default TTL.
+- `EMAIL_PROVIDER` (`resend` or `console`), `EMAIL_FROM`, `RESEND_API_KEY`.
+- `PUBLIC_BASE_URL` used to construct verification links.
+
+### Notes
+- No changes to existing auth behavior, cookies, or admin flows.
+- Legacy users and sessions remain fully functional; verification disabled by default.
+- Safe to roll back by removing routes and files introduced in this patch.

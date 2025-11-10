@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,6 +16,7 @@ const Login = () => {
     
     if (!email || !password) {
       setError('Please enter both email and password');
+      toast.error('Please enter both email and password');
       return;
     }
 
@@ -22,9 +24,13 @@ const Login = () => {
       const success = await login(email, password);
       if (!success) {
         setError('Failed to login. Please check your credentials.');
+        toast.error('Failed to login. Please check your credentials.');
+      } else {
+        toast.success('Signed in successfully');
       }
     } catch (err) {
       setError(err.message || 'An error occurred during login');
+      toast.error(err.message || 'An error occurred during login');
     }
   };
 

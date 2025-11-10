@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ const Register = () => {
     // Basic validation
     if (!email || !password || !confirmPassword) {
       setError('Email and password are required');
+      toast.error('Email and password are required');
       return;
     }
 
@@ -36,18 +38,21 @@ const Register = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
+      toast.error('Please enter a valid email address');
       return;
     }
 
     // Password validation
     if (password.length < 8) {
       setError('Password must be at least 8 characters long');
+      toast.error('Password must be at least 8 characters long');
       return;
     }
 
     // Password match validation
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
@@ -65,9 +70,13 @@ const Register = () => {
       const success = await register(userData);
       if (!success) {
         setError('Failed to create account. Please try again.');
+        toast.error('Failed to create account. Please try again.');
+      } else {
+        toast.success('Account created. Please verify your email to continue.');
       }
     } catch (err) {
       setError(err.message || 'An error occurred during registration');
+      toast.error(err.message || 'An error occurred during registration');
     }
   };
 

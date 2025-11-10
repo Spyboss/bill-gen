@@ -13,6 +13,8 @@ import {
 import { Types } from 'mongoose';
 import logger from '../utils/logger.js';
 import securityMonitor from '../utils/security-monitor.js';
+import { createVerificationToken } from './verification.service.js';
+import { sendMail } from '../services/mailer.service.js';
 
 // Define the extended Request type with user property
 interface AuthRequest extends Request {
@@ -30,6 +32,13 @@ const cookieOptions = {
   sameSite: (isProd ? 'none' : 'strict') as 'none' | 'strict',
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: '/'
+};
+
+// Helper to build verification link for frontend
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL ?? 'https://gunawardanamotors.pages.dev';
+const buildVerifyLink = (email: string, token: string): string => {
+  const base = PUBLIC_BASE_URL.replace(/\/$/, '');
+  return `${base}/verify?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
 };
 
 // Helper: derive allowed origins (reuse server allowlist when available)
@@ -112,6 +121,25 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.cookie('refreshToken', refreshToken, cookieOptions);
 
     logger.info(`User registered: ${user._id} (${email})`);
+
+    // Attempt to send verification email (fail-open, non-blocking for user flows)
+    try {
+      const payload = await createVerificationToken(user.email, user._id.toString());
+      if (payload) {
+        const link = buildVerifyLink(user.email, payload.token);
+        const { success, error } = await sendMail({
+          to: user.email,
+          subject: 'Verify your email address',
+          html: `<p>Hello,</p><p>Please verify your email address by clicking the link below:</p><p><a href="${link}">Verify Email</a></p><p>This link expires in ${process.env.VERIFICATION_TOKEN_TTL_MINUTES ?? 30} minutes.</p>`,
+          text: `Verify your email: ${link}`
+        });
+        if (!success) {
+          logger.warn(`Post-registration verification email failed for ${user.email}: ${error}`);
+        }
+      }
+    } catch (err) {
+      logger.warn(`Post-registration verification send error for ${user.email}: ${(err as Error).message}`);
+    }
 
     res.status(201).json({
       message: 'User registered successfully',

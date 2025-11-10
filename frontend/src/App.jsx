@@ -1,6 +1,6 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { Toaster, toast } from 'react-hot-toast';
 import { ConfigProvider, theme as antdTheme } from 'antd'; // Import antd ConfigProvider and theme
 import Navbar from './components/Navbar';
 import BillForm from './pages/BillForm';
@@ -17,6 +17,7 @@ import QuotationList from './pages/QuotationList';
 import QuotationView from './pages/QuotationView';
 import QuotationEdit from './pages/QuotationEdit';
 import Register from './pages/auth/Register';
+import Verify from './pages/Verify';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'; // Import ThemeProvider and useTheme
 import ProtectedRoute from './components/ProtectedRoute';
@@ -60,6 +61,30 @@ const ProtectedProfilePage = () => <ProtectedRoute><ProfilePage /></ProtectedRou
 // Inner component to access ThemeContext and apply Ant Design theme
 const AppContent = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
+
+  // Listen for friendly 403 events and route to /verify
+  useEffect(() => {
+    const handler = (e) => {
+      const url = e?.detail?.url || '/verify';
+      toast((t) => (
+        <span>
+          Please verify your email to access this feature.{' '}
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              navigate(url);
+            }}
+            className="text-blue-600 hover:text-blue-800 dark:text-blue-400"
+          >
+            Verify now
+          </button>
+        </span>
+      ));
+    };
+    window.addEventListener('email-verification-required', handler);
+    return () => window.removeEventListener('email-verification-required', handler);
+  }, [navigate]);
 
   return (
     <ConfigProvider
@@ -76,6 +101,7 @@ const AppContent = () => {
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/verify" element={<Verify />} />
 
             {/* Protected routes */}
             <Route path="/" element={<ProtectedDashboard />} />
