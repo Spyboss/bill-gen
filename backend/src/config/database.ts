@@ -7,7 +7,7 @@ let cachedDb: Db | null = null;
 
 // Define the MongoDB URI strictly from environment
 const MONGODB_URI = process.env.MONGODB_URI as string;
-const DB_NAME = process.env.MONGODB_DB_NAME || 'bill-gen';
+const DB_NAME = process.env.MONGODB_DB_NAME || 'tmr';
 
 // Connect to MongoDB directly using MongoDB client
 export const connectToDatabase = async (): Promise<Db> => {

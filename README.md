@@ -9,7 +9,7 @@
 
 **A comprehensive business management solution for motorcycle dealerships**
 
-[🚀 Live Demo](https://gunawardanamotors.pages.dev) • [📖 Documentation](./docs) • [🐛 Report Bug](https://github.com/your-repo/issues)
+[🚀 Live Demo](https://tmr-tradinglanka.pages.dev) • [📖 Documentation](./docs) • [🐛 Report Bug](https://github.com/your-repo/issues)
 
 </div>
 
@@ -130,8 +130,8 @@ What started as a simple bill generator has evolved into a **full-featured busin
 ## 🌐 Production Deployment
 
 ### Current Infrastructure
-- **Frontend**: [Cloudflare Pages](https://gunawardanamotors.pages.dev)
-- **Backend**: [Railway](https://bill-gen-production.up.railway.app)
+- **Frontend**: [Cloudflare Pages](https://tmr-tradinglanka.pages.dev)
+- **Backend**: [Railway](https://tmr-production.up.railway.app)
 - **Database**: MongoDB Atlas with global clusters
 - **CDN**: Cloudflare for optimal performance
 
@@ -156,7 +156,7 @@ JWT_REFRESH_SECRET=your-refresh-secret
 
 # Security
 ENCRYPTION_KEY=your-encryption-key
-CORS_ORIGINS=https://gunawardanamotors.pages.dev
+CORS_ORIGINS=https://tmr-tradinglanka.pages.dev
 
 # Application
 NODE_ENV=production
@@ -180,7 +180,7 @@ PORT=8080
 <summary><strong>Frontend Environment Variables</strong></summary>
 
 ```env
-VITE_API_URL=https://bill-gen-production.up.railway.app
+VITE_API_URL=https://tmr-production.up.railway.app
 VITE_APP_NAME=Gunawardhana Motors
 ```
 </details>

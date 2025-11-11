@@ -50,8 +50,8 @@ export const createToken = async (userId: string): Promise<string> => {
     .setIssuedAt()
     .setNotBefore(Math.floor(Date.now() / 1000)) // Valid from now
     .setExpirationTime(ACCESS_TOKEN_EXPIRY)
-    .setIssuer('bill-gen-api')
-    .setAudience('bill-gen-client')
+    .setIssuer('tmr-api')
+    .setAudience('tmr-client')
     .sign(getSecret());
 };
 
@@ -85,8 +85,8 @@ export const createRefreshToken = (userId: string): string => {
 export const verifyToken = async (token: string) => {
   try {
     const { payload } = await jwtVerify(token, getSecret(), {
-      issuer: 'bill-gen-api',
-      audience: 'bill-gen-client',
+      issuer: 'tmr-api',
+      audience: 'tmr-client',
     });
 
     if (!payload.sub) {

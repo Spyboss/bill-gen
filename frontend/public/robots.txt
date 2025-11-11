@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gunawardanamotors.pages.dev/sitemap.xml
+Sitemap: https://tmr-tradinglanka.pages.dev/sitemap.xml

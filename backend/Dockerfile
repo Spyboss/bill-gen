@@ -37,7 +37,7 @@ const connectToDatabase = async () => {\n\
       useUnifiedTopology: true,\n\
     };\n\
     \n\
-    const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/bill-gen";\n\
+    const uri = process.env.MONGODB_URI || "mongodb://localhost:27017/tmr";\n\
     await mongoose.connect(uri, options);\n\
     \n\
     logger.info("Connected to MongoDB successfully");\n\
@@ -487,7 +487,7 @@ app.use((req, res, next) => {\n\
   logger.info(`${req.method} ${req.path} from origin: ${req.headers.origin}`);\n\
   \n\
   // Set CORS headers directly\n\
-  res.header("Access-Control-Allow-Origin", "https://bill-gen-saas.pages.dev");\n\
+  res.header("Access-Control-Allow-Origin", "https://tmr-tradinglanka.pages.dev");\n\
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");\n\
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");\n\
   res.header("Access-Control-Allow-Credentials", "true");\n\
@@ -991,8 +991,8 @@ module.exports = app;' > src/server.js
 # Create .env file
 RUN printf "%s" 'PORT=8080\n\
 NODE_ENV=production\n\
-MONGODB_URI=mongodb+srv://gunawardhanamotorsembilipitiya:0Mu8lMAFac5hMdcP@bill-gen-cluster.riyvl.mongodb.net/bill-gen?retryWrites=true&w=majority&appName=bill-gen-cluster\n\
-CORS_ORIGIN=https://bill-gen-saas.pages.dev,https://web-production-0ed6.up.railway.app' > .env
+MONGODB_URI=mongodb://localhost:27017/tmr\n\
+CORS_ORIGIN=https://tmr-tradinglanka.pages.dev,https://web-production-0ed6.up.railway.app' > .env
 
 # Create a smaller production image
 # Using the same Node.js 22 bookworm-slim variant for the final image

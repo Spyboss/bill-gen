@@ -86,7 +86,7 @@ The backend requires the following environment variables. Copy `backend/.env.exa
 | `NODE_ENV` | Yes | Set to `development` locally and `production` in Railway/Cloud. |
 | `PORT` | No | API port, defaults to `8080`. |
 | `MONGODB_URI` | Yes | MongoDB connection string. Backend fails fast in production if missing. |
-| `MONGODB_DB_NAME` | No | Database name. Defaults to `bill-gen` if unset. |
+| `MONGODB_DB_NAME` | No | Database name. Defaults to `tmr` if unset. |
 | `JWT_SECRET` | Yes | At least 32 characters. Backend warns in dev and fails fast in prod if shorter. |
 | `ENCRYPTION_KEY` | Yes | At least 32 characters. Backend fails fast if shorter. |
 | `REDIS_URL` | Yes (prod) | Redis connection string for token revocation and rate limiting. Optional in dev (uses mock). |
@@ -96,7 +96,7 @@ The backend requires the following environment variables. Copy `backend/.env.exa
 | `LEGACY_REFRESH_ACCEPT` | No | `true`/`false`. Default `true`. Accept legacy refresh tokens stored as raw keys in Redis; sessions migrate on first use. |
 | `EMAIL_VERIFICATION_ENABLED` | No | Feature flag. Default `false`. When `true`, enables email verification endpoints. |
 | `VERIFICATION_TOKEN_TTL_MINUTES` | No | Token expiration in minutes. Default `30`. |
-| `PUBLIC_BASE_URL` | No | Frontend base URL used to build verification links. Default `https://gunawardanamotors.pages.dev`. |
+| `PUBLIC_BASE_URL` | No | Frontend base URL used to build verification links. Default `https://tmr-tradinglanka.pages.dev`. |
 | `EMAIL_PROVIDER` | No | Mailer provider: `resend` or `console`. Default `console`. |
 | `EMAIL_FROM` | No | From address for emails. Default `Gunawardhana Motors <no-reply@gunawardanamotors.lk>`. |
 | `RESEND_API_KEY` | No | API key for Resend provider. |

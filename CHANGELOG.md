@@ -409,3 +409,40 @@ For assistance with upgrades or migration:
 - No changes to existing auth behavior, cookies, or admin flows.
 - Legacy users and sessions remain fully functional; verification disabled by default.
 - Safe to roll back by removing routes and files introduced in this patch.
+## [x.x.x] - 2025-11-11 - 🔄 **Rename bill-gen defaults to tmr (non-breaking)**
+
+### Changed
+- Default MongoDB database name fallbacks from `bill-gen` to `tmr`:
+  - `backend/src/config/database.ts` (runtime default)
+  - `backend/src/scripts/*` (createAdmin, listUsers, addTricycleModel) local defaults
+  - `backend/Dockerfile` sample `.env` and inline helper code
+- Security and auth identifiers updated to match TMR branding:
+  - `backend/src/auth/jwt.strategy.ts` issuer `tmr-api` and audience `tmr-client`
+  - `backend/src/utils/security-monitor.ts` alert `source: 'tmr-api'`
+- Frontend environment example branding:
+  - `frontend/.env.example`: `VITE_APP_NAME=TMR`, `VITE_APP_DESCRIPTION=TMR Billing System`
+- Documentation wording updated from “bill-gen application” to “tmr application” where applicable.
+
+### Notes
+- No production routes were removed or renamed.
+- No database schema changes; compatible with existing MongoDB data.
+- External domains like `bill-gen-production.up.railway.app` remain unchanged to avoid breaking environments.
+## [x.x.x] - 2025-11-11 - 🔧 Brand cleanup: remove remaining bill-gen references
+
+Scope: Safe, non-breaking branding updates; no production routes or database schemas changed.
+
+- Updated fallback CORS origin to `https://tmr-production.up.railway.app` in:
+  - `backend/src/server.ts` (`defaultAllowedOrigins`)
+  - `backend/src/auth/auth.controller.ts` (`defaultAllowedOrigins`)
+  - `backend/railway.toml` (`CORS_ORIGINS` env)
+- Replaced Cloudflare Pages domain `bill-gen-saas.pages.dev` with `tmr-tradinglanka.pages.dev` in `backend/Dockerfile` (CORS header and sample `.env`).
+- Removed `billgen.com` placeholders:
+- `backend/src/routes/gdprRoutes.ts`: secure viewer URL updated to `tmr-tradinglanka.pages.dev/secure-viewer` and contact email set to `privacy@gunawardanamotors.lk`; pseudonymized deletion email set to non-deliverable `deleted.tmr.invalid`.
+  - `backend/.env.example`: `ADMIN_EMAIL` set to `admin@gunawardanamotors.lk`.
+- Documentation updates:
+  - `README.md`, `frontend/README.md`, `docs/api/README.md`: production API URL updated to `https://tmr-production.up.railway.app`.
+
+Notes:
+- Existing data in MongoDB remains compatible; no schema changes.
+- Did not modify any production routes or add new dependencies.
+- Left historical references in previous changelog entries intact for auditability.

@@ -1,11 +1,11 @@
 @echo off
 setlocal
 
-echo === Building Bill Generator Docker Image ===
+echo === Building TMR Docker Image ===
 
 REM Build the Docker image
 echo Building Docker image...
-docker build -t bill-gen:latest .
+docker build -t tmr:latest .
 
 REM Check if build was successful
 if %ERRORLEVEL% NEQ 0 (
@@ -20,14 +20,14 @@ echo Tagging image for deployment...
 for /f "tokens=2-4 delims=/ " %%a in ('date /t') do (
     set datestamp=%%c%%a%%b
 )
-docker tag bill-gen:latest bill-gen:%datestamp%
+docker tag tmr:latest tmr:%datestamp%
 
 echo === Build and Tag Complete ===
 echo To push to a registry, run:
-echo docker push bill-gen:latest
-echo docker push bill-gen:%datestamp%
+echo docker push tmr:latest
+echo docker push tmr:%datestamp%
 
 echo To run the container locally:
-echo docker run -p 8080:8080 bill-gen:latest
+echo docker run -p 8080:8080 tmr:latest
 
 endlocal

@@ -118,7 +118,7 @@ The frontend is deployed on Cloudflare Pages with automatic deployments from Git
 
 **Environment Variables:**
 ```env
-VITE_API_URL=https://bill-gen-production.up.railway.app
+VITE_API_URL=https://tmr-production.up.railway.app
 VITE_APP_NAME=Gunawardhana Motors
 ```
 

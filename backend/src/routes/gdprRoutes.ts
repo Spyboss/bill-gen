@@ -83,12 +83,12 @@ This export contains encrypted data for security purposes:
 ## Security Information
 - The file user-data.enc contains your encrypted data
 - For maximum security, we recommend storing this encryption key separately from the data file
-- To view your data, use our secure data viewer tool at https://billgen.com/secure-viewer
+- To view your data, use our secure data viewer tool at https://tmr-tradinglanka.pages.dev/secure-viewer
 
 Your data can be decrypted using the key provided in README-FIRST.txt.
 
 This data is provided to comply with data portability requirements.
-For questions about your data, please contact privacy@billgen.com.
+For questions about your data, please contact privacy@gunawardanamotors.lk.
 `;
     
     archive.append(readme, { name: 'instructions.md' });
@@ -142,7 +142,7 @@ router.post('/delete', authenticate, async (req: AuthRequest, res: Response) => 
     await Bill.deleteMany({ owner: userId });
     
     // Mark user as deleted instead of actually deleting
-    user.email = `deleted-${userId}@deleted.billgen.com`;
+    user.email = `deleted-${userId}@deleted.tmr.invalid`;
     user.name = 'Deleted User';
     user.role = UserRole.DELETED; // Set to deleted role
     user.refreshToken = undefined;
@@ -173,4 +173,4 @@ router.post('/delete', authenticate, async (req: AuthRequest, res: Response) => 
   }
 });
 
-export default router; 
+export default router;

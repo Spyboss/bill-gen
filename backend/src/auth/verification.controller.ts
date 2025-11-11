@@ -6,7 +6,7 @@ import { createVerificationToken, consumeVerificationToken, isVerificationEnable
 import { sendMail } from '../services/mailer.service.js';
 
 // Helper to build verification link for frontend
-const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL ?? 'https://gunawardanamotors.pages.dev';
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL ?? 'https://tmr-tradinglanka.pages.dev';
 const buildVerifyLink = (email: string, token: string): string => {
   const base = PUBLIC_BASE_URL.replace(/\/$/, '');
   return `${base}/verify?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;

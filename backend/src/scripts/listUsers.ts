@@ -13,7 +13,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 async function listUsers() {
   try {
     // Connect to MongoDB
-    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bill-gen';
+    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tmr';
     
     console.log('Connecting to MongoDB...');
     await mongoose.connect(MONGODB_URI);
@@ -49,4 +49,4 @@ async function listUsers() {
 }
 
 // Run the function
-listUsers(); 
+listUsers();

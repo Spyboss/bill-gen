@@ -254,7 +254,7 @@ class SecurityMonitor {
       await axios.post(this.alertEndpoint, {
         event: 'security-alert',
         severity: activity.type === 'blocked-login' ? 'high' : 'medium',
-        source: 'bill-gen-api',
+        source: 'tmr-api',
         details: activity,
         environment: process.env.NODE_ENV || 'development'
       }, {

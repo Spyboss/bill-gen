@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // MongoDB connection URI from environment variables
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gunawardhanamotorsembilipitiya:0Mu8lMAFac5hMdcP@bill-gen-cluster.riyvl.mongodb.net/bill-gen?retryWrites=true&w=majority&appName=bill-gen-cluster';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tmr';
 
 // Create bike model schema
 const BikeModelSchema = new mongoose.Schema({
@@ -125,4 +125,4 @@ const runMigration = async () => {
 };
 
 // Execute the migration
-runMigration(); 
+runMigration();

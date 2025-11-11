@@ -35,7 +35,7 @@ const cookieOptions = {
 };
 
 // Helper to build verification link for frontend
-const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL ?? 'https://gunawardanamotors.pages.dev';
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL ?? 'https://tmr-tradinglanka.pages.dev';
 const buildVerifyLink = (email: string, token: string): string => {
   const base = PUBLIC_BASE_URL.replace(/\/$/, '');
   return `${base}/verify?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
@@ -47,8 +47,8 @@ const getAllowedOrigins = (req: Request): string[] => {
   if (fromApp && Array.isArray(fromApp) && fromApp.length) return fromApp;
 
   const defaultAllowedOrigins = [
-    'https://bill-gen-production.up.railway.app',
-    'https://gunawardanamotors.pages.dev',
+    'https://tmr-production.up.railway.app',
+    'https://tmr-tradinglanka.pages.dev',
     'http://localhost:5173'
   ];
   const envCorsOrigins = process.env.CORS_ORIGINS;

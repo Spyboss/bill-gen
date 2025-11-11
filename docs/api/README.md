@@ -4,7 +4,7 @@
 
 ## 🌐 Base URL
 
-- **Production**: `https://bill-gen-production.up.railway.app`
+- **Production**: `https://tmr-production.up.railway.app`
 - **Development**: `http://localhost:8080`
 
 ## 🔐 Authentication

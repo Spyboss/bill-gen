@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   api:
-    image: bill-gen:production
-    container_name: bill-gen-api
+    image: tmr:production
+    container_name: tmr-api
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -17,7 +17,7 @@ services:
       retries: 3
       start_period: 5s
     volumes:
-      - bill-gen-logs:/app/logs
+      - tmr-logs:/app/logs
 
 volumes:
-  bill-gen-logs:
+  tmr-logs:

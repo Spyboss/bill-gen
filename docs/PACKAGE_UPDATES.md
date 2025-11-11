@@ -1,6 +1,6 @@
 # Package Updates
 
-This document outlines the changes made to fix deprecated package warnings in the bill-gen application.
+This document outlines the changes made to fix deprecated package warnings in the tmr application.
 
 ## Changes Made
 

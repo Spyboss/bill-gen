@@ -11,8 +11,8 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/bill-gen.git
-   cd bill-gen
+   git clone https://github.com/Spyboss/tmr.git
+   cd tmr
    ```
 
 2. Create branch structure:
@@ -44,7 +44,7 @@
    NODE_ENV=development
 
    # MongoDB settings - update with your MongoDB connection string
-   MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/bill-gen?retryWrites=true&w=majority
+   MONGODB_URI=mongodb+srv://your-username:your-password@your-cluster.mongodb.net/tmr?retryWrites=true&w=majority
 
    # CORS settings - update with your frontend URL
    CORS_ORIGIN=http://localhost:5173
@@ -83,8 +83,8 @@
    VITE_API_URL=http://localhost:8080/api
 
    # Application Configuration
-   VITE_APP_NAME=BillGen
-   VITE_APP_DESCRIPTION=Professional Bill Generation System
+   VITE_APP_NAME=TMR
+   VITE_APP_DESCRIPTION=TMR Billing System
    ```
 
 5. Start the frontend development server:
@@ -136,4 +136,4 @@ If you work across multiple environments (home and workplace):
 - **MongoDB Connection Issues**: Verify network access and whitelist IP addresses in MongoDB Atlas
 - **CORS Errors**: Check that CORS_ORIGIN in backend matches your frontend URL exactly
 - **Module Not Found Errors**: Ensure all dependencies are installed (`npm install` in both directories)
-- **Port Already In Use**: Change the port in .env files if the default ports are already in use 
+- **Port Already In Use**: Change the port in .env files if the default ports are already in use

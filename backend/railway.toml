@@ -19,7 +19,7 @@ health_check_interval_seconds = 10
 [variables]
 NODE_ENV = "production"
 PORT = "8080"
-CORS_ORIGINS = "https://bill-gen-production.up.railway.app,https://gunawardanamotors.pages.dev"
+CORS_ORIGINS = "https://tmr-production.up.railway.app,https://tmr-tradinglanka.pages.dev"
 DB_PATH = "./data/bills.db"
-MONGODB_DB_NAME = "bill-gen"
+MONGODB_DB_NAME = "tmr"
 TEMPLATES_DIR = "./templates"

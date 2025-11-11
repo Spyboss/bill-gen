@@ -35,7 +35,7 @@ const ADMIN_NAME = 'System Admin';
 async function createAdminUser() {
   try {
     // Connect to MongoDB
-    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/bill-gen';
+    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tmr';
     
     console.log('Connecting to MongoDB...');
     await mongoose.connect(MONGODB_URI);
