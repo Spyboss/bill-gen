@@ -1,0 +1,917 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dark Theme Form Input Fixes */
+.dark .ant-input,
+.dark .ant-input-affix-wrapper,
+.dark .ant-select-selector,
+.dark .ant-picker,
+.dark .ant-input-number,
+.dark .ant-input-number-input,
+.dark .ant-mentions,
+.dark .ant-cascader-picker,
+.dark .ant-tree-select-selector {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme input focus states */
+.dark .ant-input:focus,
+.dark .ant-input-affix-wrapper:focus,
+.dark .ant-input-affix-wrapper-focused,
+.dark .ant-select-focused .ant-select-selector,
+.dark .ant-picker:focus,
+.dark .ant-picker-focused,
+.dark .ant-input-number:focus,
+.dark .ant-input-number-focused,
+.dark .ant-mentions:focus,
+.dark .ant-cascader-picker:focus {
+  background-color: #374151 !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme input hover states */
+.dark .ant-input:hover,
+.dark .ant-input-affix-wrapper:hover,
+.dark .ant-select:hover .ant-select-selector,
+.dark .ant-picker:hover,
+.dark .ant-input-number:hover,
+.dark .ant-mentions:hover,
+.dark .ant-cascader-picker:hover {
+  background-color: #374151 !important;
+  border-color: #6b7280 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme placeholder text */
+.dark .ant-input::placeholder,
+.dark .ant-input-affix-wrapper input::placeholder,
+.dark .ant-select-selection-placeholder,
+.dark .ant-picker-input input::placeholder,
+.dark .ant-input-number input::placeholder,
+.dark .ant-mentions textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Dark theme autofill styles */
+.dark .ant-input:-webkit-autofill,
+.dark .ant-input-affix-wrapper input:-webkit-autofill,
+.dark .ant-input-number input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  background-color: #374151 !important;
+}
+
+.dark .ant-input:-webkit-autofill:hover,
+.dark .ant-input-affix-wrapper input:-webkit-autofill:hover,
+.dark .ant-input-number input:-webkit-autofill:hover {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+}
+
+.dark .ant-input:-webkit-autofill:focus,
+.dark .ant-input-affix-wrapper input:-webkit-autofill:focus,
+.dark .ant-input-number input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+}
+
+/* Dark theme textarea */
+.dark .ant-input {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme select dropdown */
+.dark .ant-select-dropdown {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-select-item {
+  color: #f9fafb !important;
+}
+
+.dark .ant-select-item:hover {
+  background-color: #4b5563 !important;
+}
+
+.dark .ant-select-item-option-selected {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* Dark theme date picker */
+.dark .ant-picker-panel-container {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-picker-panel {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-picker-header {
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-picker-header button {
+  color: #f9fafb !important;
+}
+
+.dark .ant-picker-content th,
+.dark .ant-picker-content td {
+  color: #f9fafb !important;
+}
+
+.dark .ant-picker-cell:hover .ant-picker-cell-inner {
+  background-color: #4b5563 !important;
+}
+
+.dark .ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: #3b82f6 !important;
+}
+
+/* Dark theme input number */
+.dark .ant-input-number-handler-wrap {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-input-number-handler {
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-input-number-handler:hover {
+  background-color: #4b5563 !important;
+}
+
+/* Dark theme disabled states */
+.dark .ant-input:disabled,
+.dark .ant-input-affix-wrapper.ant-input-affix-wrapper-disabled,
+.dark .ant-select.ant-select-disabled .ant-select-selector,
+.dark .ant-picker.ant-picker-disabled,
+.dark .ant-input-number.ant-input-number-disabled {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #6b7280 !important;
+}
+
+/* Dark theme form labels */
+.dark .ant-form-item-label > label {
+  color: #f9fafb !important;
+}
+
+/* Dark theme form validation */
+.dark .ant-form-item-has-error .ant-input,
+.dark .ant-form-item-has-error .ant-input-affix-wrapper,
+.dark .ant-form-item-has-error .ant-select-selector,
+.dark .ant-form-item-has-error .ant-picker {
+  border-color: #ef4444 !important;
+}
+
+.dark .ant-form-item-explain-error {
+  color: #fca5a5 !important;
+}
+
+/* Dark theme table styles */
+.dark .ant-table {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-table-thead > tr > th {
+  background-color: #4b5563 !important;
+  color: #f9fafb !important;
+  border-color: #6b7280 !important;
+}
+
+.dark .ant-table-tbody > tr > td {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-table-tbody > tr:hover > td {
+  background-color: #4b5563 !important;
+}
+
+/* Dark theme card styles */
+.dark .ant-card {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .ant-card-head {
+  background-color: #4b5563 !important;
+  border-color: #6b7280 !important;
+}
+
+.dark .ant-card-head-title {
+  color: #f9fafb !important;
+}
+
+.dark .ant-card-body {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Dark theme modal styles */
+.dark .ant-modal-content {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-modal-header {
+  background-color: #4b5563 !important;
+  border-color: #6b7280 !important;
+}
+
+.dark .ant-modal-title {
+  color: #f9fafb !important;
+}
+
+.dark .ant-modal-body {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-modal-footer {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+/* Dark theme button styles */
+.dark .ant-btn {
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark .ant-btn:not(.ant-btn-primary):not(.ant-btn-danger) {
+  background-color: #374151 !important;
+}
+
+.dark .ant-btn:not(.ant-btn-primary):not(.ant-btn-danger):hover {
+  background-color: #4b5563 !important;
+  border-color: #6b7280 !important;
+}
+
+/* Dark theme descriptions styles */
+.dark .ant-descriptions {
+  color: #f9fafb !important;
+}
+
+.dark .ant-descriptions-item-label {
+  color: #d1d5db !important;
+}
+
+.dark .ant-descriptions-item-content {
+  color: #f9fafb !important;
+}
+
+.dark .ant-descriptions-bordered .ant-descriptions-item-label,
+.dark .ant-descriptions-bordered .ant-descriptions-item-content {
+  border-color: #4b5563 !important;
+}
+
+/* Enhanced autofill styles for better contrast */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #374151 inset !important;
+  -webkit-text-fill-color: #f9fafb !important;
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Dark theme for native form elements */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="tel"],
+.dark input[type="url"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="tel"]:focus,
+.dark input[type="url"]:focus,
+.dark input[type="search"]:focus,
+.dark textarea:focus,
+.dark select:focus {
+  background-color: #374151 !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Dark theme for custom utility classes */
+.dark .input {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+.dark .label {
+  color: #f9fafb !important;
+}
+
+@layer base {
+  body {
+    @apply text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+  }
+
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+}
+
+/* Professional Business PDF Report Styles */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    box-sizing: border-box !important;
+  }
+
+  @page {
+    margin: 0 !important;
+    padding: 0 !important;
+    size: A4 portrait !important;
+    /* Kill browser headers and footers */
+    @top-left { content: none !important; }
+    @top-center { content: none !important; }
+    @top-right { content: none !important; }
+    @bottom-left { content: none !important; }
+    @bottom-center { content: none !important; }
+    @bottom-right { content: none !important; }
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #333 !important;
+    background: white !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+
+  .inventory-report-container {
+    padding: 0.3in !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .professional-report {
+    max-width: none !important;
+    width: 100% !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    page-break-inside: avoid !important;
+    height: calc(100vh - 0.6in) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Ultra-Compact Header */
+  .report-header {
+    margin-bottom: 8px !important;
+    padding: 5px 0 !important;
+    background: none !important;
+    border-bottom: 1px solid #1890ff !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .company-logo-section {
+    margin-bottom: 2px !important;
+  }
+
+  .company-name {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    margin-bottom: 1px !important;
+    color: #1890ff !important;
+    letter-spacing: 0.2px !important;
+  }
+
+  .company-subtitle {
+    font-size: 7px !important;
+    color: #666 !important;
+    margin-bottom: 3px !important;
+    font-style: italic !important;
+  }
+
+  .report-title-section {
+    margin-top: 3px !important;
+  }
+
+  .report-title {
+    font-size: 11px !important;
+    font-weight: bold !important;
+    margin-bottom: 1px !important;
+    color: #333 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.3px !important;
+  }
+
+  .report-date {
+    font-size: 6px !important;
+    color: #666 !important;
+    font-weight: normal !important;
+  }
+
+  .ant-divider {
+    margin: 8px 0 !important;
+    border-color: #e8e8e8 !important;
+  }
+
+  /* Professional Section Titles */
+  .section-title {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    margin-bottom: 12px !important;
+    margin-top: 20px !important;
+    color: #1890ff !important;
+    border-bottom: 2px solid #1890ff !important;
+    padding-bottom: 5px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  /* Ultra-Compact Executive Summary */
+  .executive-summary {
+    margin-bottom: 8px !important;
+    page-break-inside: avoid !important;
+    flex-shrink: 0 !important;
+  }
+
+  .executive-summary .ant-row {
+    margin: 0 -2px !important;
+  }
+
+  .executive-summary .ant-col {
+    padding: 0 2px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .kpi-card {
+    margin-bottom: 0 !important;
+    border: 1px solid #e8e8e8 !important;
+    border-radius: 2px !important;
+    box-shadow: none !important;
+    background: #f8f9fa !important;
+  }
+
+  .kpi-card .ant-card-body {
+    padding: 4px !important;
+    text-align: center !important;
+  }
+
+  .kpi-card .ant-statistic-title {
+    font-size: 6px !important;
+    font-weight: bold !important;
+    margin-bottom: 1px !important;
+    color: #666 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.2px !important;
+  }
+
+  .kpi-card .ant-statistic-content {
+    font-size: 9px !important;
+    font-weight: bold !important;
+  }
+
+  .kpi-card .ant-statistic-content-value {
+    font-size: 9px !important;
+    font-weight: bold !important;
+  }
+
+  .kpi-card .ant-statistic-content-suffix {
+    font-size: 7px !important;
+    margin-left: 1px !important;
+  }
+
+  /* Compact Insights Section */
+  .insights-section {
+    margin-bottom: 10px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .insights-compact {
+    margin: 0 !important;
+  }
+
+  .insight-item {
+    margin-bottom: 3px !important;
+    padding: 3px 6px !important;
+    font-size: 8px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Hide category section on print to save space */
+  .category-section {
+    display: none !important;
+  }
+
+  /* Ultra-Compact Data Table */
+  .model-performance-section {
+    margin-bottom: 5px !important;
+    page-break-inside: avoid !important;
+    flex: 1 !important;
+    overflow: hidden !important;
+  }
+
+  .performance-table-card {
+    border: 1px solid #e8e8e8 !important;
+    border-radius: 2px !important;
+    box-shadow: none !important;
+    background: white !important;
+    height: 100% !important;
+  }
+
+  .performance-table-card .ant-card-body {
+    padding: 3px !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .performance-table .ant-table {
+    font-size: 7px !important;
+    margin: 0 !important;
+    border-collapse: collapse !important;
+  }
+
+  .performance-table .ant-table-container {
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 2px !important;
+  }
+
+  .performance-table .ant-table-thead > tr > th {
+    font-size: 7px !important;
+    font-weight: bold !important;
+    padding: 2px 3px !important;
+    background: #1890ff !important;
+    color: white !important;
+    border: 1px solid #1890ff !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1px !important;
+  }
+
+  .performance-table .ant-table-tbody > tr > td {
+    font-size: 7px !important;
+    padding: 2px 3px !important;
+    border: 1px solid #e8e8e8 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+
+  .performance-table .ant-table-tbody > tr:nth-child(even) {
+    background: #f8f9fa !important;
+  }
+
+  .performance-table .ant-table-tbody > tr:hover {
+    background: #e3f2fd !important;
+  }
+
+  .model-tags .ant-tag {
+    font-size: 8px !important;
+    padding: 2px 6px !important;
+    margin: 2px !important;
+    line-height: 1.2 !important;
+    border-radius: 4px !important;
+    font-weight: bold !important;
+  }
+
+  .status-tags .ant-tag {
+    font-size: 8px !important;
+    padding: 2px 6px !important;
+    margin: 2px !important;
+    line-height: 1.2 !important;
+    border-radius: 4px !important;
+    font-weight: bold !important;
+  }
+
+  .ant-progress {
+    font-size: 8px !important;
+    height: 12px !important;
+  }
+
+  .ant-progress-text {
+    font-size: 8px !important;
+    font-weight: bold !important;
+  }
+
+  .ant-progress-inner {
+    height: 10px !important;
+    border-radius: 5px !important;
+  }
+
+  /* Ultra-Minimal Footer */
+  .report-footer {
+    margin-top: 5px !important;
+    padding-top: 3px !important;
+    border-top: 1px solid #e8e8e8 !important;
+    font-size: 5px !important;
+    color: #666 !important;
+    text-align: center !important;
+    page-break-inside: avoid !important;
+    flex-shrink: 0 !important;
+  }
+
+  .footer-content {
+    line-height: 1.1 !important;
+  }
+
+  /* Page Break Management */
+  .professional-report {
+    page-break-inside: auto !important;
+    overflow: visible !important;
+  }
+
+  .executive-summary,
+  .model-performance-section {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Hide screen-only elements */
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Ensure proper spacing */
+  .ant-card {
+    margin-bottom: 0 !important;
+  }
+
+  .ant-table {
+    margin: 0 !important;
+  }
+
+  .ant-row {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+  }
+
+  .ant-col {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  /* Ensure table fits and looks professional */
+  .performance-table .ant-table-scroll {
+    overflow: visible !important;
+  }
+
+  .performance-table table {
+    width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+  }
+
+  /* Professional print-specific adjustments */
+  .performance-table .ant-table-thead > tr > th:first-child {
+    text-align: left !important;
+  }
+
+  .performance-table .ant-table-tbody > tr > td:first-child {
+    text-align: left !important;
+    font-weight: bold !important;
+  }
+}
+
+/* Screen styles for professional appearance */
+.inventory-report-container {
+  @apply max-w-7xl mx-auto;
+}
+
+.professional-report {
+  @apply bg-white rounded-lg shadow-sm;
+  min-height: 100vh;
+}
+
+.report-header {
+  @apply bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-t-lg;
+}
+
+.company-name {
+  @apply text-blue-600;
+}
+
+.company-subtitle {
+  @apply text-gray-600 text-sm;
+}
+
+.report-title {
+  @apply text-gray-800;
+}
+
+.report-date {
+  @apply text-gray-500;
+}
+
+.section-title {
+  @apply text-gray-800 font-semibold border-b border-gray-200 pb-2;
+}
+
+.kpi-card {
+  @apply hover:shadow-md transition-shadow duration-200;
+}
+
+.kpi-card .ant-statistic-title {
+  @apply text-gray-600 font-medium;
+}
+
+.insight-alert {
+  @apply rounded-lg;
+}
+
+.category-card {
+  @apply hover:shadow-md transition-shadow duration-200;
+}
+
+.category-stats .stat-item {
+  @apply flex justify-between items-center py-1;
+}
+
+.performance-table-card {
+  @apply shadow-sm;
+}
+
+.performance-table .ant-table-thead > tr > th {
+  @apply bg-gray-50 font-semibold;
+}
+
+.model-tags {
+  @apply mt-1;
+}
+
+.status-tags {
+  @apply space-x-1;
+}
+
+.status-tags .ant-tag {
+  @apply mb-1;
+}
+
+.report-footer {
+  @apply bg-gray-50 p-4 rounded-b-lg;
+}
+
+/* Dark theme support for report */
+.dark .professional-report {
+  @apply bg-gray-800 text-gray-100;
+}
+
+.dark .report-header {
+  @apply bg-gradient-to-r from-gray-700 to-gray-600;
+}
+
+.dark .company-name {
+  @apply text-blue-400;
+}
+
+.dark .company-subtitle {
+  @apply text-gray-100;
+  font-weight: bold !important;
+  font-size: 14px !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+}
+
+.dark .section-title {
+  @apply text-gray-200 border-gray-600;
+}
+
+.dark .report-footer {
+  @apply bg-gray-700;
+}
+
+/* Dark mode insights and cards */
+.dark .kpi-card {
+  @apply bg-gray-700 border-gray-600;
+}
+
+.dark .kpi-card .ant-statistic-title {
+  @apply text-gray-300;
+}
+
+.dark .kpi-card .ant-statistic-content {
+  @apply text-gray-100;
+}
+
+.dark .performance-table-card {
+  @apply bg-gray-700 border-gray-600;
+}
+
+.dark .performance-table .ant-table {
+  @apply bg-gray-700;
+}
+
+.dark .performance-table .ant-table-thead > tr > th {
+  @apply bg-blue-600 text-white;
+}
+
+.dark .performance-table .ant-table-tbody > tr > td {
+  @apply bg-gray-700 text-gray-100 border-gray-600;
+}
+
+.dark .performance-table .ant-table-tbody > tr:nth-child(even) > td {
+  @apply bg-gray-600;
+}
+
+.dark .dark-mode-insight {
+  /* Handled by inline styles for dynamic color calculation */
+}
+
+/* Dark mode print styles */
+@media print {
+  .dark .company-subtitle {
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 11px !important;
+    text-shadow: none !important;
+  }
+
+  .dark .kpi-card {
+    background: #f8f9fa !important;
+    border-color: #e8e8e8 !important;
+  }
+
+  .dark .kpi-card .ant-statistic-title {
+    color: #666 !important;
+  }
+
+  .dark .kpi-card .ant-statistic-content {
+    color: #333 !important;
+  }
+
+  .dark .performance-table-card {
+    background: white !important;
+    border-color: #e8e8e8 !important;
+  }
+
+  .dark .performance-table .ant-table-thead > tr > th {
+    background: #1890ff !important;
+    color: white !important;
+  }
+
+  .dark .performance-table .ant-table-tbody > tr > td {
+    background: white !important;
+    color: #333 !important;
+    border-color: #e8e8e8 !important;
+  }
+
+  .dark .performance-table .ant-table-tbody > tr:nth-child(even) > td {
+    background: #f8f9fa !important;
+  }
+}

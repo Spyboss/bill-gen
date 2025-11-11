@@ -1,0 +1,25 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cp .npmrc ~/.npmrc && npm install --no-package-lock && bash ./build.sh"
+
+[deploy]
+startCommand = "ls -la && ls -la dist && ls -la dist/utils && node -r dotenv/config dist/server.js"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[[services]]
+name = "web"
+port = 8080
+internal_port = 8080
+protocol = "http"
+health_check_path = "/api/health"
+health_check_timeout_seconds = 10
+health_check_interval_seconds = 10
+
+[variables]
+NODE_ENV = "production"
+PORT = "8080"
+CORS_ORIGINS = "https://bill-gen-production.up.railway.app,https://gunawardanamotors.pages.dev"
+DB_PATH = "./data/bills.db"
+MONGODB_DB_NAME = "bill-gen"
+TEMPLATES_DIR = "./templates"
