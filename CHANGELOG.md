@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No schema changes, route removals, or new dependencies.
 - Compatible with existing MongoDB data; environment-only configuration drives behavior.
 - This entry documents production readiness and deployment steps performed prior to push.
+- Railway healthcheck: if CORS blocks requests without an `Origin` header, set `ALLOW_NO_ORIGIN=true` in Railway environment (or leave it unset) so `/api/health` passes. This preserves stricter CORS for browser requests while allowing platform health probes.
+ - Email (Resend): set `EMAIL_PROVIDER=resend`, `RESEND_API_KEY`, and ensure `EMAIL_FROM` is either `email@example.com` or `Name <email@example.com>` (no backticks, quotes, or trailing commas). Use an address on a domain verified in Resend. For quick testing only, `onboarding@resend.dev` works; do not use it in production.
 
 ## [x.x.x] - 2025-11-10 - ✉️ Email Verification Integration (non-breaking)
 
