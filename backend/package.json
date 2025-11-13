@@ -55,7 +55,7 @@
     "mongoose": "^8.1.1",
     "morgan": "^1.10.1",
     "pdfkit": "^0.14.0",
-    "rate-limiter-flexible": "^7.0.0",
+    "rate-limiter-flexible": "^7.4.0",
     "resend": "^2.1.0",
     "rimraf": "^4.4.1",
     "ts-node": "^10.9.2",
