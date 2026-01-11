@@ -31,7 +31,7 @@
     "frontend"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.10.2",
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "@modelcontextprotocol/server-memory": "^2025.4.25",
     "@types/axios": "^0.9.36",
     "axios": "^1.11.0",
